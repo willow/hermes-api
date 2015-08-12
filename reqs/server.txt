@@ -1,0 +1,4 @@
+-r common.txt
+dj-database-url==0.3.0
+newrelic==2.54.0.41
+raven==5.5.0

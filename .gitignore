@@ -1,0 +1,63 @@
+*.py[cod]
+
+# C extensions
+*.so
+
+# Packages
+*.egg
+*.egg-info
+dist
+build
+eggs
+parts
+bin
+var
+sdist
+develop-eggs
+.installed.cfg
+lib
+lib64
+__pycache__
+/**/logs/*.log
+/**/logs/*.log.*
+
+
+# Installer logs
+pip-log.txt
+
+# Unit test / coverage reports
+.coverage
+.tox
+nosetests.xml
+
+ENV
+
+__MACOSX
+.DS_Store
+
+# Translations
+*.mo
+
+# Mr Developer
+.mr.developer.cfg
+.project
+.pydevproject
+
+default.db
+*.db-journal
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/dictionaries/
+.idea/misc.xml
+.idea/dataSources.ids
+.idea/dataSources.xml
+.idea/sqlDataSources.xml
+.idea/dynamic.xml
+.idea/uiDesigner.xml
+.scrapy
+.idea/vagrant.xml
+.vagrant
+
+dev_override.py
+
+debug_file.py
