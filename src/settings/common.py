@@ -1,16 +1,11 @@
 """Common settings and globals."""
 from os.path import abspath, dirname
-from sys import path
 # http://stackoverflow.com/questions/21631878/celery-is-there-a-way-to-write-custom-json-encoder-decoder
 
 # ######### PATH CONFIGURATION
 # Absolute filesystem path to the Django project directory:
 
 DJANGO_ROOT = dirname(dirname(abspath(__file__)))
-
-# Add our project to our pythonpath, this way we don't need to type our project
-# name in our dotted import paths:
-path.append(DJANGO_ROOT)
 # ######### END PATH CONFIGURATION
 
 # ######### GENERAL CONFIGURATION
@@ -74,12 +69,19 @@ LOCAL_APPS = (
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 ########## END APP CONFIGURATION
 
-
 ########## LOGGING CONFIGURATION
-
 LOGGING = {
   'version': 1,
   'disable_existing_loggers': True,
+  'formatters': {
+    'local_standard': {
+      'format': '[%(asctime)s - %(name)s.%(funcName)s - %(levelname)s] %(message)s', # the 'Xs' is used for padding. To include the bracket in the string, I think we'll need a custom formatter.
+      'datefmt': '%Y-%m-%d %H:%M:%S' # timezone is utc. I believe this is because django overrides the localtime to use TIME_ZONE = 'UTC'
+    },
+    'standard': {
+      'format': '[%(name)s.%(funcName)s - %(levelname)s] %(message)s',
+    },
+  },
   'handlers': {}
 }
 ########## END LOGGING CONFIGURATION
@@ -87,3 +89,16 @@ LOGGING = {
 ########### EXTERNAL API CONFIGURATION
 HTTP_TIMEOUT = 10  # seconds
 ########## END EXTERNAL API CONFIGURATION
+
+########### REDIS QUEUE CONFIGURATION
+# The actual config of the redis cache location is env-specific. However, the queues themselves are app specific.
+# Within our app, we'll decide whether to use high, default, low.
+RQ_QUEUES = {
+  'high': {
+    'USE_REDIS_CACHE': 'default',
+  },
+  'default': {
+    'USE_REDIS_CACHE': 'default',
+  }
+}
+########## END REDIS QUEUE CONFIGURATION

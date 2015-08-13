@@ -24,7 +24,7 @@ CONN_MAX_AGE = 60
 redis_url = urllib.parse.urlparse(os.environ.get('REDISCLOUD_URL'))
 CACHES = {
   'default': {
-    'BACKEND': 'redis_cache.RedisCache',
+    'BACKEND': 'django_redis.cache.RedisCache',
     'LOCATION': '%s:%s' % (redis_url.hostname, redis_url.port),
     'OPTIONS': {
       'PASSWORD': redis_url.password,
@@ -39,8 +39,14 @@ APP_LOG_LEVEL = os.environ.get('APP_LOG_LEVEL', 'INFO')
 
 LOGGING['handlers']['console_handler'] = {
   'level': APP_LOG_LEVEL,
-  'class': 'logging.StreamHandler',
-  'stream': sys.stdout  # http://stackoverflow.com/questions/11866322/heroku-logs-for-django-projects-missing-errors
+  'class': 'rq.utils.ColorizingStreamHandler',
+  'stream': sys.stdout,  # http://stackoverflow.com/questions/11866322/heroku-logs-for-django-projects-missing-errors
+  'formatter': 'standard',
+}
+
+LOGGING['handlers']['exception_handler'] = {
+  'level': 'ERROR',
+  'class': 'raven.contrib.django.raven_compat.handlers.SentryHandler',
 }
 
 app_logger = {
@@ -55,13 +61,11 @@ LOGGING['loggers'] = {
     'level': 'WARNING',
     'propagate': True
   },
-  'django.request': {
-    'handlers': ['console_handler'],
-    'level': 'WARNING',
-    'propagate': False
-  },
   'django.db.backends': {
     'level': APP_LOG_LEVEL,
+  },
+  'rq.worker': {
+    'level': 'INFO'
   },
   'src.aggregates': app_logger,
   'src.apps': app_logger,

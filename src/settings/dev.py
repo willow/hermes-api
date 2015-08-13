@@ -34,10 +34,13 @@ DATABASES = {
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#caches
 CACHES = {
   'default': {
-    'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+    'BACKEND': 'django_redis.cache.RedisCache',
+    'LOCATION': 'localhost:6379',
+    'OPTIONS': {
+      'DB': 0,
+    }
   }
 }
-
 ########## END CACHE CONFIGURATION
 
 ########## LOGGING CONFIGURATION
@@ -45,7 +48,8 @@ CACHES = {
 
 LOGGING['handlers']['console_handler'] = {
   'level': 'DEBUG',
-  'class': 'logging.StreamHandler'
+  'class': 'rq.utils.ColorizingStreamHandler', # the diff between '()' and 'class' is that '()' could be a class OR some func. Refer to logging/config.py#695
+  'formatter': 'local_standard',
 }
 
 LOGGING['handlers']['file_handler'] = {
@@ -55,15 +59,7 @@ LOGGING['handlers']['file_handler'] = {
   'maxBytes': 1024 * 1024 * 5,  # 5 MB
   'backupCount': 5,
   'encoding': 'UTF-8',
-}
-
-LOGGING['handlers']['request_handler'] = {
-  'level': 'DEBUG',
-  'class': 'logging.handlers.RotatingFileHandler',
-  'filename': 'logs/django_request.log',
-  'maxBytes': 1024 * 1024 * 5,  # 5 MB
-  'backupCount': 5,
-  'encoding': 'UTF-8',
+  'formatter': 'local_standard'
 }
 
 LOGGING['handlers']['exception_handler'] = {
@@ -73,6 +69,7 @@ LOGGING['handlers']['exception_handler'] = {
   'maxBytes': 1024 * 1024 * 5,  # 5 MB
   'backupCount': 5,
   'encoding': 'UTF-8',
+  'formatter': 'local_standard'
 }
 
 app_logger = {
@@ -82,19 +79,9 @@ app_logger = {
 }
 
 LOGGING['loggers'] = {
-  '': {
-    'handlers': ['console_handler', 'file_handler', 'exception_handler'],
-    'level': 'DEBUG',
-    'propagate': True
-  },
-  'django.request': {
-    'handlers': ['request_handler', 'exception_handler', 'console_handler'],
-    'level': 'DEBUG',
-    'propagate': False
-  },
-  'django.db.backends': {
-    'level': 'INFO',
-  },
+  '': app_logger,
+  'django.db.backends': dict(app_logger, **{'level': 'INFO'}),
+  'rq.worker': dict(app_logger, **{'level': 'DEBUG'}),
   'src.aggregates': app_logger,
   'src.apps': app_logger,
   'src.libs': app_logger,
