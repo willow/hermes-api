@@ -66,6 +66,7 @@ LOCAL_APPS = (
 
   # APPS
   'src.apps.auth',
+  'src.apps.read_model',
 
   # LIBS
   'src.libs.common_domain',

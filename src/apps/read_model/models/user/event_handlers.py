@@ -1,5 +1,6 @@
 from django.dispatch import receiver
 from src.aggregates.user.signals import created
+from src.apps.read_model.models.user.services import user_tasks
 from src.libs.common_domain.decorators import event_idempotent
 
 
@@ -7,7 +8,12 @@ from src.libs.common_domain.decorators import event_idempotent
 @receiver(created)
 def user_created_callback(**kwargs):
   user_uid = kwargs.pop('user_uid')
-  user_attrs = kwargs.pop('user_attrs')
+  user_name = kwargs.pop('user_name')
+  user_nickname = kwargs.pop('user_nickname')
+  user_email = kwargs.pop('user_email')
+  user_picture = kwargs.pop('user_picture')
 
-  auth0_id = user_attrs['auth0']['user_id']
-  # auth0_tasks.save_user_id_in_auth0_task.delay(auth0_id, user_uid)
+  user_tasks.save_user_info_in_firebase_task.delay(
+    user_uid, user_name, user_nickname,
+    user_email, user_picture
+  )

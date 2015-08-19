@@ -10,6 +10,8 @@ from .common import *
 
 ########## DEBUG CONFIGURATION
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#debug
+from src.libs.text_utils.text_parser import str2bool
+
 DEBUG = False
 ########## END DEBUG CONFIGURATION
 
@@ -67,6 +69,12 @@ SECRET_KEY = os.environ['SECRET_KEY']
 ########## END SECRET CONFIGURATION
 
 ########### AUTH CONFIGURATION
-AUTH0_TOKEN = os.environ['AUTH0_TOKEN']
-AUTH0_DOMAIN = os.environ['AUTH0_DOMAIN']
+AUTH0_SECRET = os.environ['AUTH0_SECRET']
+AUTH0_APP = os.environ['AUTH0_APP']
 ########## END AUTH CONFIGURATION
+
+########### FIREBASE CONFIGURATION
+FIREBASE_SECRET = os.environ['FIREBASE_SECRET']
+FIREBASE_APP = os.environ['FIREBASE_APP']
+FIREBASE_DEBUG = str2bool(os.environ['FIREBASE_DEBUG'])
+########## END FIREBASE CONFIGURATION
