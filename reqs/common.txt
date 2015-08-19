@@ -8,3 +8,4 @@ rq==0.5.4
 django-rq==0.8.0
 jsonfield==1.0.3
 requests==2.7.0
+python-firebase==1.2
