@@ -59,10 +59,12 @@ THIRD_PARTY_APPS = (
 
 LOCAL_APPS = (
   # AGGREGATES
+  'src.aggregates.agreement',
 
   # APPS
 
   # LIBS
+  'src.libs.common_domain',
 )
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
@@ -75,8 +77,10 @@ LOGGING = {
   'disable_existing_loggers': True,
   'formatters': {
     'local_standard': {
-      'format': '[%(asctime)s - %(name)s.%(funcName)s - %(levelname)s] %(message)s', # the 'Xs' is used for padding. To include the bracket in the string, I think we'll need a custom formatter.
-      'datefmt': '%Y-%m-%d %H:%M:%S' # timezone is utc. I believe this is because django overrides the localtime to use TIME_ZONE = 'UTC'
+      'format': '[%(asctime)s - %(name)s.%(funcName)s - %(levelname)s] %(message)s',
+    # the 'Xs' is used for padding. To include the bracket in the string, I think we'll need a custom formatter.
+      'datefmt': '%Y-%m-%d %H:%M:%S'
+    # timezone is utc. I believe this is because django overrides the localtime to use TIME_ZONE = 'UTC'
     },
     'standard': {
       'format': '[%(name)s.%(funcName)s - %(levelname)s] %(message)s',

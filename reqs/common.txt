@@ -6,3 +6,4 @@ django-redis==4.2.0
 redis==2.10.3
 rq==0.5.4
 django-rq==0.8.0
+jsonfield==1.0.3

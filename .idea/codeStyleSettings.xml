@@ -31,7 +31,6 @@
           </indentOptions>
         </codeStyleSettings>
         <codeStyleSettings language="Python">
-          <option name="WRAP_LONG_LINES" value="true" />
           <indentOptions>
             <option name="INDENT_SIZE" value="2" />
             <option name="CONTINUATION_INDENT_SIZE" value="4" />
