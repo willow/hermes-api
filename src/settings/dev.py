@@ -48,7 +48,8 @@ CACHES = {
 
 LOGGING['handlers']['console_handler'] = {
   'level': 'DEBUG',
-  'class': 'rq.utils.ColorizingStreamHandler', # the diff between '()' and 'class' is that '()' could be a class OR some func. Refer to logging/config.py#695
+  'class': 'rq.utils.ColorizingStreamHandler',
+  # the diff between '()' and 'class' is that '()' could be a class OR some func. Refer to logging/config.py#695
   'formatter': 'local_standard',
 }
 
@@ -79,11 +80,11 @@ app_logger = {
 }
 
 LOGGING['loggers'] = {
-  '': app_logger,
-  'django.db.backends': dict(app_logger, **{'level': 'INFO'}),
-  'rq.worker': dict(app_logger, **{'level': 'DEBUG'}),
-  'src.aggregates': app_logger,
-  'src.apps': app_logger,
-  'src.libs': app_logger,
+  '': app_logger
 }
 ########## END LOGGING CONFIGURATION
+
+########### AUTH CONFIGURATION
+AUTH0_TOKEN = 'Auth0 Token'
+AUTH0_DOMAIN = 'Auth0 Domain'
+########## END AUTH CONFIGURATION

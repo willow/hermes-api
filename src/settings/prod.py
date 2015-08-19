@@ -56,20 +56,7 @@ app_logger = {
 }
 
 LOGGING['loggers'] = {
-  '': {
-    'handlers': ['console_handler'],
-    'level': 'WARNING',
-    'propagate': True
-  },
-  'django.db.backends': {
-    'level': APP_LOG_LEVEL,
-  },
-  'rq.worker': {
-    'level': 'INFO'
-  },
-  'src.aggregates': app_logger,
-  'src.apps': app_logger,
-  'src.libs': app_logger,
+  '': app_logger
 }
 
 ########## END LOGGING CONFIGURATION
@@ -78,3 +65,8 @@ LOGGING['loggers'] = {
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#secret-key
 SECRET_KEY = os.environ['SECRET_KEY']
 ########## END SECRET CONFIGURATION
+
+########### AUTH CONFIGURATION
+AUTH0_TOKEN = os.environ['AUTH0_TOKEN']
+AUTH0_DOMAIN = os.environ['AUTH0_DOMAIN']
+########## END AUTH CONFIGURATION

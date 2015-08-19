@@ -1,8 +1,6 @@
 from src.aggregates.agreement.services import agreement_service
 import logging
 from django_rq import job
-import rq
-import django_rq
 from src.libs.python_utils.logging.logging_utils import log_wrapper
 
 logger = logging.getLogger(__name__)
@@ -15,5 +13,5 @@ def create_agreement_task(agreement_name):
     agreement_name
   )
 
-  with log_wrapper(logger.debug, *log_message):
+  with log_wrapper(logger.info, *log_message):
     return agreement_service.create_agreement(agreement_name).agreement_uid

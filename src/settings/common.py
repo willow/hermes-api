@@ -2,13 +2,13 @@
 from os.path import abspath, dirname
 # http://stackoverflow.com/questions/21631878/celery-is-there-a-way-to-write-custom-json-encoder-decoder
 
-# ######### PATH CONFIGURATION
+########## PATH CONFIGURATION
 # Absolute filesystem path to the Django project directory:
 
 DJANGO_ROOT = dirname(dirname(abspath(__file__)))
-# ######### END PATH CONFIGURATION
+########## END PATH CONFIGURATION
 
-# ######### GENERAL CONFIGURATION
+########## GENERAL CONFIGURATION
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#time-zone
 TIME_ZONE = 'UTC'
 
@@ -23,7 +23,9 @@ USE_L10N = True
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#use-tz
 USE_TZ = True
-# ######### END GENERAL CONFIGURATION
+
+APP_NAME = 'hermes'
+########## END GENERAL CONFIGURATION
 
 ########## MIDDLEWARE CONFIGURATION
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#middleware-classes
@@ -60,8 +62,10 @@ THIRD_PARTY_APPS = (
 LOCAL_APPS = (
   # AGGREGATES
   'src.aggregates.agreement',
+  'src.aggregates.user',
 
   # APPS
+  'src.apps.auth',
 
   # LIBS
   'src.libs.common_domain',
@@ -78,9 +82,9 @@ LOGGING = {
   'formatters': {
     'local_standard': {
       'format': '[%(asctime)s - %(name)s.%(funcName)s - %(levelname)s] %(message)s',
-    # the 'Xs' is used for padding. To include the bracket in the string, I think we'll need a custom formatter.
+      # the 'Xs' is used for padding. To include the bracket in the string, I think we'll need a custom formatter.
       'datefmt': '%Y-%m-%d %H:%M:%S'
-    # timezone is utc. I believe this is because django overrides the localtime to use TIME_ZONE = 'UTC'
+      # timezone is utc. I believe this is because django overrides the localtime to use TIME_ZONE = 'UTC'
     },
     'standard': {
       'format': '[%(name)s.%(funcName)s - %(levelname)s] %(message)s',
