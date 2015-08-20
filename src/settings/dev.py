@@ -86,7 +86,7 @@ LOGGING['loggers'] = {
 
 ########### AUTH CONFIGURATION
 AUTH0_SECRET = 'Auth0 Token'
-AUTH0_APP = 'Auth0 App Name'
+AUTH0_DOMAIN = 'Auth0 App Name'
 ########## END AUTH CONFIGURATION
 
 ########### FIREBASE CONFIGURATION

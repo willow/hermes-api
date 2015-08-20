@@ -70,7 +70,7 @@ SECRET_KEY = os.environ['SECRET_KEY']
 
 ########### AUTH CONFIGURATION
 AUTH0_SECRET = os.environ['AUTH0_SECRET']
-AUTH0_APP = os.environ['AUTH0_APP']
+AUTH0_DOMAIN = os.environ['AUTH0_DOMAIN']
 ########## END AUTH CONFIGURATION
 
 ########### FIREBASE CONFIGURATION

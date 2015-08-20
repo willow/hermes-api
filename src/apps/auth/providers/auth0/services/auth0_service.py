@@ -8,14 +8,14 @@ client = requests.Session()
 # For some reason, we can only use tokens generated from: https://ask.auth0.com/t/creating-user-using-api-v2-client-is-not-global-response/1032
 # because that is how you access a global client id. wtf!?
 AUTH0_SECRET = settings.AUTH0_SECRET
-AUTH0_APP = settings.AUTH0_APP
+AUTH0_DOMAIN = settings.AUTH0_DOMAIN
 
 APP_NAME = settings.APP_NAME
 
 
 def save_user_id_in_auth0(auth0_user_id, user_uid):
-  url = 'https://{auth0_app}.auth0.com/api/v2/users/{user_id}'.format(
-    auth0_app=AUTH0_APP,
+  url = 'https://{auth0_domain}.auth0.com/api/v2/users/{user_id}'.format(
+    auth0_domain=AUTH0_DOMAIN,
     user_id=auth0_user_id
   )
 
