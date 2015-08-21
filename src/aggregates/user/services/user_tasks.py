@@ -13,5 +13,7 @@ def create_user_task(user_name, user_nickname, user_email, user_picture, user_at
     user_name
   )
 
+  print('wtf')
+
   with log_wrapper(logger.debug, *log_message):
-    return user_service.create_user(user_name, user_nickname, user_email, user_picture, user_attrs).user_uid
+    return user_service.create_user(user_name, user_nickname, user_email, user_picture, user_attrs).user_id

@@ -1,19 +1,22 @@
 """Production settings and globals."""
 
-import dj_database_url
 import os
-
 import sys
-import urllib.parse
 
+import dj_database_url
+from src.libs.text_utils.text_parser import str2bool
 from .common import *
+
 
 ########## DEBUG CONFIGURATION
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#debug
-from src.libs.text_utils.text_parser import str2bool
-
 DEBUG = False
 ########## END DEBUG CONFIGURATION
+
+########## ALLOWED HOSTS CONFIGURATION
+# See: https://docs.djangoproject.com/en/dev/ref/settings/#allowed-hosts
+ALLOWED_HOSTS = ['.herokuapp.com', 'qa.api.startwillow.com']
+########## END ALLOWED HOST CONFIGURATION
 
 # ######### DATABASE CONFIGURATION
 DATABASES = {'default': dj_database_url.config()}
@@ -23,15 +26,10 @@ CONN_MAX_AGE = 60
 ########## END DATABASE CONFIGURATION
 
 ########## CACHE CONFIGURATION
-redis_url = urllib.parse.urlparse(os.environ.get('REDISCLOUD_URL'))
 CACHES = {
   'default': {
     'BACKEND': 'django_redis.cache.RedisCache',
-    'LOCATION': '%s:%s' % (redis_url.hostname, redis_url.port),
-    'OPTIONS': {
-      'PASSWORD': redis_url.password,
-      'DB': 0,
-    }
+    'LOCATION': os.environ['REDISCLOUD_URL'],
   }
 }
 ########## END CACHE CONFIGURATION

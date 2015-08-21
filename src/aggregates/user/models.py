@@ -9,7 +9,7 @@ from src.libs.python_utils.id.id_utils import generate_id
 
 
 class User(models.Model, AggregateBase):
-  user_uid = models.CharField(max_length=6, unique=True)
+  user_id = models.CharField(max_length=6, unique=True)
   user_name = models.CharField(max_length=2400)
   user_nickname = models.CharField(max_length=2400)
   user_email = models.EmailField(unique=True)
@@ -40,7 +40,7 @@ class User(models.Model, AggregateBase):
 
     ret_val._raise_event(
       created,
-      user_uid=generate_id(),
+      user_id=generate_id(),
       user_name=user_name,
       user_nickname=user_nickname,
       user_email=user_email,
@@ -52,7 +52,7 @@ class User(models.Model, AggregateBase):
     return ret_val
 
   def _handle_created_event(self, **kwargs):
-    self.user_uid = kwargs['user_uid']
+    self.user_id = kwargs['user_id']
     self.user_name = kwargs['user_name']
     self.user_nickname = kwargs['user_nickname']
     self.user_email = kwargs['user_email']
@@ -61,7 +61,7 @@ class User(models.Model, AggregateBase):
     self.system_created_date = kwargs['system_created_date']
 
   def __str__(self):
-    return 'User {uid}: {name}'.format(uid=self.user_uid, name=self.user_name)
+    return 'User {uid}: {name}'.format(uid=self.user_id, name=self.user_name)
 
   def save(self, internal=False, *args, **kwargs):
     if internal:
@@ -71,7 +71,7 @@ class User(models.Model, AggregateBase):
         for event in self._uncommitted_events:
           Event.objects.create(name=event.event_fq_name, version=event.version, data=event.kwargs)
 
-      self.send_events()
+        self.send_events()
     else:
       from src.aggregates.user.services import user_service
 

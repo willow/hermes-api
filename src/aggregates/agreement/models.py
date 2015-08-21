@@ -7,7 +7,7 @@ from src.libs.python_utils.id.id_utils import generate_id
 
 
 class Agreement(models.Model, AggregateBase):
-  agreement_uid = models.CharField(max_length=6, unique=True)
+  agreement_id = models.CharField(max_length=6, unique=True)
   agreement_name = models.CharField(max_length=2400)
 
   @classmethod
@@ -19,14 +19,14 @@ class Agreement(models.Model, AggregateBase):
 
     ret_val._raise_event(
       created,
-      agreement_uid=generate_id(),
+      agreement_id=generate_id(),
       agreement_name=agreement_name,
     )
 
     return ret_val
 
   def _handle_created_event(self, **kwargs):
-    self.agreement_uid = kwargs['agreement_uid']
+    self.agreement_id = kwargs['agreement_id']
     self.agreement_name = kwargs['agreement_name']
 
   def __str__(self):
@@ -40,7 +40,7 @@ class Agreement(models.Model, AggregateBase):
         for event in self._uncommitted_events:
           Event.objects.create(name=event.event_fq_name, version=event.version, data=event.kwargs)
 
-      self.send_events()
+        self.send_events()
     else:
       from src.aggregates.agreement.services import agreement_service
 

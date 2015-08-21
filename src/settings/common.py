@@ -1,11 +1,14 @@
 """Common settings and globals."""
-from os.path import abspath, dirname
+from os.path import abspath, dirname, basename
 # http://stackoverflow.com/questions/21631878/celery-is-there-a-way-to-write-custom-json-encoder-decoder
 
 ########## PATH CONFIGURATION
 # Absolute filesystem path to the Django project directory:
 
 DJANGO_ROOT = dirname(dirname(abspath(__file__)))
+
+# Site name:
+SITE_NAME = basename(DJANGO_ROOT)
 ########## END PATH CONFIGURATION
 
 ########## GENERAL CONFIGURATION
@@ -26,6 +29,11 @@ USE_TZ = True
 
 APP_NAME = 'hermes'
 ########## END GENERAL CONFIGURATION
+
+########## URL CONFIGURATION
+# See: https://docs.djangoproject.com/en/dev/ref/settings/#root-urlconf
+ROOT_URLCONF = '%s.urls' % SITE_NAME
+########## END URL CONFIGURATION
 
 ########## MIDDLEWARE CONFIGURATION
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#middleware-classes
@@ -55,6 +63,7 @@ THIRD_PARTY_APPS = (
   # Analytics
 
   # Rest API
+  'rest_framework',
 
   # Headers
 )
@@ -65,6 +74,7 @@ LOCAL_APPS = (
   'src.aggregates.user',
 
   # APPS
+  'src.apps.api',
   'src.apps.auth',
   'src.apps.read_model',
 

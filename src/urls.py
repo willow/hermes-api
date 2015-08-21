@@ -1,16 +1,13 @@
-from django.contrib import admin
-from django.conf.urls import patterns, include, url
+from django.conf.urls import include, url
+from src.apps.api.urls import urlpatterns as api_urls
 
-admin.autodiscover()
+urlpatterns = [
+
+]
 
 # region Admin Urls
 # See: https://docs.djangoproject.com/en/dev/topics/http/urls/
-urlpatterns = patterns(
-  '',
-  # Admin panel and documentation:
-  url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
-  url(r'^admin/', include(admin.site.urls)),
-)
+
 # endregion
 
 # region Lib Urls
@@ -18,5 +15,7 @@ urlpatterns = patterns(
 # endregion
 
 # region App Urls
-
+urlpatterns.extend([
+  url(r'^api/', include(api_urls)),
+])
 # endregion
