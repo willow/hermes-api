@@ -1,11 +1,9 @@
 from django.db import models, transaction
-from django.utils import timezone
 from jsonfield import JSONField
 
 from src.aggregates.user.signals import created
 from src.libs.common_domain.aggregate_base import AggregateBase
 from src.libs.common_domain.models import Event
-from src.libs.python_utils.id.id_utils import generate_id
 
 
 class User(models.Model, AggregateBase):
@@ -18,11 +16,14 @@ class User(models.Model, AggregateBase):
   system_created_date = models.DateTimeField()
 
   @classmethod
-  def _from_attrs(cls, user_name, user_nickname, user_email, user_picture, user_attrs):
+  def _from_attrs(cls, user_id, user_name, user_nickname, user_email, user_picture, user_attrs, system_created_date):
     ret_val = cls()
 
+    if not user_id:
+      raise TypeError("user_id is required")
+
     if not user_name:
-      raise TypeError("user_name is required")
+        raise TypeError("user_name is required")
 
     if not user_nickname:
       raise TypeError("user_nickname is required")
@@ -38,15 +39,18 @@ class User(models.Model, AggregateBase):
     if not auth0_user_id:
       raise TypeError("auth0_user_id is required")
 
+    if not system_created_date:
+      raise TypeError("system_created_date is required")
+
     ret_val._raise_event(
       created,
-      user_id=generate_id(),
+      user_id=user_id,
       user_name=user_name,
       user_nickname=user_nickname,
       user_email=user_email,
       user_picture=user_picture,
       user_attrs=user_attrs,
-      system_created_date=timezone.now()
+      system_created_date=system_created_date
     )
 
     return ret_val

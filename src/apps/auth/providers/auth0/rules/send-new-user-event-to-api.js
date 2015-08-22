@@ -7,20 +7,28 @@ function (user, context, callback) {
   if (context.protocol !== 'delegation') {
     // they are logging in, not renewing, refreshing, obtaining firebase token, etc.
 
-    if (!user.signed_up) {
+    var appMetadata = user.app_metadata || {};
+    appMetadata.hermes = appMetadata.hermes || {};
+
+    if (!appMetadata.hermes.user_id) {
       // this is a new user
-      var userId = user.user_id;
-      console.log('Beginning: Rule: Send New User Event to API. User Id:', userId);
+      var auth0UserId = user.user_id;
+      console.log('Beginning: Rule: Send New User Event to API. User Id:', auth0UserId);
+
+      var randomize = require('randomatic');
+      appMetadata.hermes.user_id = randomize('aA0', 6);
 
       var identity = {
+        "user_id": appMetadata.hermes.user_id,
         "user_email": user.email,
         "user_name": user.name,
         "user_nickname": user.nickname,
         "user_picture": user.picture,
-        "user_attrs": {"auth0": {"user_id": userId}}
+        "user_attrs": {"auth0": {"user_id": auth0UserId}}
       };
 
-      var postURL = "https://hermes-api-qa.herokuapp.com/api/users/";
+      var apiUrl = configuration.HERMES_API_DOMAIN;
+      var postURL = "https://" + apiUrl + "/api/users/";
       var params = {
         "url": postURL,
         "json": identity
@@ -35,14 +43,14 @@ function (user, context, callback) {
 
         if (err) return callback(err);
 
-        // `signed_up` will be persisted into app_metadata.
-        // it's probably better to explicitly state this. consider a use case the initial sign up process takes > 1 minute (background processing, imports).
-        // multiple attempts to sign in during this time frame should not result in extra api calls, indicating new sign ups. if they did try to sign in
-        // they'd get errors anyway (api, unique constraints). really, they should see the sign up process indicator and receive no errors.
-        user.persistent.signed_up = true;
-
-        console.log('Completed: Rule: Send New User Event to API. User Id:', userId);
-        return callback(null, user, context);
+        // persist the app_metadata update - https://auth0.com/docs/rules/metadata-in-rules#4
+        auth0.users.updateAppMetadata(user.user_id, appMetadata)
+            .then(function (newUser) { // get the most up-to-date data. newUser is the param: https://auth0.com/docs/rules/metadata-in-rules#4
+              console.log('Completed: Rule: Send New User Event to API. User Id:', auth0UserId);
+              // it's important to return newUser here in the callback. not exactly sure why, but when we don't do this
+              // then other rules that run within auth0 won't have access to the app_metadata.
+              return callback(null, newUser, context);
+            }, callback);
       };
 
       request.post(params, f);

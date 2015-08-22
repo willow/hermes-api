@@ -2,7 +2,6 @@
 from __future__ import unicode_literals
 
 from django.db import models, migrations
-import src.libs.common_domain.aggregate_base
 
 
 class Migration(migrations.Migration):
@@ -12,13 +11,13 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Agreement',
+            name='PotentialAgreement',
             fields=[
                 ('id', models.AutoField(primary_key=True, auto_created=True, verbose_name='ID', serialize=False)),
-                ('agreement_id', models.CharField(max_length=6, unique=True)),
-                ('agreement_name', models.CharField(max_length=2400)),
+                ('potential_agreement_id', models.CharField(max_length=6, unique=True)),
+                ('potential_agreement_name', models.CharField(max_length=2400)),
                 ('system_created_date', models.DateTimeField()),
+                ('completed', models.BooleanField()),
             ],
-            bases=(models.Model, src.libs.common_domain.aggregate_base.AggregateBase),
         ),
     ]

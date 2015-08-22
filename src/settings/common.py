@@ -26,8 +26,6 @@ USE_L10N = True
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#use-tz
 USE_TZ = True
-
-APP_NAME = 'hermes'
 ########## END GENERAL CONFIGURATION
 
 ########## URL CONFIGURATION
@@ -74,6 +72,7 @@ LOCAL_APPS = (
   'src.aggregates.user',
 
   # APPS
+  'src.apps.agreement_domain',
   'src.apps.api',
   'src.apps.auth',
   'src.apps.read_model',

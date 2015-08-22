@@ -1,4 +1,4 @@
-from src.aggregates.user import factories
+from src.aggregates.user.services import user_factory
 from src.aggregates.user.models import User
 
 
@@ -14,7 +14,9 @@ def get_user_from_email(user_email):
   return User.objects.get(user_email=user_email)
 
 
-def create_user(user_name, user_nickname, user_email, user_picture, user_attrs):
-  user = factories.create_user(user_name, user_nickname, user_email, user_picture, user_attrs)
+# this method should be considered internal and no public api call should be allowed to pass in the user_id
+# refer to https://app.asana.com/0/10235149247655/46476660493804
+def create_user(user_id, user_name, user_nickname, user_email, user_picture, user_attrs):
+  user = user_factory.create_user(user_id, user_name, user_nickname, user_email, user_picture, user_attrs)
   save_or_update(user)
   return user
