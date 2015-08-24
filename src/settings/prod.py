@@ -18,7 +18,7 @@ DEBUG = False
 ALLOWED_HOSTS = ['.herokuapp.com', 'qa.api.startwillow.com']
 ########## END ALLOWED HOST CONFIGURATION
 
-# ######### DATABASE CONFIGURATION
+########## DATABASE CONFIGURATION
 DATABASES = {'default': dj_database_url.config()}
 
 # See: https://docs.djangoproject.com/en/dev/ref/databases/#persistent-database-connections
@@ -37,6 +37,8 @@ CACHES = {
 ########## LOGGING CONFIGURATION
 APP_LOG_LEVEL = os.environ.get('APP_LOG_LEVEL', 'INFO')
 
+RAYGUN_APIKEY = os.environ['RAYGUN_APIKEY']
+
 LOGGING['handlers']['console_handler'] = {
   'level': APP_LOG_LEVEL,
   'class': 'rq.utils.ColorizingStreamHandler',
@@ -46,7 +48,8 @@ LOGGING['handlers']['console_handler'] = {
 
 LOGGING['handlers']['exception_handler'] = {
   'level': 'ERROR',
-  'class': 'raven.contrib.django.raven_compat.handlers.SentryHandler',
+  'class': 'raygun4py.raygunprovider.RaygunHandler',
+  'apiKey': RAYGUN_APIKEY
 }
 
 app_logger = {
@@ -56,9 +59,10 @@ app_logger = {
 }
 
 LOGGING['loggers'] = {
-  '': app_logger
+  '': app_logger,
+  'django.request': app_logger,
+  # django.request doesn't propagate by default https://docs.djangoproject.com/en/dev/topics/logging/#django-request
 }
-
 ########## END LOGGING CONFIGURATION
 
 ########## SECRET CONFIGURATION

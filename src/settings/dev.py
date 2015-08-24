@@ -80,7 +80,9 @@ app_logger = {
 }
 
 LOGGING['loggers'] = {
-  '': app_logger
+  '': app_logger,
+  'django.request': app_logger,
+  # django.request doesn't propagate by default https://docs.djangoproject.com/en/dev/topics/logging/#django-request
 }
 ########## END LOGGING CONFIGURATION
 
