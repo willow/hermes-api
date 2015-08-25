@@ -2,7 +2,8 @@ import logging
 
 from django.db import IntegrityError
 from rest_framework import status
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, parser_classes
+from rest_framework.parsers import FileUploadParser
 
 from rest_framework.response import Response
 
@@ -13,11 +14,12 @@ logger = logging.getLogger(__name__)
 
 
 @api_view(['POST'])
-def user_view(request):
-  x = y
+@parser_classes((FileUploadParser,))
+def agreement_view(request):
   try:
-    # this method should be considered internal and no public api call should be allowed to pass in the user_id
+    # this method should be considered internal and no public api call should be allowed to pass in a file for an agreement
     # refer to https://app.asana.com/0/10235149247655/46476660493804
+    
     user = user_service.create_user(**request.data)
     user_data = UserSerializer(user).data
   except Exception as e:
