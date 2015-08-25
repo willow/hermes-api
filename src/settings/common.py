@@ -75,7 +75,7 @@ LOCAL_APPS = (
   'src.apps.agreement_domain',
   'src.apps.api',
   'src.apps.auth',
-  'src.apps.read_model',
+  'src.apps.realtime',
 
   # LIBS
   'src.libs.common_domain',
