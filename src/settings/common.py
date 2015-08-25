@@ -72,6 +72,7 @@ LOCAL_APPS = (
   'src.aggregates.user',
 
   # APPS
+  'src.apps.agreement_creation',
   'src.apps.agreement_domain',
   'src.apps.api',
   'src.apps.auth',

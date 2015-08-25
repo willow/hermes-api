@@ -1,0 +1,1 @@
+default_app_config = 'src.apps.agreement_creation.agreement_creation_config.AgreementCreationConfig'
