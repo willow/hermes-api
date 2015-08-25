@@ -15,10 +15,3 @@ def create_agreement_task(agreement_name):
 
   with log_wrapper(logger.info, *log_message):
     return agreement_service.create_agreement(agreement_name).agreement_id
-
-
-@job('high')
-def error_task(a):
-  c = a
-  logger.info('test from error')
-  x = y

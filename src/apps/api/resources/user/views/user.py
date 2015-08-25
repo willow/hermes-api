@@ -14,7 +14,6 @@ logger = logging.getLogger(__name__)
 
 @api_view(['POST'])
 def user_view(request):
-  x = y
   try:
     # this method should be considered internal and no public api call should be allowed to pass in the user_id
     # refer to https://app.asana.com/0/10235149247655/46476660493804
