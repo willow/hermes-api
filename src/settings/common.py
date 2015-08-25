@@ -1,9 +1,11 @@
 """Common settings and globals."""
+import logging
 from os.path import abspath, dirname, basename
 # http://stackoverflow.com/questions/21631878/celery-is-there-a-way-to-write-custom-json-encoder-decoder
 
 ########## PATH CONFIGURATION
 # Absolute filesystem path to the Django project directory:
+from src.libs.python_utils.logging.rq_formatter import RqFormatter
 
 DJANGO_ROOT = dirname(dirname(abspath(__file__)))
 
@@ -92,13 +94,17 @@ LOGGING = {
   'disable_existing_loggers': True,
   'formatters': {
     'local_standard': {
-      'format': '[%(asctime)s - %(name)s.%(funcName)s - %(levelname)s] %(message)s',
+      '()': RqFormatter,
+      'job_format': '[%(asctime)s - %(name)s - %(job_name)s - %(job_queue)s - %(job_id)s - %(levelname)s] %(message)s',
+      'no_job_format': '[%(asctime)s - %(name)s - %(levelname)s] %(message)s',
       # the 'Xs' is used for padding. To include the bracket in the string, I think we'll need a custom formatter.
       'datefmt': '%Y-%m-%d %H:%M:%S'
       # timezone is utc. I believe this is because django overrides the localtime to use TIME_ZONE = 'UTC'
     },
     'standard': {
-      'format': '[%(name)s.%(funcName)s - %(levelname)s] %(message)s',
+      '()': RqFormatter,
+      'job_format': '[%(name)s - %(job_name)s - %(job_queue)s - %(job_id)s - %(levelname)s] %(message)s',
+      'no_job_format': '[%(name)s - %(levelname)s] %(message)s',
     },
   },
   'handlers': {}

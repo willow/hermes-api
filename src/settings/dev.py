@@ -50,6 +50,7 @@ LOGGING['handlers']['console_handler'] = {
   'level': 'DEBUG',
   'class': 'rq.utils.ColorizingStreamHandler',
   # the diff between '()' and 'class' is that '()' could be a class OR some func. Refer to logging/config.py#695
+  # http://stackoverflow.com/questions/9212228/using-custom-formatter-classes-with-pythons-logging-config-module
   'formatter': 'local_standard',
 }
 
