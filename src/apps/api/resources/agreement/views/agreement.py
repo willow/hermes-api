@@ -19,7 +19,10 @@ def agreement_view(request):
   try:
     # this method should be considered internal and no public api call should be allowed to pass in a file for an agreement
     # refer to https://app.asana.com/0/10235149247655/46476660493804
-    
+
+    # get file and process it, validate it. capture info, like filename and other metadata.
+    # if all goes well, submit to s3.
+
     user = user_service.create_user(**request.data)
     user_data = UserSerializer(user).data
   except Exception as e:
