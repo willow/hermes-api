@@ -1,8 +1,9 @@
 from rest_framework import serializers
-from src.aggregates.user.models import User
+
+from src.apps.agreement_domain.models import PotentialAgreement
 
 
-class UserSerializer(serializers.ModelSerializer):
+class PotentialAgreementSerializer(serializers.ModelSerializer):
   class Meta:
-    model = User
+    model = PotentialAgreement
     exclude = ('id', 'system_created_date')

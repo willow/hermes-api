@@ -8,29 +8,44 @@ from rest_framework.parsers import FileUploadParser
 from rest_framework.response import Response
 
 from src.aggregates.user.services import user_service
+from src.apps.agreement_domain.models import PotentialAgreement
+from src.apps.agreement_domain.services import potential_agreement_service
+from src.apps.agreement_translation.services import agreement_translation_service
 from src.apps.api.resources.user.serializers.user import UserSerializer
+from django.conf import settings
+
+constants = settings.CONSTANTS
 
 logger = logging.getLogger(__name__)
 
 
-@api_view(['POST'])
+@api_view(['POST', 'PUT'])
 @parser_classes((FileUploadParser,))
 def agreement_view(request):
-  try:
-    # this method should be considered internal and no public api call should be allowed to pass in a file for an agreement
-    # refer to https://app.asana.com/0/10235149247655/46476660493804
+  # this method should be considered internal and no public api call should be allowed to pass in a file for an agreement
+  # refer to https://app.asana.com/0/10235149247655/46476660493804
 
-    # get file and process it, validate it. capture info, like filename and other metadata.
-    # if all goes well, submit to s3.
+  if request.method == 'POST':
+    try:
+      # get file and process it, validate it. capture info, like filename and other metadata.
+      # if all goes well, submit to s3.
+      contract_file = request.FILES['contract']
 
-    user = user_service.create_user(**request.data)
-    user_data = UserSerializer(user).data
-  except Exception as e:
-    logger.debug("Error creating user: {0}".format(request.data), exc_info=True)
+      agreement_data = agreement_translation_service.get_agreement_info_from_file(contract_file)
+      potential_agreement_data = {'potential_agreement_name': agreement_data[constants.AGREEMENT_NAME]}
 
-    status_result = status.HTTP_409_CONFLICT if isinstance(e, IntegrityError) else status.HTTP_400_BAD_REQUEST
-    response = Response("Error creating user %s " % e, status_result)
+      potential_agreement = PotentialAgreement(**potential_agreement_data)
+      potential_agreement_service.save_or_update(potential_agreement)
+      potential_agreement_serializer_data = UserSerializer(potential_agreement).data
+
+    except Exception as e:
+      logger.debug("Error creating agreement: {0}".format(request.data), exc_info=True)
+      response = Response("Error creating agreement %s " % e, status.HTTP_400_BAD_REQUEST)
+
+    else:
+      response = Response(potential_agreement_serializer_data, status.HTTP_201_CREATED)
+
   else:
-    response = Response(user_data, status.HTTP_201_CREATED)
+    response = Response("Error", status.HTTP_400_BAD_REQUEST)
 
   return response
