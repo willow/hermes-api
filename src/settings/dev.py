@@ -15,6 +15,12 @@ DEBUG = True
 SECRET_KEY = r"yfs9ltn_k(^z3%o2rh=bnn5z-midcr4q52bz&jg!b^&jtxf$gk"
 ########## END SECRET CONFIGURATION
 
+########## CORS CONFIGURATION
+CORS_ORIGIN_REGEX_WHITELIST = (
+  '^http://localhost:\d{1,4}/?',
+)
+########## END CORS CONFIGURATION
+
 ########## DATABASE CONFIGURATION
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#databases
 DATABASES = {

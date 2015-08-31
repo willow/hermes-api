@@ -1,5 +1,6 @@
 """Common settings and globals."""
-import logging
+import src.settings.constants as constants
+
 from os.path import abspath, dirname, basename
 # http://stackoverflow.com/questions/21631878/celery-is-there-a-way-to-write-custom-json-encoder-decoder
 
@@ -28,6 +29,8 @@ USE_L10N = True
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#use-tz
 USE_TZ = True
+
+CONSTANTS = constants
 ########## END GENERAL CONFIGURATION
 
 ########## URL CONFIGURATION
@@ -40,6 +43,7 @@ ROOT_URLCONF = '%s.urls' % SITE_NAME
 MIDDLEWARE_CLASSES = (
   # Use GZip compression to reduce bandwidth.
   'django.middleware.gzip.GZipMiddleware',
+  'corsheaders.middleware.CorsMiddleware',
 )
 ########## END MIDDLEWARE CONFIGURATION
 

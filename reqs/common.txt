@@ -10,4 +10,5 @@ jsonfield==1.0.3
 requests==2.7.0
 python-firebase==1.2
 djangorestframework==3.2.2
+django-cors-headers==1.1.0
 boto3==1.1.2
