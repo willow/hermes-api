@@ -6,8 +6,6 @@ class PotentialAgreement(models.Model):
   potential_agreement_name = models.CharField(max_length=2400)
   system_created_date = models.DateTimeField()
 
-  completed = models.BooleanField()
-
   def __str__(self):
     return 'PotentialAgreement #' + str(self.potential_agreement_id) + ': ' + self.potential_agreement_name
 

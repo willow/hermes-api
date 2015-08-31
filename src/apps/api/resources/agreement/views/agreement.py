@@ -1,18 +1,18 @@
 import logging
 
-from django.db import IntegrityError
+from django.utils import timezone
 from rest_framework import status
 from rest_framework.decorators import api_view, parser_classes
 from rest_framework.parsers import FileUploadParser
-
 from rest_framework.response import Response
+from django.conf import settings
 
-from src.aggregates.user.services import user_service
+from src.libs.python_utils.id.id_utils import generate_id
+
 from src.apps.agreement_domain.models import PotentialAgreement
 from src.apps.agreement_domain.services import potential_agreement_service
 from src.apps.agreement_translation.services import agreement_translation_service
-from src.apps.api.resources.user.serializers.user import UserSerializer
-from django.conf import settings
+from src.apps.api.resources.agreement.serializers.agreement import PotentialAgreementSerializer
 
 constants = settings.CONSTANTS
 
@@ -32,11 +32,15 @@ def agreement_view(request):
       contract_file = request.FILES['contract']
 
       agreement_data = agreement_translation_service.get_agreement_info_from_file(contract_file)
-      potential_agreement_data = {'potential_agreement_name': agreement_data[constants.AGREEMENT_NAME]}
+      potential_agreement_data = {
+        'potential_agreement_id': generate_id(),
+        'potential_agreement_name': agreement_data[constants.AGREEMENT_NAME],
+        'system_created_date': timezone.now()
+      }
 
       potential_agreement = PotentialAgreement(**potential_agreement_data)
       potential_agreement_service.save_or_update(potential_agreement)
-      potential_agreement_serializer_data = UserSerializer(potential_agreement).data
+      potential_agreement_serializer_data = PotentialAgreementSerializer(potential_agreement).data
 
     except Exception as e:
       logger.debug("Error creating agreement: {0}".format(request.data), exc_info=True)

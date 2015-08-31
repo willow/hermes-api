@@ -38,6 +38,20 @@ CONSTANTS = constants
 ROOT_URLCONF = '%s.urls' % SITE_NAME
 ########## END URL CONFIGURATION
 
+########## CORS CONFIGURATION
+CORS_ALLOW_HEADERS = (
+  'x-requested-with',
+  'content-type',
+  'accept',
+  'origin',
+  'authorization',
+  'x-csrftoken',
+  'user-agent',
+  'accept-encoding',
+  'Cache-Control'  # dropzone requires this header
+)
+########## END CORS CONFIGURATION
+
 ########## MIDDLEWARE CONFIGURATION
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#middleware-classes
 MIDDLEWARE_CLASSES = (
@@ -70,6 +84,7 @@ THIRD_PARTY_APPS = (
   'rest_framework',
 
   # Headers
+  'corsheaders',
 )
 
 LOCAL_APPS = (
