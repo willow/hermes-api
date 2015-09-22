@@ -14,8 +14,8 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Agreement',
             fields=[
-                ('id', models.AutoField(primary_key=True, auto_created=True, verbose_name='ID', serialize=False)),
-                ('agreement_id', models.CharField(max_length=6, unique=True)),
+                ('id', models.AutoField(primary_key=True, serialize=False, auto_created=True, verbose_name='ID')),
+                ('agreement_id', models.CharField(unique=True, max_length=8)),
                 ('agreement_name', models.CharField(max_length=2400)),
                 ('system_created_date', models.DateTimeField()),
             ],

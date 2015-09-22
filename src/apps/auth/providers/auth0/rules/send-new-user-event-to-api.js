@@ -16,7 +16,7 @@ function (user, context, callback) {
       console.log('Beginning: Rule: Send New User Event to API. User Id:', auth0UserId);
 
       var randomize = require('randomatic');
-      appMetadata.hermes.user_id = randomize('aA0', 6);
+      appMetadata.hermes.user_id = randomize('aA0', 8);
 
       var identity = {
         "user_id": appMetadata.hermes.user_id,

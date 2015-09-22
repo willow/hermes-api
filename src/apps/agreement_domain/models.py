@@ -2,7 +2,7 @@ from django.db import models, transaction
 
 
 class PotentialAgreement(models.Model):
-  potential_agreement_id = models.CharField(max_length=6, unique=True)
+  potential_agreement_id = models.CharField(max_length=8, unique=True)
   potential_agreement_name = models.CharField(max_length=2400)
   system_created_date = models.DateTimeField()
 

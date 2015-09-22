@@ -7,7 +7,7 @@ from src.libs.common_domain.models import Event
 
 
 class User(models.Model, AggregateBase):
-  user_id = models.CharField(max_length=6, unique=True)
+  user_id = models.CharField(max_length=8, unique=True)
   user_name = models.CharField(max_length=2400)
   user_nickname = models.CharField(max_length=2400)
   user_email = models.EmailField(unique=True)

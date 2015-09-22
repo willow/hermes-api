@@ -6,7 +6,7 @@ from src.libs.common_domain.models import Event
 
 
 class Agreement(models.Model, AggregateBase):
-  agreement_id = models.CharField(max_length=6, unique=True)
+  agreement_id = models.CharField(max_length=8, unique=True)
   agreement_name = models.CharField(max_length=2400)
   system_created_date = models.DateTimeField()
 

@@ -13,8 +13,8 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='PotentialAgreement',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, verbose_name='ID', serialize=False)),
-                ('potential_agreement_id', models.CharField(max_length=6, unique=True)),
+                ('id', models.AutoField(verbose_name='ID', serialize=False, primary_key=True, auto_created=True)),
+                ('potential_agreement_id', models.CharField(unique=True, max_length=8)),
                 ('potential_agreement_name', models.CharField(max_length=2400)),
                 ('system_created_date', models.DateTimeField()),
             ],
