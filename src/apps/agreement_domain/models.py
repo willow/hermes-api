@@ -1,9 +1,11 @@
 from django.db import models, transaction
+from jsonfield import JSONField
 
 
 class PotentialAgreement(models.Model):
   potential_agreement_id = models.CharField(max_length=8, unique=True)
   potential_agreement_name = models.CharField(max_length=2400)
+  potential_agreement_artifacts = JSONField(default=list)
   system_created_date = models.DateTimeField()
 
   def __str__(self):

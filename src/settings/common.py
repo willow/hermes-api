@@ -33,6 +33,14 @@ USE_TZ = True
 CONSTANTS = constants
 ########## END GENERAL CONFIGURATION
 
+########## STORAGE CONFIGURATION
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
+AWS_HEADERS = {
+  'Cache-Control': 'max-age=31536000',  # 1 year
+}
+AWS_DEFAULT_ACL = None # Not public by default
+########## END STORAGE CONFIGURATION
+
 ########## URL CONFIGURATION
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#root-urlconf
 ROOT_URLCONF = '%s.urls' % SITE_NAME
@@ -75,6 +83,9 @@ THIRD_PARTY_APPS = (
 
   # Asynchronous task queue:
   'django_rq',
+
+  # Storage
+  'storages',
 
   # Database
 

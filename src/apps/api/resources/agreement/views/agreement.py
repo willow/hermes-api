@@ -38,6 +38,8 @@ def agreement_view(request):
         'system_created_date': timezone.now()
       }
 
+      
+
       potential_agreement = PotentialAgreement(**potential_agreement_data)
       potential_agreement_service.save_or_update(potential_agreement)
       potential_agreement_serializer_data = PotentialAgreementSerializer(potential_agreement).data
