@@ -35,9 +35,11 @@ CONSTANTS = constants
 
 ########## STORAGE CONFIGURATION
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
+
 AWS_HEADERS = {
   'Cache-Control': 'max-age=31536000',  # 1 year
 }
+
 AWS_DEFAULT_ACL = None # Not public by default
 ########## END STORAGE CONFIGURATION
 
@@ -101,11 +103,11 @@ THIRD_PARTY_APPS = (
 LOCAL_APPS = (
   # AGGREGATES
   'src.aggregates.agreement',
+  'src.aggregates.potential_agreement',
   'src.aggregates.user',
 
   # APPS
   'src.apps.agreement_translation',
-  'src.apps.agreement_domain',
   'src.apps.api',
   'src.apps.auth',
   'src.apps.realtime',

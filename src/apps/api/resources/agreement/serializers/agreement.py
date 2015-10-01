@@ -1,6 +1,5 @@
 from rest_framework import serializers
-
-from src.apps.agreement_domain.models import PotentialAgreement
+from src.aggregates.potential_agreement.models import PotentialAgreement
 
 
 class PotentialAgreementSerializer(serializers.ModelSerializer):
