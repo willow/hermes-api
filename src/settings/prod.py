@@ -4,6 +4,7 @@ import os
 import sys
 
 import dj_database_url
+from src.libs.text_utils.encoding.encoding_utils import base64decode
 from src.libs.text_utils.text_parser import str2bool
 from .common import *
 
@@ -65,10 +66,22 @@ LOGGING['loggers'] = {
 }
 ########## END LOGGING CONFIGURATION
 
-########## SECRET CONFIGURATION
+########## AUTH CONFIGURATION
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#secret-key
 SECRET_KEY = os.environ['SECRET_KEY']
-########## END SECRET CONFIGURATION
+
+JWT_SECRET = os.environ['JWT_SECRET']
+JWT_SECRET = base64decode(JWT_SECRET)
+JWT_AUDIENCE = os.environ['JWT_AUDIENCE']
+########## END AUTH CONFIGURATION
+
+########## DRF CONFIGURATION
+
+JWT_AUTH = {
+  'JWT_SECRET_KEY': JWT_SECRET,
+  'JWT_AUDIENCE': JWT_AUDIENCE,
+}
+########## END DRF CONFIGURATION
 
 ########### FIREBASE CONFIGURATION
 FIREBASE_SECRET = os.environ['FIREBASE_SECRET']

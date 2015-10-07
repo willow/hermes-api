@@ -40,13 +40,17 @@ AWS_HEADERS = {
   'Cache-Control': 'max-age=31536000',  # 1 year
 }
 
-AWS_DEFAULT_ACL = None # Not public by default
+AWS_DEFAULT_ACL = None  # Not public by default
 ########## END STORAGE CONFIGURATION
 
 ########## URL CONFIGURATION
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#root-urlconf
 ROOT_URLCONF = '%s.urls' % SITE_NAME
 ########## END URL CONFIGURATION
+
+########## AUTH CONFIGURATION
+AUTH_USER_MODEL = 'user.User'
+########## END AUTH CONFIGURATION
 
 ########## CORS CONFIGURATION
 CORS_ALLOW_HEADERS = (
@@ -61,6 +65,17 @@ CORS_ALLOW_HEADERS = (
   'Cache-Control'  # dropzone requires this header
 )
 ########## END CORS CONFIGURATION
+
+########## DRF CONFIGURATION
+REST_FRAMEWORK = {
+  'DEFAULT_PERMISSION_CLASSES': (
+    'rest_framework.permissions.IsAuthenticated',
+  ),
+  'DEFAULT_AUTHENTICATION_CLASSES': (
+    'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+  ),
+}
+########## END DRF CONFIGURATION
 
 ########## MIDDLEWARE CONFIGURATION
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#middleware-classes

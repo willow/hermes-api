@@ -7,13 +7,26 @@ from .common import *
 
 ########## DEBUG CONFIGURATION
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#debug
+from src.libs.text_utils.encoding.encoding_utils import base64decode
+
 DEBUG = True
 ########## END DEBUG CONFIGURATION
 
-########## SECRET CONFIGURATION
+########## AUTH CONFIGURATION
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#secret-key
 SECRET_KEY = r"yfs9ltn_k(^z3%o2rh=bnn5z-midcr4q52bz&jg!b^&jtxf$gk"
-########## END SECRET CONFIGURATION
+
+JWT_SECRET = 'JWT Secret+++++++++++'  # this string prevent padding exception
+JWT_SECRET = base64decode(JWT_SECRET)
+JWT_AUDIENCE = 'JWT Audience'
+########## END AUTH CONFIGURATION
+
+########## DRF CONFIGURATION
+JWT_AUTH = {
+  'JWT_SECRET_KEY': JWT_SECRET,
+  'JWT_AUDIENCE': JWT_AUDIENCE,
+}
+########## END DRF CONFIGURATION
 
 ########## CORS CONFIGURATION
 CORS_ORIGIN_REGEX_WHITELIST = (
