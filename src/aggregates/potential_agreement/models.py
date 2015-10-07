@@ -2,6 +2,7 @@ from django.db import models, transaction
 from jsonfield import JSONField
 from src.aggregates.potential_agreement.signals import created
 from src.libs.common_domain.aggregate_base import AggregateBase
+from src.libs.common_domain.models import Event
 from simplejson.encoder import JSONEncoder
 
 
@@ -52,6 +53,11 @@ class PotentialAgreement(models.Model, AggregateBase):
     if internal:
       with transaction.atomic():
         super().save(*args, **kwargs)
+
+        for event in self._uncommitted_events:
+          Event.objects.create(name=event.event_fq_name, version=event.version, data=event.kwargs)
+
+        self.send_events()
     else:
       from src.aggregates.potential_agreement.services import potential_agreement_service
 
