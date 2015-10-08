@@ -1,5 +1,6 @@
 from django.db import models, transaction
 from jsonfield import JSONField
+from src.aggregates.user.managers import UserManager
 
 from src.aggregates.user.signals import created
 from src.libs.common_domain.aggregate_base import AggregateBase
@@ -7,6 +8,8 @@ from src.libs.common_domain.models import Event
 
 
 class User(models.Model, AggregateBase):
+  objects = UserManager()
+
   user_id = models.CharField(max_length=8, unique=True)
   user_name = models.CharField(max_length=2400)
   user_nickname = models.CharField(max_length=2400)
@@ -23,7 +26,7 @@ class User(models.Model, AggregateBase):
       raise TypeError("user_id is required")
 
     if not user_name:
-        raise TypeError("user_name is required")
+      raise TypeError("user_name is required")
 
     if not user_nickname:
       raise TypeError("user_nickname is required")
@@ -63,6 +66,17 @@ class User(models.Model, AggregateBase):
     self.user_picture = kwargs['user_picture']
     self.user_attrs = kwargs['user_attrs']
     self.system_created_date = kwargs['system_created_date']
+
+  @property
+  def is_active(self):
+    # https://docs.djangoproject.com/en/1.8/topics/auth/customizing/#django.contrib.auth.models.CustomUser.is_active
+    # this attr is checked by auth frameworks (DRF JWT for example)
+    # but considering we're using 3rd party for auth, we probably don't need to store those attrs in this app right now.
+    return True
+
+  def is_authenticated(self):
+    # https://docs.djangoproject.com/en/1.8/topics/auth/customizing/#django.contrib.auth.models.AbstractBaseUser.is_authenticated
+    return True
 
   def __str__(self):
     return 'User {uid}: {name}'.format(uid=self.user_id, name=self.user_name)

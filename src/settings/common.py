@@ -1,4 +1,5 @@
 """Common settings and globals."""
+from src.apps.auth.providers.auth0.utils import get_user_id_from_jwt
 import src.settings.constants as constants
 
 from os.path import abspath, dirname, basename
@@ -74,6 +75,10 @@ REST_FRAMEWORK = {
   'DEFAULT_AUTHENTICATION_CLASSES': (
     'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
   ),
+}
+
+JWT_AUTH = {
+  'JWT_PAYLOAD_GET_USERNAME_HANDLER': get_user_id_from_jwt
 }
 ########## END DRF CONFIGURATION
 
