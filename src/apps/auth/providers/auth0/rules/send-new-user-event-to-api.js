@@ -16,7 +16,9 @@ function (user, context, callback) {
       console.log('Beginning: Rule: Send New User Event to API. User Id:', auth0UserId);
 
       var randomize = require('randomatic');
-      appMetadata.hermes.user_id = randomize('aA0', 8);
+      // base57 (removes similar-looking characters such as l, 1, I, O and 0.)
+      var chars = '23456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+      appMetadata.hermes.user_id = randomize('?', 8, {chars: chars});
 
       var identity = {
         "user_id": appMetadata.hermes.user_id,
