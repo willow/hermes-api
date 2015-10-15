@@ -10,7 +10,8 @@ from src.libs.common_domain.decorators import event_idempotent
 def user_created_callback(**kwargs):
   potential_agreement_id = kwargs.pop('potential_agreement_id')
   potential_agreement_name = kwargs.pop('potential_agreement_name')
+  user_id = kwargs.pop('user_id')
 
   potential_agreement_tasks.save_potential_agreement_in_firebase_task.delay(
-    potential_agreement_id, potential_agreement_name
+    potential_agreement_id, potential_agreement_name, user_id
   )
