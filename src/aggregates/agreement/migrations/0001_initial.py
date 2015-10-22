@@ -17,7 +17,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(primary_key=True, serialize=False, auto_created=True, verbose_name='ID')),
                 ('agreement_id', models.CharField(unique=True, max_length=8)),
                 ('agreement_name', models.CharField(max_length=2400)),
-                ('system_created_date', models.DateTimeField()),
+                ('agreement_system_created_date', models.DateTimeField()),
             ],
             bases=(models.Model, src.libs.common_domain.aggregate_base.AggregateBase),
         ),

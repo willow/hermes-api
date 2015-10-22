@@ -8,10 +8,10 @@ from src.libs.common_domain.models import Event
 class Agreement(models.Model, AggregateBase):
   agreement_id = models.CharField(max_length=8, unique=True)
   agreement_name = models.CharField(max_length=2400)
-  system_created_date = models.DateTimeField()
+  agreement_system_created_date = models.DateTimeField()
 
   @classmethod
-  def _from_attrs(cls, agreement_id, agreement_name, system_created_date):
+  def _from_attrs(cls, agreement_id, agreement_name, agreement_system_created_date):
     ret_val = cls()
 
     if not agreement_id:
@@ -20,14 +20,14 @@ class Agreement(models.Model, AggregateBase):
     if not agreement_name:
       raise TypeError("agreement_name is required")
 
-    if not system_created_date:
-      raise TypeError("system_created_date is required")
+    if not agreement_system_created_date:
+      raise TypeError("agreement_system_created_date is required")
 
     ret_val._raise_event(
       created,
       agreement_id=agreement_id,
       agreement_name=agreement_name,
-      system_created_date=system_created_date,
+      agreement_system_created_date=agreement_system_created_date,
     )
 
     return ret_val
@@ -35,7 +35,7 @@ class Agreement(models.Model, AggregateBase):
   def _handle_created_event(self, **kwargs):
     self.agreement_id = kwargs['agreement_id']
     self.agreement_name = kwargs['agreement_name']
-    self.system_created_date = kwargs['system_created_date']
+    self.agreement_system_created_date = kwargs['agreement_system_created_date']
 
   def __str__(self):
     return 'Agreement #' + str(self.agreement_id) + ': ' + self.agreement_name

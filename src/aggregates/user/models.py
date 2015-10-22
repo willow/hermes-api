@@ -16,10 +16,10 @@ class User(models.Model, AggregateBase):
   user_email = models.EmailField(unique=True)
   user_picture = models.URLField()
   user_attrs = JSONField()
-  system_created_date = models.DateTimeField()
+  user_system_created_date = models.DateTimeField()
 
   @classmethod
-  def _from_attrs(cls, user_id, user_name, user_nickname, user_email, user_picture, user_attrs, system_created_date):
+  def _from_attrs(cls, user_id, user_name, user_nickname, user_email, user_picture, user_attrs, user_system_created_date):
     ret_val = cls()
 
     if not user_id:
@@ -42,8 +42,8 @@ class User(models.Model, AggregateBase):
     if not auth0_user_id:
       raise TypeError("auth0_user_id is required")
 
-    if not system_created_date:
-      raise TypeError("system_created_date is required")
+    if not user_system_created_date:
+      raise TypeError("user_system_created_date is required")
 
     ret_val._raise_event(
       created,
@@ -53,7 +53,7 @@ class User(models.Model, AggregateBase):
       user_email=user_email,
       user_picture=user_picture,
       user_attrs=user_attrs,
-      system_created_date=system_created_date
+      user_system_created_date=user_system_created_date
     )
 
     return ret_val
@@ -65,7 +65,7 @@ class User(models.Model, AggregateBase):
     self.user_email = kwargs['user_email']
     self.user_picture = kwargs['user_picture']
     self.user_attrs = kwargs['user_attrs']
-    self.system_created_date = kwargs['system_created_date']
+    self.user_system_created_date = kwargs['user_system_created_date']
 
   @property
   def is_active(self):

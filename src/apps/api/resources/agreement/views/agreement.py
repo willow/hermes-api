@@ -39,7 +39,7 @@ def agreement_view(request, _agreement_translation_service=None, _asset_service=
       potential_agreement_data = {
         'potential_agreement_name': agreement_data[constants.AGREEMENT_NAME],
         'potential_agreement_artifacts': [asset_information],  # put it in a list (could have multiple soon)
-        'user_id': request.user.user_id
+        'potential_agreement_user_id': request.user.user_id
       }
 
       potential_agreement = potential_agreement_service.create_potential_agreement(**potential_agreement_data)

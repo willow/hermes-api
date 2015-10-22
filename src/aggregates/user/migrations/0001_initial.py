@@ -22,7 +22,7 @@ class Migration(migrations.Migration):
                 ('user_email', models.EmailField(unique=True, max_length=254)),
                 ('user_picture', models.URLField()),
                 ('user_attrs', jsonfield.fields.JSONField()),
-                ('system_created_date', models.DateTimeField()),
+                ('user_system_created_date', models.DateTimeField()),
             ],
             bases=(models.Model, src.libs.common_domain.aggregate_base.AggregateBase),
         ),

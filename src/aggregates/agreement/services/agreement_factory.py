@@ -7,8 +7,8 @@ from src.aggregates.agreement.models import Agreement
 
 def create_agreement(agreement_name):
   agreement_id = generate_id()
-  system_created_date = timezone.now()
+  agreement_system_created_date = timezone.now()
 
-  agreement = Agreement._from_attrs(agreement_id, agreement_name, system_created_date)
+  agreement = Agreement._from_attrs(agreement_id, agreement_name, agreement_system_created_date)
 
   return agreement

@@ -11,12 +11,12 @@ class PotentialAgreement(models.Model, AggregateBase):
   potential_agreement_name = models.CharField(max_length=2400)
   potential_agreement_artifacts = JSONField(default=list,
                                             dump_kwargs={'cls': JSONEncoder})  # simplejson encodes namedtuples
-  user = models.ForeignKey('user.User', 'user_id', related_name='potential_agreements')
-  system_created_date = models.DateTimeField()
+  potential_agreement_user = models.ForeignKey('user.User', 'user_id', related_name='potential_agreements')
+  potential_agreement_system_created_date = models.DateTimeField()
 
   @classmethod
   def _from_attrs(cls, potential_agreement_id, potential_agreement_name, potential_agreement_artifacts,
-                  user_id, system_created_date):
+                  potential_agreement_user_id, potential_agreement_system_created_date):
     ret_val = cls()
 
     if not potential_agreement_id:
@@ -28,19 +28,19 @@ class PotentialAgreement(models.Model, AggregateBase):
     if not potential_agreement_artifacts:
       raise TypeError("potential_agreement_artifacts is required")
 
-    if not user_id:
-      raise TypeError("user_id is required")
+    if not potential_agreement_user_id:
+      raise TypeError("potential_agreement_user_id is required")
 
-    if not system_created_date:
-      raise TypeError("system_created_date is required")
+    if not potential_agreement_system_created_date:
+      raise TypeError("potential_agreement_system_created_date is required")
 
     ret_val._raise_event(
       created,
       potential_agreement_id=potential_agreement_id,
       potential_agreement_name=potential_agreement_name,
       potential_agreement_artifacts=potential_agreement_artifacts,
-      user_id=user_id,
-      system_created_date=system_created_date,
+      potential_agreement_user_id=potential_agreement_user_id,
+      potential_agreement_system_created_date=potential_agreement_system_created_date,
     )
 
     return ret_val
@@ -49,8 +49,8 @@ class PotentialAgreement(models.Model, AggregateBase):
     self.potential_agreement_id = kwargs['potential_agreement_id']
     self.potential_agreement_name = kwargs['potential_agreement_name']
     self.potential_agreement_artifacts = kwargs['potential_agreement_artifacts']
-    self.user_id = kwargs['user_id']
-    self.system_created_date = kwargs['system_created_date']
+    self.potential_agreement_user_id = kwargs['potential_agreement_user_id']
+    self.potential_agreement_system_created_date = kwargs['potential_agreement_system_created_date']
 
   def __str__(self):
     return 'PotentialAgreement #' + str(self.potential_agreement_id) + ': ' + self.potential_agreement_name
