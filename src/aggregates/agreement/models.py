@@ -48,7 +48,7 @@ class Agreement(models.Model, AggregateBase):
         for event in self._uncommitted_events:
           Event.objects.create(name=event.event_fq_name, version=event.version, data=event.kwargs)
 
-        self.send_events()
+      self.send_events()
     else:
       from src.aggregates.agreement.services import agreement_service
 

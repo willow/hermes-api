@@ -6,5 +6,5 @@ class RealtimeConfig(AppConfig):
 
   # noinspection PyUnresolvedReferences
   def ready(self):
-    import src.apps.realtime.potential_agreement.event_handlers
+    import src.apps.realtime.agreement.event_handlers
     import src.apps.realtime.user.event_handlers

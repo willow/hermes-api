@@ -5,25 +5,29 @@ from rest_framework.decorators import api_view, parser_classes
 from rest_framework.parsers import FileUploadParser
 from rest_framework.response import Response
 from django.conf import settings
+from src.aggregates.agreement.services import agreement_service
+from src.aggregates.potential_agreement.models import PotentialAgreement
 
 from src.aggregates.potential_agreement.services import potential_agreement_service
+from src.apps.agreement.enums import AgreementTypeEnum, DurationTypeEnum
 from src.apps.asset.services import asset_service
 from src.apps.agreement_translation.services import agreement_translation_service
 from src.apps.api.resources.agreement.serializers.agreement import PotentialAgreementSerializer
+from src.libs.datetime_utils import datetime_utils
 
 constants = settings.CONSTANTS
 
 logger = logging.getLogger(__name__)
 
 
-@api_view(['POST', 'PUT'])
+@api_view(['POST'])
 @parser_classes((FileUploadParser,))
-def agreement_view(request, _agreement_translation_service=None, _asset_service=None):
-  if not _agreement_translation_service: _agreement_translation_service = agreement_translation_service
-  if not _asset_service: _asset_service = asset_service
-
+def agreement_create_view(request, _agreement_translation_service=None, _asset_service=None):
   # this method should be considered internal and no public api call should be allowed to pass in a file for an agreement
   # refer to https://app.asana.com/0/10235149247655/46476660493804
+
+  if not _agreement_translation_service: _agreement_translation_service = agreement_translation_service
+  if not _asset_service: _asset_service = asset_service
 
   if request.method == 'POST':
     try:
@@ -51,6 +55,70 @@ def agreement_view(request, _agreement_translation_service=None, _asset_service=
 
     else:
       response = Response(potential_agreement_serializer_data, status.HTTP_201_CREATED)
+
+  else:
+    response = Response("Error", status.HTTP_400_BAD_REQUEST)
+
+  return response
+
+
+@api_view(['PUT'])
+def agreement_update_view(request, agreement_id, _potential_agreement_service=None, _agreement_service=None,
+                          _datetime_utils=None):
+  # this method should be considered internal and no public api call should be allowed to pass in a file for an agreement
+  # refer to https://app.asana.com/0/10235149247655/46476660493804
+
+  if not _potential_agreement_service: _potential_agreement_service = potential_agreement_service
+  if not _agreement_service: _agreement_service = agreement_service
+  if not _datetime_utils: _datetime_utils = datetime_utils
+
+  if request.method == 'PUT':
+    try:
+
+      try:
+        potential_agreement = potential_agreement_service.get_potential_agreement(agreement_id)
+
+        agreement_type = request.data[constants.TYPE]
+        if agreement_type:
+          agreement_type = AgreementTypeEnum[agreement_type]
+
+        name = request.data[constants.NAME]
+        counterparty = request.data[constants.COUNTERPARTY]
+        description = request.data[constants.DESCRIPTION]
+        execution_date = _datetime_utils.get_utc_from_timestamp(request.data[constants.EXECUTION_DATE])
+        term_length_amount = request.data[constants.TERM_LENGTH_AMOUNT]
+        term_length_type = DurationTypeEnum[request.data[constants.TERM_LENGTH_TYPE]]
+        auto_renew = request.data[constants.AUTO_RENEW]
+        renewal_notice_amount = request.data[constants.RENEWAL_NOTICE_AMOUNT]
+        renewal_notice_type = DurationTypeEnum[request.data[constants.RENEWAL_NOTICE_TYPE]]
+        duration_details = request.data[constants.DURATION_DETAILS]
+
+        potential_agreement_data = {
+          'potential_agreement_name': name,
+          'potential_agreement_counterparty': counterparty,
+          'potential_agreement_description': description,
+          'potential_agreement_execution_date': execution_date,
+          'potential_agreement_type': agreement_type,
+          'potential_agreement_term_length_amount': term_length_amount,
+          'potential_agreement_term_length_type': term_length_type,
+          'potential_agreement_auto_renew': auto_renew,
+          'potential_agreement_renewal_notice_amount': renewal_notice_amount,
+          'potential_agreement_renewal_notice_type': renewal_notice_type,
+          'potential_agreement_duration_details': duration_details,
+        }
+
+        potential_agreement.complete(**potential_agreement_data)
+        potential_agreement_service.save_or_update(potential_agreement)
+
+      except PotentialAgreement.DoesNotExist:
+        pass
+
+    except Exception as e:
+      logger.debug("Error saving agreement: {0}".format(request.data), exc_info=True)
+      response = Response("Error saving agreement %s " % e, status.HTTP_400_BAD_REQUEST)
+
+    else:
+      response = Response(status=status.HTTP_200_OK)
 
   else:
     response = Response("Error", status.HTTP_400_BAD_REQUEST)
