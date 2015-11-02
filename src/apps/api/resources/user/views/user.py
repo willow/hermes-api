@@ -2,17 +2,19 @@ import logging
 
 from django.db import IntegrityError
 from rest_framework import status
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 
 from rest_framework.response import Response
 
 from src.aggregates.user.services import user_service
 from src.apps.api.resources.user.serializers.user import UserSerializer
+from rest_framework.permissions import AllowAny
 
 logger = logging.getLogger(__name__)
 
 
 @api_view(['POST'])
+@permission_classes((AllowAny,))
 def user_view(request):
   try:
     # this method should be considered internal and no public api call should be allowed to pass in the user_id
