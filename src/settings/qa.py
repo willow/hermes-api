@@ -19,6 +19,13 @@ DEBUG = False
 ALLOWED_HOSTS = ['.herokuapp.com', 'qa.api.startwillow.com']
 ########## END ALLOWED HOST CONFIGURATION
 
+########## CORS CONFIGURATION
+CORS_ORIGIN_REGEX_WHITELIST = (
+  '^https:\/\/qa\.app\.startwillow\.com\/?',
+  '^https:\/\/hermes-qa\.firebaseapp\.com/?',
+)
+########## END CORS CONFIGURATION
+
 ########## DATABASE CONFIGURATION
 DATABASES = {'default': dj_database_url.config()}
 
