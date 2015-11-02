@@ -69,7 +69,6 @@ LOGGING['loggers'] = {
 ########## AUTH CONFIGURATION
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#secret-key
 SECRET_KEY = os.environ['SECRET_KEY']
-
 JWT_SECRET = os.environ['JWT_SECRET']
 JWT_SECRET = base64decode(JWT_SECRET)
 JWT_AUDIENCE = os.environ['JWT_AUDIENCE']

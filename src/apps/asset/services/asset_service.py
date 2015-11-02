@@ -1,8 +1,13 @@
+from django.conf import settings
+
 from src.libs.python_utils.files import file_utils
 from src.libs.python_utils.id.id_utils import generate_id
 from src.libs.django_utils.storage import storage_utils
 
 from src.apps.asset.asset_value_object import AssetValueObject
+
+constants = settings.CONSTANTS
+assets_root = constants.ASSETS_ROOT
 
 
 def _generate_asset_id_from_filename(asset_id, filename, _file_utils=None):
@@ -13,22 +18,34 @@ def _generate_asset_id_from_filename(asset_id, filename, _file_utils=None):
   return asset_id_with_ext
 
 
-def _save_file_to_storage(file, path, _storage_utils=None):
+def _save_file_to_storage(path, file, _storage_utils=None):
   if not _storage_utils: _storage_utils = storage_utils
 
-  ret_val = _storage_utils.save_file(file, path)
+  asset_path = "{0}/{1}".format(assets_root, path)
+
+  ret_val = _storage_utils.save_file(asset_path, file)
 
   return ret_val
 
 
-def persist_asset_from_file(file, path):
+def get_signed_asset_path(path, _storage_utils=None):
+  if not _storage_utils: _storage_utils = storage_utils
+
+  asset_path = "{0}/{1}".format(assets_root, path)
+
+  ret_val = _storage_utils.get_file_path(asset_path)
+
+  return ret_val
+
+
+def persist_asset_from_file(path, file):
   original_name = file.name
   asset_id = generate_id()
 
   asset_id_with_ext = _generate_asset_id_from_filename(asset_id, original_name)
   path = "{0}/{1}".format(path, asset_id_with_ext)
 
-  _save_file_to_storage(file, path)
+  _save_file_to_storage(path, file)
 
   ret_val = AssetValueObject(asset_id, path, file.content_type, original_name)
 
