@@ -1,28 +1,30 @@
 import logging
 
-from django.db import IntegrityError
 from rest_framework import status
 from rest_framework.decorators import api_view
-
 from rest_framework.response import Response
 
-from src.aggregates.user.services import user_service
-from src.apps.api.resources.user.serializers.user import UserSerializer
+from src.aggregates.asset.services import asset_service
 
 logger = logging.getLogger(__name__)
 
 
 @api_view(['GET'])
-def asset_view(request, asset_id):
-  try:
-    user = user_service.create_user(**request.data)
-    user_data = UserSerializer(user).data
-  except Exception as e:
-    logger.debug("Error creating user: {0}".format(request.data), exc_info=True)
+def asset_view(request, asset_id, _asset_service=None):
+  # this method should be considered internal and no public api call should be allowed to pass in a file for an agreement
+  # refer to https://app.asana.com/0/10235149247655/46476660493804
+  if not _asset_service: _asset_service = asset_service
 
-    status_result = status.HTTP_409_CONFLICT if isinstance(e, IntegrityError) else status.HTTP_400_BAD_REQUEST
-    response = Response("Error creating user %s " % e, status_result)
+  try:
+    asset = _asset_service.get_asset(asset_id)
+
+    asset_path = asset.asset_signed_path
+
+  except Exception as e:
+    logger.warn("Error retrieving asset path: {0}".format(asset_id), exc_info=True)
+    response = Response("Error retrieving asset path %s " % e, status.HTTP_400_BAD_REQUEST)
+
   else:
-    response = Response(user_data, status.HTTP_201_CREATED)
+    response = Response({'url': asset_path}, status=status.HTTP_200_OK)
 
   return response

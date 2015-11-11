@@ -9,7 +9,7 @@ from django.conf import settings
 from src.apps.realtime.agreement.services import agreement_service as realtime_agreement_service
 from src.aggregates.potential_agreement.services import potential_agreement_service
 from src.apps.agreement.enums import AgreementTypeEnum, DurationTypeEnum
-from src.apps.asset.services import asset_service
+from src.aggregates.asset.services import asset_service
 from src.apps.agreement_translation.services import agreement_translation_service
 from src.apps.api.resources.agreement.serializers.agreement import PotentialAgreementSerializer
 from src.libs.datetime_utils import datetime_utils
@@ -40,11 +40,11 @@ def agreement_create_view(request, _potential_agreement_service=None, _agreement
     # do this task first because persisting the asset will alter the file (name, etc.)
     agreement_data = _agreement_translation_service.get_agreement_info_from_file(contract_file)
 
-    asset_information = _asset_service.persist_asset_from_file(constants.ARTIFACTS_ROOT, contract_file)
+    asset = _asset_service.create_asset_from_file(constants.ARTIFACTS_ROOT, contract_file)
 
     potential_agreement_data = {
       'potential_agreement_name': agreement_data[constants.AGREEMENT_NAME],
-      'potential_agreement_artifacts': [asset_information],  # put it in a list (could have multiple soon)
+      'potential_agreement_artifacts': [asset.asset_id],  # put it in a list (could have multiple soon)
       'potential_agreement_user_id': request.user.user_id
     }
 
@@ -117,29 +117,5 @@ def agreement_update_view(request, agreement_id, _potential_agreement_service=No
 
   else:
     response = Response(status=status.HTTP_200_OK)
-
-  return response
-
-
-@api_view(['GET'])
-def agreement_artifact_view(request, agreement_id, artifact_id, _asset_service=None, _potential_agreement_service=None):
-  # this method should be considered internal and no public api call should be allowed to pass in a file for an agreement
-  # refer to https://app.asana.com/0/10235149247655/46476660493804
-
-  if not _asset_service: _asset_service = asset_service
-  if not _potential_agreement_service: _potential_agreement_service = potential_agreement_service
-
-  try:
-
-    potential_agreement = _potential_agreement_service.get_potential_agreement(agreement_id)
-
-    artifact = next(a for a in potential_agreement.potential_agreement_artifacts if a['asset_id'] == artifact_id)
-    artifact_path = _asset_service.get_signed_asset_path(artifact['asset_path'])
-  except Exception as e:
-    logger.warn("Error retrieving artifact path: {0}".format(request.data), exc_info=True)
-    response = Response("Error retrieving artifact path %s " % e, status.HTTP_400_BAD_REQUEST)
-
-  else:
-    response = Response({'url': artifact_path}, status=status.HTTP_200_OK)
 
   return response

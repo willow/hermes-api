@@ -1,8 +1,13 @@
 from django.db import models, transaction
+from django.conf import settings
 
 from src.aggregates.asset.signals import created
 from src.libs.common_domain.aggregate_base import AggregateBase
 from src.libs.common_domain.models import Event
+from src.libs.django_utils.storage import storage_utils
+
+constants = settings.CONSTANTS
+assets_root = constants.ASSETS_ROOT
 
 
 class Asset(models.Model, AggregateBase):
@@ -39,6 +44,20 @@ class Asset(models.Model, AggregateBase):
 
     return ret_val
 
+  @property
+  def asset_signed_path(self, _asset_service=None):
+    # this model is assuming the responsibility of figuring out the signed path but handing off that responsibility
+    # to the asset service, using the double dispatch pattern.
+    # https://lostechies.com/jimmybogard/2010/03/30/strengthening-your-domain-the-double-dispatch-pattern/
+    if not _asset_service:
+      from src.aggregates.asset.services import asset_service
+
+      _asset_service = asset_service
+
+    ret_val = _asset_service.get_signed_asset_path(self.asset_path)
+
+    return ret_val
+
   def _handle_created_event(self, **kwargs):
     self.asset_id = kwargs['asset_id']
     self.asset_path = kwargs['asset_path']
@@ -47,7 +66,7 @@ class Asset(models.Model, AggregateBase):
     self.asset_system_created_date = kwargs['asset_system_created_date']
 
   def __str__(self):
-    return 'Asset #' + str(self.agreement_id) + ': ' + self.agreement_name
+    return 'Asset #' + str(self.asset_id) + ': ' + self.asset_original_name
 
   def save(self, internal=False, *args, **kwargs):
     if internal:

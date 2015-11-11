@@ -1,4 +1,5 @@
 from django.utils import timezone
+from src.aggregates.asset.services import asset_service
 
 from src.aggregates.potential_agreement.services import potential_agreement_service
 from src.apps.agreement.enums import DurationTypeEnum, AgreementTypeEnum, AgreementTypeDict, DurationTypeDict
@@ -54,9 +55,10 @@ def save_agreement_edit_in_firebase(potential_agreement_id, _potential_agreement
   return result
 
 
-def save_agreement_detail_in_firebase(potential_agreement_id, _potential_agreement_service=None,
+def save_agreement_detail_in_firebase(potential_agreement_id, _potential_agreement_service=None, _asset_service=None,
                                       _firebase_provider=None):
   if not _potential_agreement_service: _potential_agreement_service = potential_agreement_service
+  if not _asset_service: _asset_service = asset_service
   if not _firebase_provider: _firebase_provider = firebase_provider
 
   client = _firebase_provider.get_firebase_client()
@@ -82,8 +84,10 @@ def save_agreement_detail_in_firebase(potential_agreement_id, _potential_agreeme
   else:
     agreement_type = 'Agreement type not specified'
 
-  artifacts = {k['asset_id']: {'name': k['asset_original_name']} for k in
-               potential_agreement.potential_agreement_artifacts}
+  assets = _asset_service.get_assets(potential_agreement.potential_agreement_artifacts)
+
+  artifacts = {a.asset_id: {'name': a.asset_original_name} for a in
+               assets}
 
   data = {
     'counterparty': potential_agreement.potential_agreement_counterparty,
