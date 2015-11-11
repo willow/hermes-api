@@ -22,7 +22,7 @@ def user_view(request):
     user = user_service.create_user(**request.data)
     user_data = UserSerializer(user).data
   except Exception as e:
-    logger.debug("Error creating user: {0}".format(request.data), exc_info=True)
+    logger.warn("Error creating user: {0}".format(request.data), exc_info=True)
 
     status_result = status.HTTP_409_CONFLICT if isinstance(e, IntegrityError) else status.HTTP_400_BAD_REQUEST
     response = Response("Error creating user %s " % e, status_result)
