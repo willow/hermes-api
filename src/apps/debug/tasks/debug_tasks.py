@@ -19,6 +19,7 @@ def test_error_task(name='Hello'):
     logger.exception('this is an error log: %s', name)
 
   rq_logger = logging.getLogger('rq.worker')
+  print('rq logger disabled = %s ' % rq_logger.disabled)
   try:
     raise Exception('This is an rq worker error!')
   except:

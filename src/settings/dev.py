@@ -101,6 +101,9 @@ LOGGING['loggers'] = {
   '': app_logger,
   'django.request': app_logger,
   # django.request doesn't propagate by default https://docs.djangoproject.com/en/dev/topics/logging/#django-request
+  'rq.worker': app_logger,
+  # rq.worker is explicitly defined here because it's imported in common.py before logging is configured and is
+  # subsequently disabled (disable_existing_loggers=True) so we need to provide an entry here to enable it.
 }
 ########## END LOGGING CONFIGURATION
 
