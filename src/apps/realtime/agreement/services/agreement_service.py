@@ -3,6 +3,7 @@ from src.aggregates.asset.services import asset_service
 
 from src.aggregates.potential_agreement.services import potential_agreement_service
 from src.apps.agreement.enums import DurationTypeEnum, AgreementTypeEnum, AgreementTypeDict, DurationTypeDict
+from src.libs.datetime_utils.datetime_utils import get_timestamp_from_datetime
 from src.libs.firebase_utils.services import firebase_provider
 
 
@@ -14,9 +15,8 @@ def save_agreement_edit_in_firebase(potential_agreement_id, _potential_agreement
 
   potential_agreement = _potential_agreement_service.get_potential_agreement(potential_agreement_id)
 
-  # http://stackoverflow.com/questions/14524322/how-to-convert-a-date-string-to-different-format
   if potential_agreement.potential_agreement_execution_date:
-    execution_date = potential_agreement.potential_agreement_execution_date.strftime('%Y-%m-%d')
+    execution_date = get_timestamp_from_datetime(potential_agreement.potential_agreement_execution_date)
   else:
     execution_date = None
 
