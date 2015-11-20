@@ -180,3 +180,7 @@ RQ_QUEUES = {
   }
 }
 ########## END REDIS QUEUE CONFIGURATION
+
+########## EMAIL CONFIGURATION
+DEV_EMAIL_ADDRESS = 'dev@startwillow.com'
+########## END EMAIL CONFIGURATION
