@@ -65,24 +65,18 @@ def save_agreement_detail_in_firebase(potential_agreement_id, _potential_agreeme
 
   potential_agreement = _potential_agreement_service.get_potential_agreement(potential_agreement_id)
 
-  # http://stackoverflow.com/questions/14524322/how-to-convert-a-date-string-to-different-format
   # this task is only fired after a potential agreement is complete, so it's safe to assume an execution date is present
-  execution_date = potential_agreement.potential_agreement_execution_date.strftime('%Y-%m-%d')
+  execution_date = get_timestamp_from_datetime(potential_agreement.potential_agreement_execution_date)
 
-  if potential_agreement.potential_agreement_term_length_amount and potential_agreement.potential_agreement_term_length_type:
-    term_length_amount = potential_agreement.potential_agreement_term_length_amount
-    term_length_type = DurationTypeDict[potential_agreement.potential_agreement_term_length_type]
-
-    # '10 Days'
-    term_length = '{0} {1}'.format(term_length_amount, term_length_type)
-
+  if potential_agreement.potential_agreement_term_length_amount:
+    term_length_type = DurationTypeEnum(potential_agreement.potential_agreement_term_length_type).name
   else:
-    term_length = 'Term length not specified'
+    term_length_type = None
 
   if potential_agreement.potential_agreement_type:
-    agreement_type = AgreementTypeDict[potential_agreement.potential_agreement_type]
+    agreement_type = AgreementTypeEnum(potential_agreement.potential_agreement_type).name
   else:
-    agreement_type = 'Agreement type not specified'
+    agreement_type = None
 
   assets = _asset_service.get_assets(potential_agreement.potential_agreement_artifacts)
 
@@ -94,7 +88,8 @@ def save_agreement_detail_in_firebase(potential_agreement_id, _potential_agreeme
     'description': potential_agreement.potential_agreement_description,
     'execution-date': execution_date,
     'name': potential_agreement.potential_agreement_name,
-    'term-length': term_length,
+    'term-length-amount': potential_agreement.potential_agreement_term_length_amount,
+    'term-length-type': term_length_type,
     'type': agreement_type,
     'artifacts': artifacts,
     'viewers': {potential_agreement.potential_agreement_user_id: True}
@@ -114,16 +109,15 @@ def save_dashboard_agreement_in_firebase(potential_agreement_id, _potential_agre
 
   potential_agreement = _potential_agreement_service.get_potential_agreement(potential_agreement_id)
 
-  # http://stackoverflow.com/questions/14524322/how-to-convert-a-date-string-to-different-format
   # this task is only fired after a potential agreement is complete, so it's safe to assume an execution date is present
-  execution_date = potential_agreement.potential_agreement_execution_date.strftime('%Y-%m-%d')
+  execution_date = get_timestamp_from_datetime(potential_agreement.potential_agreement_execution_date)
 
-  modification_date = timezone.now().strftime('%Y-%m-%d')
+  modification_date = get_timestamp_from_datetime(timezone.now())
 
   if potential_agreement.potential_agreement_type:
-    agreement_type = AgreementTypeDict[potential_agreement.potential_agreement_type]
+    agreement_type = AgreementTypeEnum(potential_agreement.potential_agreement_type).name
   else:
-    agreement_type = 'Agreement type not specified'
+    agreement_type = None
 
   data = {
     'counterparty': potential_agreement.potential_agreement_counterparty,
