@@ -122,7 +122,7 @@ THIRD_PARTY_APPS = (
 
 LOCAL_APPS = (
   # AGGREGATES
-  'src.aggregates.agreement',
+  'src.aggregates.agreement_type',
   'src.aggregates.asset',
   'src.aggregates.potential_agreement',
   'src.aggregates.user',
