@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 
 
 @job('high')
-def create_user_task(user_name, user_nickname, user_email, user_picture, user_attrs):
+def create_user_task(user_id, user_name, user_nickname, user_email, user_picture, user_attrs):
   # check if already exists - idempotent
   try:
     user_service.get_user_from_email(user_email)
@@ -23,4 +23,4 @@ def create_user_task(user_name, user_nickname, user_email, user_picture, user_at
     )
 
     with log_wrapper(logger.debug, *log_message):
-      return user_service.create_user(user_name, user_nickname, user_email, user_picture, user_attrs).user_id
+      return user_service.create_user(user_id, user_name, user_nickname, user_email, user_picture, user_attrs).user_id
