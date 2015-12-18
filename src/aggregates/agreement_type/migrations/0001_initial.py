@@ -9,6 +9,7 @@ import src.libs.common_domain.aggregate_base
 class Migration(migrations.Migration):
   dependencies = [
     ('user', '0001_initial'),
+    ('common_domain', '0001_initial'),
   ]
 
   def create_defaults(apps, schema_editor):
