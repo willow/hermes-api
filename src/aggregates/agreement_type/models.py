@@ -1,6 +1,6 @@
 from django.db import models, transaction
 
-from src.aggregates.agreement.signals import created
+from src.aggregates.agreement_type.signals import created
 from src.libs.common_domain.aggregate_base import AggregateBase
 from src.libs.common_domain.models import Event
 
@@ -9,7 +9,7 @@ class AgreementType(models.Model, AggregateBase):
   agreement_type_id = models.CharField(max_length=8, unique=True)
   agreement_type_name = models.CharField(max_length=2400)
   agreement_type_global = models.BooleanField()
-  agreement_type_user = models.ForeignKey('user.User', 'user_id', related_name='agreement_types', blank=True,
+  agreement_type_user = models.ForeignKey('user.User', 'user_id', blank=True,
                                           null=True)
   agreement_type_system_created_date = models.DateTimeField()
 

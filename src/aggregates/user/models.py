@@ -1,5 +1,6 @@
 from django.db import models, transaction
 from jsonfield import JSONField
+from src.aggregates.agreement_type.services import agreement_type_service
 from src.aggregates.user.managers import UserManager
 
 from src.aggregates.user.signals import created
@@ -19,7 +20,8 @@ class User(models.Model, AggregateBase):
   user_system_created_date = models.DateTimeField()
 
   @classmethod
-  def _from_attrs(cls, user_id, user_name, user_nickname, user_email, user_picture, user_attrs, user_system_created_date):
+  def _from_attrs(cls, user_id, user_name, user_nickname, user_email, user_picture, user_attrs,
+                  user_system_created_date):
     ret_val = cls()
 
     if not user_id:
@@ -77,6 +79,14 @@ class User(models.Model, AggregateBase):
   def is_authenticated(self):
     # https://docs.djangoproject.com/en/1.8/topics/auth/customizing/#django.contrib.auth.models.AbstractBaseUser.is_authenticated
     return True
+
+  @property
+  def agreement_types(self, _agreement_type_service=None):
+
+    if not _agreement_type_service: _agreement_type_service = agreement_type_service
+    ret_val = list(_agreement_type_service.get_global_agreement_types())
+
+    return ret_val
 
   def __str__(self):
     return 'User {uid}: {name}'.format(uid=self.user_id, name=self.user_name)
