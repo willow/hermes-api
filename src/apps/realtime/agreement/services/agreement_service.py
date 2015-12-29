@@ -1,8 +1,8 @@
 from django.utils import timezone
-from src.aggregates.asset.services import asset_service
 
+from src.aggregates.asset.services import asset_service
 from src.aggregates.potential_agreement.services import potential_agreement_service
-from src.apps.agreement.enums import DurationTypeEnum, AgreementTypeEnum, AgreementTypeDict, DurationTypeDict
+from src.apps.agreement.enums import DurationTypeEnum
 from src.libs.datetime_utils.datetime_utils import get_timestamp_from_datetime
 from src.libs.firebase_utils.services import firebase_provider
 
@@ -30,10 +30,10 @@ def save_agreement_edit_in_firebase(potential_agreement_id, _potential_agreement
   else:
     term_length_type = None
 
-  if potential_agreement.potential_agreement_type:
-    agreement_type = AgreementTypeEnum(potential_agreement.potential_agreement_type).name
-  else:
-    agreement_type = None
+  agreement_type_id = None
+  potential_agreement_type = potential_agreement.potential_agreement_type
+  if potential_agreement_type:
+    agreement_type_id = potential_agreement_type.agreement_type_id
 
   data = {
     'auto-renew': potential_agreement.potential_agreement_auto_renew,
@@ -46,7 +46,7 @@ def save_agreement_edit_in_firebase(potential_agreement_id, _potential_agreement
     'renewal-notice-type': renewal_notice_type,
     'term-length-amount': potential_agreement.potential_agreement_term_length_amount,
     'term-length-type': term_length_type,
-    'type': agreement_type,
+    'type-id': agreement_type_id,
     'viewers': {potential_agreement.potential_agreement_user_id: True}
   }
 
@@ -73,10 +73,10 @@ def save_agreement_detail_in_firebase(potential_agreement_id, _potential_agreeme
   else:
     term_length_type = None
 
-  if potential_agreement.potential_agreement_type:
-    agreement_type = AgreementTypeEnum(potential_agreement.potential_agreement_type).name
-  else:
-    agreement_type = None
+  agreement_type_name = None
+  potential_agreement_type = potential_agreement.potential_agreement_type
+  if potential_agreement_type:
+    agreement_type_name = potential_agreement_type.agreement_type_name
 
   assets = _asset_service.get_assets(potential_agreement.potential_agreement_artifacts)
 
@@ -90,7 +90,7 @@ def save_agreement_detail_in_firebase(potential_agreement_id, _potential_agreeme
     'name': potential_agreement.potential_agreement_name,
     'term-length-amount': potential_agreement.potential_agreement_term_length_amount,
     'term-length-type': term_length_type,
-    'type': agreement_type,
+    'type-name': agreement_type_name,
     'artifacts': artifacts,
     'viewers': {potential_agreement.potential_agreement_user_id: True}
   }
@@ -114,10 +114,10 @@ def save_dashboard_agreement_in_firebase(potential_agreement_id, _potential_agre
 
   modification_date = get_timestamp_from_datetime(timezone.now())
 
-  if potential_agreement.potential_agreement_type:
-    agreement_type = AgreementTypeEnum(potential_agreement.potential_agreement_type).name
-  else:
-    agreement_type = None
+  agreement_type_name = None
+  potential_agreement_type = potential_agreement.potential_agreement_type
+  if potential_agreement_type:
+    agreement_type_name = potential_agreement_type.agreement_type_name
 
   data = {
     'counterparty': potential_agreement.potential_agreement_counterparty,
@@ -125,7 +125,7 @@ def save_dashboard_agreement_in_firebase(potential_agreement_id, _potential_agre
     'execution-date': execution_date,
     'modification-date': modification_date,
     'name': potential_agreement.potential_agreement_name,
-    'type': agreement_type,
+    'type-name': agreement_type_name,
   }
 
   result = client.put(

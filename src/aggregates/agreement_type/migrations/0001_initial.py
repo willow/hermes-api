@@ -23,13 +23,12 @@ class Migration(migrations.Migration):
     migrations.CreateModel(
       name='AgreementType',
       fields=[
-        ('id', models.AutoField(verbose_name='ID', auto_created=True, serialize=False, primary_key=True)),
-        ('agreement_type_id', models.CharField(unique=True, max_length=8)),
+        ('id', models.AutoField(primary_key=True, verbose_name='ID', serialize=False, auto_created=True)),
+        ('agreement_type_id', models.CharField(max_length=8, unique=True)),
         ('agreement_type_name', models.CharField(max_length=2400)),
         ('agreement_type_global', models.BooleanField()),
         ('agreement_type_system_created_date', models.DateTimeField()),
-        ('agreement_type_user',
-         models.ForeignKey(null=True, to='user.User', blank=True, to_field='user_id', related_name='agreement_types')),
+        ('agreement_type_user', models.ForeignKey(null=True, to_field='user_id', to='user.User', blank=True)),
       ],
       bases=(models.Model, src.libs.common_domain.aggregate_base.AggregateBase),
     ),

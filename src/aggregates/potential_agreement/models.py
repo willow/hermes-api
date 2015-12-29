@@ -17,7 +17,8 @@ class PotentialAgreement(models.Model, AggregateBase):
 
   potential_agreement_counterparty = models.CharField(max_length=2400, blank=True, null=True)
 
-  potential_agreement_type = models.PositiveSmallIntegerField(blank=True, null=True)
+  potential_agreement_type = models.ForeignKey('agreement_type.AgreementType', 'agreement_type_id',
+                                               related_name='potential_agreements', blank=True, null=True)
 
   potential_agreement_description = models.TextField(blank=True, null=True)
 
@@ -66,7 +67,7 @@ class PotentialAgreement(models.Model, AggregateBase):
     return ret_val
 
   def complete(self, potential_agreement_name, potential_agreement_counterparty, potential_agreement_description,
-               potential_agreement_execution_date, potential_agreement_type,
+               potential_agreement_execution_date, potential_agreement_type_id,
                potential_agreement_term_length_amount, potential_agreement_term_length_type,
                potential_agreement_auto_renew, potential_agreement_renewal_notice_amount,
                potential_agreement_renewal_notice_type, potential_agreement_duration_details):
@@ -86,7 +87,7 @@ class PotentialAgreement(models.Model, AggregateBase):
                       potential_agreement_counterparty=potential_agreement_counterparty,
                       potential_agreement_description=potential_agreement_description,
                       potential_agreement_execution_date=potential_agreement_execution_date,
-                      potential_agreement_type=potential_agreement_type,
+                      potential_agreement_type_id=potential_agreement_type_id,
                       potential_agreement_term_length_amount=potential_agreement_term_length_amount,
                       potential_agreement_term_length_type=potential_agreement_term_length_type,
                       potential_agreement_auto_renew=potential_agreement_auto_renew,
@@ -106,7 +107,7 @@ class PotentialAgreement(models.Model, AggregateBase):
     self.potential_agreement_counterparty = kwargs['potential_agreement_counterparty']
     self.potential_agreement_description = kwargs['potential_agreement_description']
     self.potential_agreement_execution_date = kwargs['potential_agreement_execution_date']
-    self.potential_agreement_type = kwargs['potential_agreement_type']
+    self.potential_agreement_type_id = kwargs['potential_agreement_type_id']
     self.potential_agreement_term_length_amount = kwargs['potential_agreement_term_length_amount']
     self.potential_agreement_counterparty = kwargs['potential_agreement_counterparty']
     self.potential_agreement_term_length_type = kwargs['potential_agreement_term_length_type']

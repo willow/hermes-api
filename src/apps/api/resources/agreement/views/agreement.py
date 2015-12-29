@@ -8,7 +8,7 @@ from django.conf import settings
 
 from src.apps.realtime.agreement.services import agreement_service as realtime_agreement_service
 from src.aggregates.potential_agreement.services import potential_agreement_service
-from src.apps.agreement.enums import AgreementTypeEnum, DurationTypeEnum
+from src.apps.agreement.enums import DurationTypeEnum
 from src.aggregates.asset.services import asset_service
 from src.apps.agreement_translation.services import agreement_translation_service
 from src.apps.api.resources.agreement.serializers.agreement import PotentialAgreementSerializer
@@ -79,9 +79,9 @@ def agreement_update_view(request, agreement_id, _potential_agreement_service=No
 
     potential_agreement = _potential_agreement_service.get_potential_agreement(agreement_id)
 
-    agreement_type = request.data[constants.TYPE]
-    if agreement_type:
-      agreement_type = AgreementTypeEnum[agreement_type]
+    agreement_type = request.data[constants.TYPE_ID]
+    # if agreement_type:
+    #   agreement_type = AgreementTypeEnum[agreement_type]
 
     name = request.data[constants.NAME]
     counterparty = request.data[constants.COUNTERPARTY]
@@ -99,7 +99,7 @@ def agreement_update_view(request, agreement_id, _potential_agreement_service=No
       'potential_agreement_counterparty': counterparty,
       'potential_agreement_description': description,
       'potential_agreement_execution_date': execution_date,
-      'potential_agreement_type': agreement_type,
+      'potential_agreement_type_id': agreement_type,
       'potential_agreement_term_length_amount': term_length_amount,
       'potential_agreement_term_length_type': term_length_type,
       'potential_agreement_auto_renew': auto_renew,
