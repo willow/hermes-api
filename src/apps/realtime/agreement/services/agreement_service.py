@@ -129,7 +129,7 @@ def save_dashboard_agreement_in_firebase(potential_agreement_id, _potential_agre
   }
 
   result = client.put(
-    'users/{user_id}/dashboard-agreements'.format(user_id=potential_agreement.potential_agreement_user_id),
+    'users-dashboard-agreements/{user_id}'.format(user_id=potential_agreement.potential_agreement_user_id),
     potential_agreement_id, data)
 
   return result

@@ -80,8 +80,6 @@ def agreement_update_view(request, agreement_id, _potential_agreement_service=No
     potential_agreement = _potential_agreement_service.get_potential_agreement(agreement_id)
 
     agreement_type = request.data[constants.TYPE_ID]
-    # if agreement_type:
-    #   agreement_type = AgreementTypeEnum[agreement_type]
 
     name = request.data[constants.NAME]
     counterparty = request.data[constants.COUNTERPARTY]
