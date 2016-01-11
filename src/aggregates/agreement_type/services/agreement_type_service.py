@@ -14,7 +14,7 @@ def create_agreement_type(agreement_type_name, agreement_type_global, agreement_
 
 
 def get_agreement_type(agreement_type_id):
-  return AgreementType.objects.filter(agreement_type_id=agreement_type_id)
+  return AgreementType.objects.get(agreement_type_id=agreement_type_id)
 
 
 def get_global_agreement_types():
