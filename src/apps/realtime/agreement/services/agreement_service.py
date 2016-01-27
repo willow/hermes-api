@@ -100,7 +100,7 @@ def save_agreement_detail_in_firebase(potential_agreement_id, _potential_agreeme
   return result
 
 
-def save_dashboard_agreement_in_firebase(potential_agreement_id, _potential_agreement_service=None,
+def save_user_agreement_in_firebase(potential_agreement_id, _potential_agreement_service=None,
                                          _firebase_provider=None):
   if not _potential_agreement_service: _potential_agreement_service = potential_agreement_service
   if not _firebase_provider: _firebase_provider = firebase_provider
@@ -129,7 +129,7 @@ def save_dashboard_agreement_in_firebase(potential_agreement_id, _potential_agre
   }
 
   result = client.put(
-    'users-dashboard-agreements/{user_id}'.format(user_id=potential_agreement.potential_agreement_user_id),
+    'users-agreements/{user_id}'.format(user_id=potential_agreement.potential_agreement_user_id),
     potential_agreement_id, data)
 
   return result

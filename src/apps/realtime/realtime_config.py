@@ -10,3 +10,4 @@ class RealtimeConfig(AppConfig):
     import src.apps.realtime.agreement.event_handlers
     import src.apps.realtime.counterparty.event_handlers
     import src.apps.realtime.user.event_handlers
+    import src.apps.realtime.smart_view.event_handlers

@@ -16,3 +16,5 @@ TEXT = 'text'
 TYPE_ID = 'type_id'
 
 NAME = 'name'
+
+QUERY = 'query'

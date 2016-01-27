@@ -125,7 +125,7 @@ LOCAL_APPS = (
   'src.aggregates.agreement_type',
   'src.aggregates.asset',
   'src.aggregates.potential_agreement',
-  'src.aggregates.search',
+  'src.aggregates.smart_view',
   'src.aggregates.user',
 
   # APPS

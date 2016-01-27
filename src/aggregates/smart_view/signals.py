@@ -4,3 +4,7 @@ created = EventSignal(
   'created', __name__, 1,
   providing_args=['user_name', 'user_nickname', 'user_email', 'user_picture', 'user_attrs', 'user_system_created_date']
 )
+updated_attrs = EventSignal(
+  'updated_attrs', __name__, 1,
+  providing_args=['smart_view_id', 'smart_view_name', 'smart_view_query']
+)
