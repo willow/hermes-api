@@ -18,3 +18,5 @@ TYPE_ID = 'type_id'
 NAME = 'name'
 
 QUERY = 'query'
+
+CONTRACTS = 'contracts'

@@ -35,16 +35,18 @@ def agreement_create_view(request, _potential_agreement_service=None, _agreement
   try:
     # get file and process it, validate it. capture info, like filename and other metadata.
     # if all goes well, submit to s3.
-    contract_file = request.FILES['contract']
+    contract_files = [file for file_name, file in request.FILES.items() if file_name.startswith('contracts')]
 
     # do this task first because persisting the asset will alter the file (name, etc.)
-    agreement_data = _agreement_translation_service.get_agreement_info_from_file(contract_file)
+    agreement_data = _agreement_translation_service.get_agreement_info_from_files(contract_files)
 
-    asset = _asset_service.create_asset_from_file(constants.ARTIFACTS_ROOT, contract_file)
+    assets = [_asset_service.create_asset_from_file(constants.ARTIFACTS_ROOT, file) for file in contract_files]
+
+    asset_ids = [asset.asset_id for asset in assets]
 
     potential_agreement_data = {
       'potential_agreement_name': agreement_data[constants.AGREEMENT_NAME],
-      'potential_agreement_artifacts': [asset.asset_id],  # put it in a list (could have multiple soon)
+      'potential_agreement_artifacts': asset_ids,
       'potential_agreement_user_id': request.user.user_id
     }
 
