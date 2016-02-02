@@ -1,6 +1,7 @@
 import logging
 
 from django_rq import job
+from src.aggregates.potential_agreement.services import potential_agreement_service
 
 from src.apps.realtime.agreement.services import agreement_service
 from src.libs.python_utils.logging.logging_utils import log_wrapper
@@ -36,3 +37,10 @@ def save_user_agreement_in_firebase_task(potential_agreement_id):
 
   with log_wrapper(logger.info, *log_message):
     return agreement_service.save_user_agreement_in_firebase(potential_agreement_id)
+
+
+@job('default')
+def save_agreement_alerts_in_firebase_task(potential_agreement_id):
+  potential_agreement = potential_agreement_service.get_potential_agreement(potential_agreement_id)
+  agreement_service.save_agreement_alerts_in_firebase(potential_agreement)
+  return None

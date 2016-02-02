@@ -1,6 +1,11 @@
+from dateutil.relativedelta import relativedelta
+
 from django.db import models, transaction
+from django.utils import timezone
 from jsonfield import JSONField
-from src.aggregates.potential_agreement.signals import created, completed
+from src.aggregates.potential_agreement.signals import created, completed, updated_attrs, expiration_alert_sent, \
+  outcome_notice_alert_sent
+from src.apps.agreement.enums import DurationTypeDict
 from src.libs.common_domain.aggregate_base import AggregateBase
 from src.libs.common_domain.models import Event
 from simplejson.encoder import JSONEncoder
@@ -23,15 +28,33 @@ class PotentialAgreement(models.Model, AggregateBase):
   potential_agreement_description = models.TextField(blank=True, null=True)
 
   potential_agreement_execution_date = models.DateTimeField(blank=True, null=True)
+  potential_agreement_outcome_date = models.DateTimeField(blank=True, null=True)
 
-  potential_agreement_term_length_amount = models.PositiveSmallIntegerField(blank=True, null=True)
-  potential_agreement_term_length_type = models.PositiveSmallIntegerField(blank=True, null=True)
+  potential_agreement_term_length_time_amount = models.PositiveSmallIntegerField(blank=True, null=True)
+  potential_agreement_term_length_time_type = models.PositiveSmallIntegerField(blank=True, null=True)
 
   potential_agreement_auto_renew = models.NullBooleanField(blank=True, null=True)
-  potential_agreement_renewal_notice_amount = models.PositiveSmallIntegerField(blank=True, null=True)
-  potential_agreement_renewal_notice_type = models.PositiveSmallIntegerField(blank=True, null=True)
+  potential_agreement_outcome_notice_time_amount = models.PositiveSmallIntegerField(blank=True, null=True)
+  potential_agreement_outcome_notice_time_type = models.PositiveSmallIntegerField(blank=True, null=True)
+  potential_agreement_outcome_notice_date = models.DateTimeField(blank=True, null=True)
+
+  potential_agreement_outcome_notice_alert_enabled = models.NullBooleanField(blank=True, null=True)
+  potential_agreement_outcome_notice_alert_time_amount = models.PositiveSmallIntegerField(blank=True, null=True)
+  potential_agreement_outcome_notice_alert_time_type = models.PositiveSmallIntegerField(blank=True, null=True)
+  potential_agreement_outcome_notice_alert_created = models.BooleanField()
+  potential_agreement_outcome_notice_alert_expired = models.BooleanField()
+  potential_agreement_outcome_notice_alert_date = models.DateTimeField(blank=True, null=True)
+
+  potential_agreement_expiration_alert_enabled = models.NullBooleanField(blank=True, null=True)
+  potential_agreement_expiration_alert_time_amount = models.PositiveSmallIntegerField(blank=True, null=True)
+  potential_agreement_expiration_alert_time_type = models.PositiveSmallIntegerField(blank=True, null=True)
+  potential_agreement_expiration_alert_created = models.BooleanField()
+  potential_agreement_expiration_alert_expired = models.BooleanField()
+  potential_agreement_expiration_alert_date = models.DateTimeField(blank=True, null=True)
 
   potential_agreement_duration_details = models.TextField(blank=True, null=True)
+
+  potential_agreement_completed = models.BooleanField()
 
   potential_agreement_system_created_date = models.DateTimeField()
 
@@ -68,9 +91,16 @@ class PotentialAgreement(models.Model, AggregateBase):
 
   def complete(self, potential_agreement_name, potential_agreement_counterparty, potential_agreement_description,
                potential_agreement_execution_date, potential_agreement_type_id,
-               potential_agreement_term_length_amount, potential_agreement_term_length_type,
-               potential_agreement_auto_renew, potential_agreement_renewal_notice_amount,
-               potential_agreement_renewal_notice_type, potential_agreement_duration_details):
+               potential_agreement_term_length_time_amount, potential_agreement_term_length_time_type,
+               potential_agreement_auto_renew, potential_agreement_outcome_notice_time_amount,
+               potential_agreement_outcome_notice_time_type, potential_agreement_duration_details,
+               potential_agreement_outcome_notice_alert_enabled,
+               potential_agreement_outcome_notice_alert_time_amount,
+               potential_agreement_outcome_notice_alert_time_type,
+               potential_agreement_expiration_alert_enabled,
+               potential_agreement_expiration_alert_time_amount,
+               potential_agreement_expiration_alert_time_type,
+               ):
 
     if not potential_agreement_name:
       raise ValueError("potential_agreement_name is required")
@@ -81,19 +111,132 @@ class PotentialAgreement(models.Model, AggregateBase):
     if not potential_agreement_execution_date:
       raise ValueError("potential_agreement_execution_date is required")
 
-    self._raise_event(completed,
-                      potential_agreement_id=self.potential_agreement_id,
-                      potential_agreement_name=potential_agreement_name,
-                      potential_agreement_counterparty=potential_agreement_counterparty,
-                      potential_agreement_description=potential_agreement_description,
-                      potential_agreement_execution_date=potential_agreement_execution_date,
-                      potential_agreement_type_id=potential_agreement_type_id,
-                      potential_agreement_term_length_amount=potential_agreement_term_length_amount,
-                      potential_agreement_term_length_type=potential_agreement_term_length_type,
-                      potential_agreement_auto_renew=potential_agreement_auto_renew,
-                      potential_agreement_renewal_notice_amount=potential_agreement_renewal_notice_amount,
-                      potential_agreement_renewal_notice_type=potential_agreement_renewal_notice_type,
-                      potential_agreement_duration_details=potential_agreement_duration_details)
+    potential_agreement_outcome_date = self._get_outcome_date(
+      potential_agreement_execution_date,
+      potential_agreement_term_length_time_type,
+      potential_agreement_term_length_time_amount
+    )
+
+    potential_agreement_outcome_notice_date = self._get_outcome_notice_date(
+      potential_agreement_outcome_date,
+      potential_agreement_outcome_notice_alert_time_type,
+      potential_agreement_outcome_notice_time_amount
+    )
+
+    potential_agreement_outcome_notice_alert_date = self._get_outcome_notice_alert_date(
+      potential_agreement_outcome_notice_date,
+      potential_agreement_outcome_notice_alert_enabled,
+      potential_agreement_outcome_notice_alert_time_amount,
+      potential_agreement_outcome_notice_alert_time_type
+    )
+
+    potential_agreement_expiration_alert_date = self._get_expiration_alert_date(
+      potential_agreement_outcome_date,
+      potential_agreement_expiration_alert_enabled,
+      potential_agreement_expiration_alert_time_amount,
+      potential_agreement_expiration_alert_time_type
+    )
+
+    # https://app.asana.com/0/10235149247655/87787298394920
+    event = updated_attrs if self.potential_agreement_completed else completed
+
+    self._raise_event(
+      event,
+      potential_agreement_id=self.potential_agreement_id,
+      potential_agreement_name=potential_agreement_name,
+      potential_agreement_counterparty=potential_agreement_counterparty,
+      potential_agreement_description=potential_agreement_description,
+      potential_agreement_execution_date=potential_agreement_execution_date,
+      potential_agreement_outcome_date=potential_agreement_outcome_date,
+      potential_agreement_type_id=potential_agreement_type_id,
+      potential_agreement_term_length_time_amount=potential_agreement_term_length_time_amount,
+      potential_agreement_term_length_time_type=potential_agreement_term_length_time_type,
+      potential_agreement_auto_renew=potential_agreement_auto_renew,
+      potential_agreement_outcome_notice_time_amount=potential_agreement_outcome_notice_time_amount,
+      potential_agreement_outcome_notice_time_type=potential_agreement_outcome_notice_time_type,
+      potential_agreement_outcome_notice_date=potential_agreement_outcome_notice_date,
+      potential_agreement_duration_details=potential_agreement_duration_details,
+      potential_agreement_outcome_notice_alert_enabled=potential_agreement_outcome_notice_alert_enabled,
+      potential_agreement_outcome_notice_alert_time_amount=potential_agreement_outcome_notice_alert_time_amount,
+      potential_agreement_outcome_notice_alert_time_type=potential_agreement_outcome_notice_alert_time_type,
+      potential_agreement_outcome_notice_alert_date=potential_agreement_outcome_notice_alert_date,
+      potential_agreement_expiration_alert_enabled=potential_agreement_expiration_alert_enabled,
+      potential_agreement_expiration_alert_time_amount=potential_agreement_expiration_alert_time_amount,
+      potential_agreement_expiration_alert_time_type=potential_agreement_expiration_alert_time_type,
+      potential_agreement_expiration_alert_date=potential_agreement_expiration_alert_date
+    )
+
+  def send_outcome_notice_alert_if_due(self):
+    past_due = timezone.now() >= self.potential_agreement_outcome_notice_alert_date
+    if past_due and self.potential_agreement_outcome_notice_alert_enabled and not self.potential_agreement_outcome_notice_alert_created:
+      self._raise_event(outcome_notice_alert_sent, potential_agreement_id=self.potential_agreement_id)
+
+  def send_expiration_alert_if_due(self):
+    past_due = timezone.now() >= self.potential_agreement_expiration_alert_date
+    if past_due and self.potential_agreement_expiration_alert_enabled and not self.potential_agreement_expiration_alert_created:
+      self._raise_event(expiration_alert_sent, potential_agreement_id=self.potential_agreement_id)
+
+  def _get_outcome_date(self, potential_agreement_execution_date, potential_agreement_term_length_time_type,
+                        potential_agreement_term_length_time_amount):
+    # what is the next outcome date?
+    # execution date + term length.
+    # it's probably safe to assume time_type is always specified.
+    if potential_agreement_term_length_time_amount:
+      outcome_relative_time_modifier = DurationTypeDict[potential_agreement_term_length_time_type].lower()
+      kwargs = {outcome_relative_time_modifier: potential_agreement_term_length_time_amount}
+      potential_agreement_outcome_date = potential_agreement_execution_date + relativedelta(**kwargs)
+    else:
+      potential_agreement_outcome_date = None
+
+    return potential_agreement_outcome_date
+
+  def _get_outcome_notice_alert_date(self, potential_agreement_outcome_notice_date,
+                                     potential_agreement_outcome_notice_alert_enabled,
+                                     potential_agreement_outcome_notice_alert_time_amount,
+                                     potential_agreement_outcome_notice_alert_time_type):
+    # if outcome_notice alert enabled
+    # if we have an outcome_notice date specified
+    # it's probably safe to assume time_type is always specified
+    if potential_agreement_outcome_notice_alert_enabled and potential_agreement_outcome_notice_date:
+      outcome_notice_relative_time_modifier = DurationTypeDict[
+        potential_agreement_outcome_notice_alert_time_type].lower()
+
+      kwargs = {outcome_notice_relative_time_modifier: potential_agreement_outcome_notice_alert_time_amount}
+      potential_agreement_outcome_notice_alert_date = potential_agreement_outcome_notice_date - relativedelta(**kwargs)
+    else:
+      potential_agreement_outcome_notice_alert_date = None
+
+    return potential_agreement_outcome_notice_alert_date
+
+  def _get_expiration_alert_date(self, potential_agreement_outcome_date, potential_agreement_expiration_alert_enabled,
+                                 potential_agreement_expiration_alert_time_amount,
+                                 potential_agreement_expiration_alert_time_type):
+    # if expiration alert enabled
+    # if we have an expiration date specified
+    # it's probably safe to assume time_type is always specified
+    if potential_agreement_expiration_alert_enabled and potential_agreement_outcome_date:
+      expiration_relative_time_modifier = DurationTypeDict[potential_agreement_expiration_alert_time_type].lower()
+      kwargs = {expiration_relative_time_modifier: potential_agreement_expiration_alert_time_amount}
+      potential_agreement_expiration_alert_date = potential_agreement_outcome_date - relativedelta(**kwargs)
+    else:
+      potential_agreement_expiration_alert_date = None
+
+    return potential_agreement_expiration_alert_date
+
+  def _get_outcome_notice_date(self, potential_agreement_outcome_date,
+                               potential_agreement_outcome_notice_alert_time_type,
+                               potential_agreement_outcome_notice_time_amount):
+
+    # it's probably safe to assume time_type is always specified.
+    if potential_agreement_outcome_notice_time_amount and potential_agreement_outcome_date:
+      outcome_notice_relative_time_modifier = DurationTypeDict[
+        potential_agreement_outcome_notice_alert_time_type].lower()
+      kwargs = {outcome_notice_relative_time_modifier: potential_agreement_outcome_notice_time_amount}
+      potential_agreement_outcome_notice_date = potential_agreement_outcome_date - relativedelta(**kwargs)
+    else:
+      potential_agreement_outcome_notice_date = None
+
+    return potential_agreement_outcome_notice_date
 
   def _handle_created_event(self, **kwargs):
     self.potential_agreement_id = kwargs['potential_agreement_id']
@@ -102,19 +245,49 @@ class PotentialAgreement(models.Model, AggregateBase):
     self.potential_agreement_user_id = kwargs['potential_agreement_user_id']
     self.potential_agreement_system_created_date = kwargs['potential_agreement_system_created_date']
 
+    self.potential_agreement_outcome_notice_alert_created = False
+    self.potential_agreement_outcome_notice_alert_expired = False
+    self.potential_agreement_expiration_alert_created = False
+    self.potential_agreement_expiration_alert_expired = False
+
+    self.potential_agreement_completed = False
+
+  def _handle_updated_attrs_event(self, **kwargs):
+    # https://app.asana.com/0/10235149247655/87787298394920
+    self._handle_completed_event(**kwargs)
+
   def _handle_completed_event(self, **kwargs):
     self.potential_agreement_name = kwargs['potential_agreement_name']
     self.potential_agreement_counterparty = kwargs['potential_agreement_counterparty']
     self.potential_agreement_description = kwargs['potential_agreement_description']
     self.potential_agreement_execution_date = kwargs['potential_agreement_execution_date']
+    self.potential_agreement_outcome_date = kwargs['potential_agreement_outcome_date']
     self.potential_agreement_type_id = kwargs['potential_agreement_type_id']
-    self.potential_agreement_term_length_amount = kwargs['potential_agreement_term_length_amount']
     self.potential_agreement_counterparty = kwargs['potential_agreement_counterparty']
-    self.potential_agreement_term_length_type = kwargs['potential_agreement_term_length_type']
+    self.potential_agreement_term_length_time_amount = kwargs['potential_agreement_term_length_time_amount']
+    self.potential_agreement_term_length_time_type = kwargs['potential_agreement_term_length_time_type']
     self.potential_agreement_auto_renew = kwargs['potential_agreement_auto_renew']
-    self.potential_agreement_renewal_notice_amount = kwargs['potential_agreement_renewal_notice_amount']
-    self.potential_agreement_renewal_notice_type = kwargs['potential_agreement_renewal_notice_type']
+    self.potential_agreement_outcome_notice_time_amount = kwargs['potential_agreement_outcome_notice_time_amount']
+    self.potential_agreement_outcome_notice_time_type = kwargs['potential_agreement_outcome_notice_time_type']
+    self.potential_agreement_outcome_notice_date = kwargs['potential_agreement_outcome_notice_date']
     self.potential_agreement_duration_details = kwargs['potential_agreement_duration_details']
+    self.potential_agreement_outcome_notice_alert_enabled = kwargs['potential_agreement_outcome_notice_alert_enabled']
+    self.potential_agreement_outcome_notice_alert_time_amount = kwargs[
+      'potential_agreement_outcome_notice_alert_time_amount']
+    self.potential_agreement_outcome_notice_alert_time_type = kwargs[
+      'potential_agreement_outcome_notice_alert_time_type']
+    self.potential_agreement_outcome_notice_alert_date = kwargs['potential_agreement_outcome_notice_alert_date']
+    self.potential_agreement_expiration_alert_enabled = kwargs['potential_agreement_expiration_alert_enabled']
+    self.potential_agreement_expiration_alert_time_amount = kwargs['potential_agreement_expiration_alert_time_amount']
+    self.potential_agreement_expiration_alert_time_type = kwargs['potential_agreement_expiration_alert_time_type']
+    self.potential_agreement_expiration_alert_date = kwargs['potential_agreement_expiration_alert_date']
+    self.potential_agreement_completed = True
+
+  def _handle_outcome_notice_alert_sent_event(self, **kwargs):
+    self.potential_agreement_outcome_notice_alert_created = True
+
+  def _handle_expiration_alert_sent_event(self, **kwargs):
+    self.potential_agreement_expiration_alert_created = True
 
   def __str__(self):
     return 'PotentialAgreement #' + str(self.potential_agreement_id) + ': ' + self.potential_agreement_name

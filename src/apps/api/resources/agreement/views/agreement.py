@@ -87,12 +87,18 @@ def agreement_update_view(request, agreement_id, _potential_agreement_service=No
     counterparty = request.data[constants.COUNTERPARTY]
     description = request.data[constants.DESCRIPTION]
     execution_date = _datetime_utils.get_utc_from_timestamp(request.data[constants.EXECUTION_DATE])
-    term_length_amount = request.data[constants.TERM_LENGTH_AMOUNT]
-    term_length_type = DurationTypeEnum[request.data[constants.TERM_LENGTH_TYPE]]
-    auto_renew = request.data[constants.AUTO_RENEW]
-    renewal_notice_amount = request.data[constants.RENEWAL_NOTICE_AMOUNT]
-    renewal_notice_type = DurationTypeEnum[request.data[constants.RENEWAL_NOTICE_TYPE]]
+    term_length_time_amount = request.data[constants.TERM_LENGTH_TIME_AMOUNT]
+    term_length_time_type = DurationTypeEnum[request.data[constants.TERM_LENGTH_TIME_TYPE]]
+    auto_renew = bool(request.data[constants.AUTO_RENEW])
+    outcome_notice_time_amount = request.data[constants.OUTCOME_NOTICE_TIME_AMOUNT]
+    outcome_notice_time_type = DurationTypeEnum[request.data[constants.OUTCOME_NOTICE_TIME_TYPE]]
     duration_details = request.data[constants.DURATION_DETAILS]
+    outcome_notice_alert_enabled = bool(request.data[constants.OUTCOME_NOTICE_ALERT_ENABLED])
+    outcome_notice_alert_time_amount = request.data[constants.OUTCOME_NOTICE_ALERT_TIME_AMOUNT]
+    outcome_notice_alert_time_type = DurationTypeEnum[request.data[constants.OUTCOME_NOTICE_ALERT_TIME_TYPE]]
+    expiration_alert_enabled = bool(request.data[constants.EXPIRATION_ALERT_ENABLED])
+    expiration_alert_time_amount = request.data[constants.EXPIRATION_ALERT_TIME_AMOUNT]
+    expiration_alert_time_type = DurationTypeEnum[request.data[constants.EXPIRATION_ALERT_TIME_TYPE]]
 
     potential_agreement_data = {
       'potential_agreement_name': name,
@@ -100,12 +106,18 @@ def agreement_update_view(request, agreement_id, _potential_agreement_service=No
       'potential_agreement_description': description,
       'potential_agreement_execution_date': execution_date,
       'potential_agreement_type_id': agreement_type,
-      'potential_agreement_term_length_amount': term_length_amount,
-      'potential_agreement_term_length_type': term_length_type,
+      'potential_agreement_term_length_time_amount': term_length_time_amount,
+      'potential_agreement_term_length_time_type': term_length_time_type,
       'potential_agreement_auto_renew': auto_renew,
-      'potential_agreement_renewal_notice_amount': renewal_notice_amount,
-      'potential_agreement_renewal_notice_type': renewal_notice_type,
+      'potential_agreement_outcome_notice_time_amount': outcome_notice_time_amount,
+      'potential_agreement_outcome_notice_time_type': outcome_notice_time_type,
       'potential_agreement_duration_details': duration_details,
+      'potential_agreement_outcome_notice_alert_enabled': outcome_notice_alert_enabled,
+      'potential_agreement_outcome_notice_alert_time_amount': outcome_notice_alert_time_amount,
+      'potential_agreement_outcome_notice_alert_time_type': outcome_notice_alert_time_type,
+      'potential_agreement_expiration_alert_enabled': expiration_alert_enabled,
+      'potential_agreement_expiration_alert_time_amount': expiration_alert_time_amount,
+      'potential_agreement_expiration_alert_time_type': expiration_alert_time_type,
     }
 
     potential_agreement.complete(**potential_agreement_data)
