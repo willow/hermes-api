@@ -17,7 +17,7 @@ def user_completed_callback(**kwargs):
 
 @event_idempotent
 @receiver(agreement_type_created)
-def user_completed_callback(**kwargs):
+def agreement_type_created_callback(**kwargs):
   agreement_type_id = kwargs.pop('agreement_type_id')
 
   agreement_type = agreement_type_service.get_agreement_type(agreement_type_id)
