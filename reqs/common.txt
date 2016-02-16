@@ -5,6 +5,7 @@ pytz==2015.4
 django-redis==4.2.0
 redis==2.10.3
 rq==0.5.4
+rq-scheduler==0.5.1
 django-rq==0.8.0
 jsonfield==1.0.3
 requests==2.7.0

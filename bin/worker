@@ -1,0 +1,2 @@
+python -u manage.py rqworker high default &
+python -u manage.py rqscheduler
