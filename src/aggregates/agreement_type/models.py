@@ -9,7 +9,7 @@ class AgreementType(models.Model, AggregateBase):
   agreement_type_id = models.CharField(max_length=8, unique=True)
   agreement_type_name = models.CharField(max_length=2400)
   agreement_type_global = models.BooleanField()
-  agreement_type_user = models.ForeignKey('user.User', 'user_id', blank=True,
+  agreement_type_user = models.ForeignKey('user.User', 'user_id', blank=True, related_name='user_agreement_types',
                                           null=True)
   agreement_type_system_created_date = models.DateTimeField()
 
@@ -27,7 +27,7 @@ class AgreementType(models.Model, AggregateBase):
     if not agreement_type_name:
       raise TypeError("agreement_type_name is required")
 
-    if not agreement_type_global:
+    if agreement_type_global is None:
       raise TypeError("agreement_type_global is required")
 
     if not agreement_type_system_created_date:

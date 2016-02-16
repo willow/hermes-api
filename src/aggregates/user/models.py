@@ -84,7 +84,11 @@ class User(models.Model, AggregateBase):
   def agreement_types(self, _agreement_type_service=None):
 
     if not _agreement_type_service: _agreement_type_service = agreement_type_service
-    ret_val = list(_agreement_type_service.get_global_agreement_types())
+
+    global_agreement_types = list(_agreement_type_service.get_global_agreement_types())
+    user_agreement_types = list(self.user_agreement_types.all())
+
+    ret_val = global_agreement_types + user_agreement_types
 
     return ret_val
 
