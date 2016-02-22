@@ -298,7 +298,10 @@ class PotentialAgreement(models.Model, AggregateBase):
         super().save(*args, **kwargs)
 
         for event in self._uncommitted_events:
-          Event.objects.create(name=event.event_fq_name, version=event.version, data=event.kwargs)
+          Event.objects.create(
+            aggregate_name=self.__class__.__name__, aggregate_id=self.potential_agreement_id,
+            event_name=event.event_fq_name, event_version=event.version, event_data=event.kwargs
+          )
 
       # don't send events until successful commit
       self.send_events()

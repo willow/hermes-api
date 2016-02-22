@@ -1,4 +1,6 @@
-# encoding: utf8
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
 from django.db import models, migrations
 import jsonfield.fields
 
@@ -12,13 +14,12 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Event',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('version', models.PositiveIntegerField()),
-                ('name', models.CharField(max_length=1024)),
-                ('data', jsonfield.fields.JSONField()),
+                ('id', models.AutoField(primary_key=True, verbose_name='ID', serialize=False, auto_created=True)),
+                ('aggregate_id', models.CharField(max_length=255)),
+                ('aggregate_name', models.CharField(max_length=255)),
+                ('event_version', models.PositiveIntegerField()),
+                ('event_name', models.CharField(max_length=1024)),
+                ('event_data', jsonfield.fields.JSONField()),
             ],
-            options={
-            },
-            bases=(models.Model,),
         ),
     ]

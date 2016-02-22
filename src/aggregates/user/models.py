@@ -101,8 +101,10 @@ class User(models.Model, AggregateBase):
         super().save(*args, **kwargs)
 
         for event in self._uncommitted_events:
-          Event.objects.create(name=event.event_fq_name, version=event.version, data=event.kwargs)
-
+          Event.objects.create(
+            aggregate_name=self.__class__.__name__, aggregate_id=self.user_id,
+            event_name=event.event_fq_name, event_version=event.version, event_data=event.kwargs
+          )
       self.send_events()
     else:
       from src.aggregates.user.services import user_service

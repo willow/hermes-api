@@ -4,7 +4,6 @@ from django.conf import settings
 from src.aggregates.asset.signals import created
 from src.libs.common_domain.aggregate_base import AggregateBase
 from src.libs.common_domain.models import Event
-from src.libs.django_utils.storage import storage_utils
 
 constants = settings.CONSTANTS
 assets_root = constants.ASSETS_ROOT
@@ -74,7 +73,10 @@ class Asset(models.Model, AggregateBase):
         super().save(*args, **kwargs)
 
         for event in self._uncommitted_events:
-          Event.objects.create(name=event.event_fq_name, version=event.version, data=event.kwargs)
+          Event.objects.create(
+            aggregate_name=self.__class__.__name__, aggregate_id=self.asset_id,
+            event_name=event.event_fq_name, event_version=event.version, event_data=event.kwargs
+          )
 
       self.send_events()
     else:
