@@ -1,4 +1,5 @@
 from django.core.paginator import Paginator
+from src.aggregates.agreement.models import Agreement
 
 from src.aggregates.potential_agreement.models import PotentialAgreement
 
@@ -8,11 +9,11 @@ def federated_search(user, query):
   query = query.strip()
 
   results = (
-    PotentialAgreement
+    Agreement
       .objects
-      .filter(potential_agreement_name__icontains=query)
-      .filter(potential_agreement_user_id=user.user_id)
-      .values_list('potential_agreement_id', 'potential_agreement_name')
+      .filter(name__icontains=query)
+      .filter(user_id=user.uid)
+      .values_list('uid', 'name')
   )
 
   paged_results = Paginator(results, 3)
@@ -28,23 +29,23 @@ def advanced_search(user, text, counterparty, agreement_type):
   # refer to https://app.asana.com/0/10235149247655/79432408201376 for upgrading the search service
 
   results = (
-    PotentialAgreement
+    Agreement
       .objects
-      .filter(potential_agreement_user_id=user.user_id)
-      .values_list('potential_agreement_id', 'potential_agreement_name')
+      .filter(user_id=user.uid)
+      .values_list('uid', 'name')
   )
 
   if text:
     text = text.strip()
-    results = results.filter(potential_agreement_name__icontains=text)
+    results = results.filter(name__icontains=text)
 
   if counterparty:
     counterparty = counterparty.strip()
-    results = results.filter(potential_agreement_counterparty__iexact=counterparty)
+    results = results.filter(counterparty__iexact=counterparty)
 
   if agreement_type:
     agreement_type_id = agreement_type.agreement_type_id
-    results = results.filter(potential_agreement_type_id=agreement_type_id)
+    results = results.filter(agreement_type_id=agreement_type_id)
 
   count = results.count()
 

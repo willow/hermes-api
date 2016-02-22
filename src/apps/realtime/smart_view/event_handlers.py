@@ -9,6 +9,6 @@ from src.libs.common_domain.decorators import event_idempotent
 @receiver(created)
 @receiver(updated_attrs)
 def smart_view_created_callback(**kwargs):
-  smart_view_id = kwargs.pop('smart_view_id')
+  smart_view_id = kwargs['aggregate_id']
 
   smart_view_tasks.save_smart_view_in_firebase_task.delay(smart_view_id)

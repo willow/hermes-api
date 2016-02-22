@@ -13,7 +13,7 @@ def save_agreement_types_in_firebase(user_id, _user_service=None, _firebase_prov
 
   client = _firebase_provider.get_firebase_client()
 
-  agreement_types = {a.agreement_type_id: {'name': a.agreement_type_name} for a in user_agreement_types}
+  agreement_types = {a.uid: {'name': a.name} for a in user_agreement_types}
 
   result = client.put('users-agreement-types', user_id, agreement_types)
 

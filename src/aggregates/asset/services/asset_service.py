@@ -15,13 +15,13 @@ def save_or_update(asset):
 
 
 def get_asset(asset_id):
-  asset = Asset.objects.get(asset_id=asset_id)
+  asset = Asset.objects.get(uid=asset_id)
 
   return asset
 
 
 def get_assets(asset_ids):
-  assets = Asset.objects.filter(asset_id__in=asset_ids)
+  assets = Asset.objects.filter(uid__in=asset_ids)
 
   return assets
 

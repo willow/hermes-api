@@ -6,16 +6,15 @@ def save_or_update(agreement_type):
   agreement_type.save(internal=True)
 
 
-def create_agreement_type(agreement_type_name, agreement_type_global, agreement_type_user_id):
-  agreement_type = agreement_type_factory.create_agreement_type(agreement_type_name, agreement_type_global,
-                                                                agreement_type_user_id)
+def create_agreement_type(name, is_global, user_uid):
+  agreement_type = agreement_type_factory.create_agreement_type(name, is_global, user_uid)
   save_or_update(agreement_type)
   return agreement_type
 
 
-def get_agreement_type(agreement_type_id):
-  return AgreementType.objects.get(agreement_type_id=agreement_type_id)
+def get_agreement_type(agreement_type_uid):
+  return AgreementType.objects.get(uid=agreement_type_uid)
 
 
 def get_global_agreement_types():
-  return AgreementType.objects.filter(agreement_type_global=True)
+  return AgreementType.objects.filter(is_global=True)

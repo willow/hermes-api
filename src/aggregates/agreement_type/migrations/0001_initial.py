@@ -23,18 +23,19 @@ class Migration(migrations.Migration):
     migrations.CreateModel(
       name='AgreementType',
       fields=[
-        ('id', models.AutoField(primary_key=True, verbose_name='ID', serialize=False, auto_created=True)),
-        ('agreement_type_id', models.CharField(max_length=8, unique=True)),
-        ('agreement_type_name', models.CharField(max_length=2400)),
-        ('agreement_type_global', models.BooleanField()),
-        ('agreement_type_system_created_date', models.DateTimeField()),
-        ('agreement_type_user', models.ForeignKey(null=True, to_field='user_id', to='user.User', blank=True)),
+        ('id', models.AutoField(serialize=False, primary_key=True, verbose_name='ID', auto_created=True)),
+        ('uid', models.CharField(unique=True, max_length=8)),
+        ('name', models.CharField(max_length=2400)),
+        ('is_global', models.BooleanField()),
+        ('system_created_date', models.DateTimeField()),
+        ('user',
+         models.ForeignKey(null=True, blank=True, to_field='uid', related_name='user_agreement_types', to='user.User')),
       ],
       bases=(models.Model, src.libs.common_domain.aggregate_base.AggregateBase),
     ),
     migrations.AlterUniqueTogether(
       name='agreementtype',
-      unique_together=set([('agreement_type_name', 'agreement_type_user')]),
+      unique_together=set([('name', 'user')]),
     ),
     migrations.RunPython(create_defaults),
   ]

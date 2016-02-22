@@ -6,53 +6,54 @@ from src.libs.common_domain.models import Event
 
 
 class AgreementType(models.Model, AggregateBase):
-  agreement_type_id = models.CharField(max_length=8, unique=True)
-  agreement_type_name = models.CharField(max_length=2400)
-  agreement_type_global = models.BooleanField()
-  agreement_type_user = models.ForeignKey('user.User', 'user_id', blank=True, related_name='user_agreement_types',
-                                          null=True)
-  agreement_type_system_created_date = models.DateTimeField()
+  uid = models.CharField(max_length=8, unique=True)
+  name = models.CharField(max_length=2400)
+  is_global = models.BooleanField()
+  user = models.ForeignKey('user.User', 'uid', related_name='user_agreement_types', blank=True, null=True)
+  system_created_date = models.DateTimeField()
 
   class Meta:
-    unique_together = ("agreement_type_name", "agreement_type_user")
+    unique_together = ("name", "user")
 
   @classmethod
-  def _from_attrs(cls, agreement_type_id, agreement_type_name, agreement_type_global, agreement_type_user_id,
-                  agreement_type_system_created_date):
+  def _from_attrs(cls, uid, name, is_global, user_uid, system_created_date):
     ret_val = cls()
 
-    if not agreement_type_id:
-      raise TypeError("agreement_type_id is required")
+    if not uid:
+      raise TypeError("uid is required")
 
-    if not agreement_type_name:
-      raise TypeError("agreement_type_name is required")
+    if not name:
+      raise TypeError("name is required")
 
-    if agreement_type_global is None:
-      raise TypeError("agreement_type_global is required")
+    if is_global is None:
+      raise TypeError("is_global is required")
 
-    if not agreement_type_system_created_date:
-      raise TypeError("agreement_type_system_created_date is required")
+    if not system_created_date:
+      raise TypeError("system_created_date is required")
+
+    if not is_global and not user_uid:
+      raise TypeError("a user is required if the agreement type is not global.")
 
     ret_val._raise_event(
       created,
-      agreement_type_id=agreement_type_id,
-      agreement_type_name=agreement_type_name,
-      agreement_type_global=agreement_type_global,
-      agreement_type_user_id=agreement_type_user_id,
-      agreement_type_system_created_date=agreement_type_system_created_date,
+      uid=uid,
+      name=name,
+      is_global=is_global,
+      user_uid=user_uid,
+      system_created_date=system_created_date,
     )
 
     return ret_val
 
   def _handle_created_event(self, **kwargs):
-    self.agreement_type_id = kwargs['agreement_type_id']
-    self.agreement_type_name = kwargs['agreement_type_name']
-    self.agreement_type_global = kwargs['agreement_type_global']
-    self.agreement_type_user_id = kwargs['agreement_type_user_id']
-    self.agreement_type_system_created_date = kwargs['agreement_type_system_created_date']
+    self.uid = kwargs['uid']
+    self.name = kwargs['name']
+    self.is_global = kwargs['is_global']
+    self.user_uid = kwargs['user_uid']
+    self.system_created_date = kwargs['system_created_date']
 
   def __str__(self):
-    return 'Agreement Type#' + self.agreement_type_id + ': ' + self.agreement_type_name
+    return 'Agreement Type#' + self.uid + ': ' + self.name
 
   def save(self, internal=False, *args, **kwargs):
     if internal:
@@ -60,14 +61,13 @@ class AgreementType(models.Model, AggregateBase):
         super().save(*args, **kwargs)
 
         for event in self._uncommitted_events:
-
           Event.objects.create(
-            aggregate_name=self.__class__.__name__, aggregate_id=self.agreement_type_id,
+            aggregate_name=self.__class__.__name__, aggregate_id=self.uid,
             event_name=event.event_fq_name, event_version=event.version, event_data=event.kwargs
           )
 
       self.send_events()
     else:
-      from src.aggregates.agreement.services import agreement_type_service
+      from src.aggregates.agreement.services import service
 
-      agreement_type_service.save_or_update(self)
+      service.save_or_update(self)

@@ -24,7 +24,7 @@ def agreement_type_create_view(request, _agreement_type_service=None):
 
     agreement_type_data = {
       'agreement_type_name': name,
-      'agreement_type_global': False,
+      'is_global': False,
       'agreement_type_user_id': agreement_type_user_id
     }
 

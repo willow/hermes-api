@@ -1,184 +1,171 @@
 from django.utils import timezone
 
 from src.aggregates.asset.services import asset_service
-from src.aggregates.potential_agreement.services import potential_agreement_service
 from src.apps.agreement.enums import DurationTypeEnum
 from src.libs.datetime_utils.datetime_utils import get_timestamp_from_datetime
 from src.libs.firebase_utils.services import firebase_provider
 
 
-def save_agreement_edit_in_firebase(potential_agreement_id, _potential_agreement_service=None, _firebase_provider=None):
-  if not _potential_agreement_service: _potential_agreement_service = potential_agreement_service
+def save_agreement_edit_in_firebase(agreement, _firebase_provider=None):
   if not _firebase_provider: _firebase_provider = firebase_provider
 
   client = _firebase_provider.get_firebase_client()
 
-  potential_agreement = _potential_agreement_service.get_potential_agreement(potential_agreement_id)
-
-  if potential_agreement.potential_agreement_execution_date:
-    execution_date = get_timestamp_from_datetime(potential_agreement.potential_agreement_execution_date)
+  if agreement.execution_date:
+    execution_date = get_timestamp_from_datetime(agreement.execution_date)
   else:
     execution_date = None
 
-  if potential_agreement.potential_agreement_outcome_notice_time_type:
-    outcome_notice_type = DurationTypeEnum(potential_agreement.potential_agreement_outcome_notice_time_type).name
+  if agreement.outcome_notice_time_type:
+    outcome_notice_type = DurationTypeEnum(agreement.outcome_notice_time_type).name
   else:
     outcome_notice_type = None
 
-  if potential_agreement.potential_agreement_term_length_time_amount:
-    term_length_type = DurationTypeEnum(potential_agreement.potential_agreement_term_length_time_type).name
+  if agreement.term_length_time_amount:
+    term_length_type = DurationTypeEnum(agreement.term_length_time_type).name
   else:
     term_length_type = None
 
-  if potential_agreement.potential_agreement_outcome_notice_alert_time_type:
+  if agreement.outcome_notice_alert_time_type:
     outcome_notice_alert_time_type = DurationTypeEnum(
-      potential_agreement.potential_agreement_outcome_notice_alert_time_type).name
+      agreement.outcome_notice_alert_time_type).name
   else:
     outcome_notice_alert_time_type = None
 
-  if potential_agreement.potential_agreement_expiration_alert_time_type:
+  if agreement.expiration_alert_time_type:
     expiration_alert_time_type = DurationTypeEnum(
-      potential_agreement.potential_agreement_expiration_alert_time_type).name
+      agreement.expiration_alert_time_type).name
   else:
     expiration_alert_time_type = None
 
   agreement_type_id = None
-  potential_agreement_type = potential_agreement.potential_agreement_type
-  if potential_agreement_type:
-    agreement_type_id = potential_agreement_type.agreement_type_id
+  agreement_type = agreement.agreement_type
+  if agreement_type:
+    agreement_type_id = agreement_type.uid
 
   data = {
-    'auto-renew': potential_agreement.potential_agreement_auto_renew,
-    'counterparty': potential_agreement.potential_agreement_counterparty,
-    'description': potential_agreement.potential_agreement_description,
-    'duration-details': potential_agreement.potential_agreement_duration_details,
+    'auto-renew': agreement.auto_renew,
+    'counterparty': agreement.counterparty,
+    'description': agreement.description,
+    'duration-details': agreement.duration_details,
     'execution-date': execution_date,
-    'name': potential_agreement.potential_agreement_name,
-    'outcome-notice-time-amount': potential_agreement.potential_agreement_outcome_notice_time_amount,
+    'name': agreement.name,
+    'outcome-notice-time-amount': agreement.outcome_notice_time_amount,
     'outcome-notice-time-type': outcome_notice_type,
-    'outcome-notice-alert-enabled': potential_agreement.potential_agreement_outcome_notice_alert_enabled,
-    'outcome-notice-alert-time-amount': potential_agreement.potential_agreement_outcome_notice_alert_time_amount,
+    'outcome-notice-alert-enabled': agreement.outcome_notice_alert_enabled,
+    'outcome-notice-alert-time-amount': agreement.outcome_notice_alert_time_amount,
     'outcome-notice-alert-time-type': outcome_notice_alert_time_type,
-    'expiration-alert-enabled': potential_agreement.potential_agreement_expiration_alert_enabled,
-    'expiration-alert-time-amount': potential_agreement.potential_agreement_expiration_alert_time_amount,
+    'expiration-alert-enabled': agreement.expiration_alert_enabled,
+    'expiration-alert-time-amount': agreement.expiration_alert_time_amount,
     'expiration-alert-time-type': expiration_alert_time_type,
-    'term-length-time-amount': potential_agreement.potential_agreement_term_length_time_amount,
+    'term-length-time-amount': agreement.term_length_time_amount,
     'term-length-time-type': term_length_type,
     'type-id': agreement_type_id,
-    'viewers': {potential_agreement.potential_agreement_user_id: True}
+    'viewers': {agreement.user_id: True}
   }
 
-  result = client.put('/agreement-edits', potential_agreement_id, data)
+  result = client.put('/agreement-edits', agreement.uid, data)
 
   return result
 
 
-def save_agreement_detail_in_firebase(potential_agreement_id, _potential_agreement_service=None, _asset_service=None,
-                                      _firebase_provider=None):
-  if not _potential_agreement_service: _potential_agreement_service = potential_agreement_service
+def save_agreement_detail_in_firebase(agreement, _asset_service=None, _firebase_provider=None):
   if not _asset_service: _asset_service = asset_service
   if not _firebase_provider: _firebase_provider = firebase_provider
 
   client = _firebase_provider.get_firebase_client()
 
-  potential_agreement = _potential_agreement_service.get_potential_agreement(potential_agreement_id)
-
   # this task is only fired after a potential agreement is complete, so it's safe to assume an execution date is present
-  execution_date = get_timestamp_from_datetime(potential_agreement.potential_agreement_execution_date)
+  execution_date = get_timestamp_from_datetime(agreement.execution_date)
 
-  if potential_agreement.potential_agreement_term_length_time_amount:
-    term_length_type = DurationTypeEnum(potential_agreement.potential_agreement_term_length_time_type).name
+  if agreement.term_length_time_amount:
+    term_length_type = DurationTypeEnum(agreement.term_length_time_type).name
   else:
     term_length_type = None
 
   agreement_type_name = None
-  potential_agreement_type = potential_agreement.potential_agreement_type
-  if potential_agreement_type:
-    agreement_type_name = potential_agreement_type.agreement_type_name
+  agreement_type = agreement.agreement_type
+  if agreement_type:
+    agreement_type_name = agreement_type.name
 
-  assets = _asset_service.get_assets(potential_agreement.potential_agreement_artifacts)
+  assets = _asset_service.get_assets(agreement.artifacts)
 
-  artifacts = {a.asset_id: {'name': a.asset_original_name} for a in
-               assets}
+  artifacts = {a.uid: {'name': a.original_name} for a in assets}
 
   data = {
-    'counterparty': potential_agreement.potential_agreement_counterparty,
-    'description': potential_agreement.potential_agreement_description,
+    'counterparty': agreement.counterparty,
+    'description': agreement.description,
     'execution-date': execution_date,
-    'name': potential_agreement.potential_agreement_name,
-    'term-length-time-amount': potential_agreement.potential_agreement_term_length_time_amount,
+    'name': agreement.name,
+    'term-length-time-amount': agreement.term_length_time_amount,
     'term-length-time-type': term_length_type,
     'type-name': agreement_type_name,
     'artifacts': artifacts,
-    'viewers': {potential_agreement.potential_agreement_user_id: True}
+    'viewers': {agreement.user_id: True}
   }
 
-  result = client.put('/agreement-details', potential_agreement_id, data)
+  result = client.put('/agreement-details', agreement.uid, data)
 
   return result
 
 
-def save_user_agreement_in_firebase(potential_agreement_id, _potential_agreement_service=None,
-                                    _firebase_provider=None):
-  if not _potential_agreement_service: _potential_agreement_service = potential_agreement_service
+def save_user_agreement_in_firebase(agreement, _firebase_provider=None):
   if not _firebase_provider: _firebase_provider = firebase_provider
 
   client = _firebase_provider.get_firebase_client()
 
-  potential_agreement = _potential_agreement_service.get_potential_agreement(potential_agreement_id)
-
   # this task is only fired after a potential agreement is complete, so it's safe to assume an execution date is present
-  execution_date = get_timestamp_from_datetime(potential_agreement.potential_agreement_execution_date)
+  execution_date = get_timestamp_from_datetime(agreement.execution_date)
 
   modification_date = get_timestamp_from_datetime(timezone.now())
 
   agreement_type_name = None
-  potential_agreement_type = potential_agreement.potential_agreement_type
-  if potential_agreement_type:
-    agreement_type_name = potential_agreement_type.agreement_type_name
+  agreement_type = agreement.agreement_type
+  if agreement_type:
+    agreement_type_name = agreement_type.name
 
   data = {
-    'counterparty': potential_agreement.potential_agreement_counterparty,
-    'artifact-count': len(potential_agreement.potential_agreement_artifacts),
+    'counterparty': agreement.counterparty,
+    'artifact-count': len(agreement.artifacts),
     'execution-date': execution_date,
     'modification-date': modification_date,
-    'name': potential_agreement.potential_agreement_name,
+    'name': agreement.name,
     'type-name': agreement_type_name,
   }
 
   result = client.put(
-    'users-agreements/{user_id}'.format(user_id=potential_agreement.potential_agreement_user_id),
-    potential_agreement_id, data)
+    'users-agreements/{user_id}'.format(user_id=agreement.user_id),
+    agreement.uid, data)
 
   return result
 
 
-def save_agreement_alerts_in_firebase(potential_agreement, _firebase_provider=None):
+def save_agreement_alerts_in_firebase(agreement, _firebase_provider=None):
   if not _firebase_provider: _firebase_provider = firebase_provider
   client = _firebase_provider.get_firebase_client()
 
   data = {}
 
-  if potential_agreement.potential_agreement_expiration_alert_created:
-    exp_alert_key = '{0}-{1}'.format(potential_agreement.potential_agreement_id, 'expiration-alert')
-    exp_date = get_timestamp_from_datetime(potential_agreement.potential_agreement_outcome_date)
+  if agreement.expiration_alert_created:
+    exp_alert_key = '{0}-{1}'.format(agreement.id, 'expiration-alert')
+    exp_date = get_timestamp_from_datetime(agreement.outcome_date)
     data[exp_alert_key] = {
       'due-date': exp_date,
-      'agreement-id': potential_agreement.potential_agreement_id,
-      'agreement-name': potential_agreement.potential_agreement_name,
+      'agreement-id': agreement.id,
+      'agreement-name': agreement.name,
       'alert-type': 'expiration'
     }
 
-  if potential_agreement.potential_agreement_outcome_notice_alert_created:
-    outcome_notice_alert_key = '{0}-{1}'.format(potential_agreement.potential_agreement_id, 'outcome-notice-alert')
-    outcome_notice_date = get_timestamp_from_datetime(potential_agreement.potential_agreement_outcome_notice_date)
+  if agreement.outcome_notice_alert_created:
+    outcome_notice_alert_key = '{0}-{1}'.format(agreement.id, 'outcome-notice-alert')
+    outcome_notice_date = get_timestamp_from_datetime(agreement.outcome_notice_date)
     data[outcome_notice_alert_key] = {
       'due-date': outcome_notice_date,
-      'agreement-id': potential_agreement.potential_agreement_id,
-      'agreement-name': potential_agreement.potential_agreement_name,
+      'agreement-id': agreement.id,
+      'agreement-name': agreement.name,
       'alert-type': 'outcomeNotice'
     }
 
-  result = client.patch('users-alerts/{user_id}'.format(user_id=potential_agreement.potential_agreement_user_id), data)
+  result = client.patch('users-alerts/{user_id}'.format(user_id=agreement.user_id), data)
 
   return result

@@ -11,63 +11,62 @@ from src.libs.common_domain.models import Event
 class User(models.Model, AggregateBase):
   objects = UserManager()
 
-  user_id = models.CharField(max_length=8, unique=True)
-  user_name = models.CharField(max_length=2400)
-  user_nickname = models.CharField(max_length=2400)
-  user_email = models.EmailField(unique=True)
-  user_picture = models.URLField()
-  user_attrs = JSONField()
-  user_system_created_date = models.DateTimeField()
+  uid = models.CharField(max_length=8, unique=True)
+  name = models.CharField(max_length=2400)
+  nickname = models.CharField(max_length=2400)
+  email = models.EmailField(unique=True)
+  picture = models.URLField()
+  attrs = JSONField()
+  system_created_date = models.DateTimeField()
 
   @classmethod
-  def _from_attrs(cls, user_id, user_name, user_nickname, user_email, user_picture, user_attrs,
-                  user_system_created_date):
+  def _from_attrs(cls, uid, name, nickname, email, picture, attrs, system_created_date):
     ret_val = cls()
 
-    if not user_id:
-      raise TypeError("user_id is required")
+    if not uid:
+      raise TypeError("uid is required")
 
-    if not user_name:
-      raise TypeError("user_name is required")
+    if not name:
+      raise TypeError("name is required")
 
-    if not user_nickname:
-      raise TypeError("user_nickname is required")
+    if not nickname:
+      raise TypeError("nickname is required")
 
-    if not user_email:
-      raise TypeError("user_email is required")
+    if not email:
+      raise TypeError("email is required")
 
-    if not user_picture:
-      raise TypeError("user_picture is required")
+    if not picture:
+      raise TypeError("picture is required")
 
-    auth0_attrs = user_attrs.get('auth0', {})
+    auth0_attrs = attrs.get('auth0', {})
     auth0_user_id = auth0_attrs.get('user_id')
     if not auth0_user_id:
       raise TypeError("auth0_user_id is required")
 
-    if not user_system_created_date:
-      raise TypeError("user_system_created_date is required")
+    if not system_created_date:
+      raise TypeError("system_created_date is required")
 
     ret_val._raise_event(
       created,
-      user_id=user_id,
-      user_name=user_name,
-      user_nickname=user_nickname,
-      user_email=user_email,
-      user_picture=user_picture,
-      user_attrs=user_attrs,
-      user_system_created_date=user_system_created_date
+      uid=uid,
+      name=name,
+      nickname=nickname,
+      email=email,
+      picture=picture,
+      attrs=attrs,
+      system_created_date=system_created_date
     )
 
     return ret_val
 
   def _handle_created_event(self, **kwargs):
-    self.user_id = kwargs['user_id']
-    self.user_name = kwargs['user_name']
-    self.user_nickname = kwargs['user_nickname']
-    self.user_email = kwargs['user_email']
-    self.user_picture = kwargs['user_picture']
-    self.user_attrs = kwargs['user_attrs']
-    self.user_system_created_date = kwargs['user_system_created_date']
+    self.uid = kwargs['uid']
+    self.name = kwargs['name']
+    self.nickname = kwargs['nickname']
+    self.email = kwargs['email']
+    self.picture = kwargs['picture']
+    self.attrs = kwargs['attrs']
+    self.system_created_date = kwargs['system_created_date']
 
   @property
   def is_active(self):
@@ -86,14 +85,14 @@ class User(models.Model, AggregateBase):
     if not _agreement_type_service: _agreement_type_service = agreement_type_service
 
     global_agreement_types = list(_agreement_type_service.get_global_agreement_types())
-    user_agreement_types = list(self.user_agreement_types.all())
+    agreement_types = list(self.user_agreement_types.all())
 
-    ret_val = global_agreement_types + user_agreement_types
+    ret_val = global_agreement_types + agreement_types
 
     return ret_val
 
   def __str__(self):
-    return 'User {uid}: {name}'.format(uid=self.user_id, name=self.user_name)
+    return 'User {uid}: {name}'.format(uid=self.uid, name=self.name)
 
   def save(self, internal=False, *args, **kwargs):
     if internal:
@@ -102,11 +101,11 @@ class User(models.Model, AggregateBase):
 
         for event in self._uncommitted_events:
           Event.objects.create(
-            aggregate_name=self.__class__.__name__, aggregate_id=self.user_id,
+            aggregate_name=self.__class__.__name__, aggregate_id=self.uid,
             event_name=event.event_fq_name, event_version=event.version, event_data=event.kwargs
           )
       self.send_events()
     else:
-      from src.aggregates.user.services import user_service
+      from src.aggregates.user.services import service
 
-      user_service.save_or_update(self)
+      service.save_or_update(self)

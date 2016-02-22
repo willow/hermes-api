@@ -10,7 +10,7 @@ function (user, context, callback) {
     var appMetadata = user.app_metadata || {};
     appMetadata.hermes = appMetadata.hermes || {};
 
-    if (!appMetadata.hermes.user_id) {
+    if (!appMetadata.hermes.uid) {
       // this is a new user
       var auth0UserId = user.user_id;
       console.log('Beginning: Rule: Send New User Event to API. User Id:', auth0UserId);
@@ -18,15 +18,15 @@ function (user, context, callback) {
       var randomize = require('randomatic');
       // base57 (removes similar-looking characters such as l, 1, I, O and 0.)
       var chars = '23456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
-      appMetadata.hermes.user_id = randomize('?', 8, {chars: chars});
+      appMetadata.hermes.uid = randomize('?', 8, {chars: chars});
 
       var identity = {
-        "user_id": appMetadata.hermes.user_id,
-        "user_email": user.email,
-        "user_name": user.name,
-        "user_nickname": user.nickname,
-        "user_picture": user.picture,
-        "user_attrs": {"auth0": {"user_id": auth0UserId}}
+        "uid": appMetadata.hermes.uid,
+        "email": user.email,
+        "name": user.name,
+        "nickname": user.nickname,
+        "picture": user.picture,
+        "attrs": {"auth0": {"user_id": auth0UserId}}
       };
 
       var apiUrl = configuration.HERMES_API_DOMAIN;

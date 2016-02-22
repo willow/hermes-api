@@ -19,7 +19,8 @@ class AggregateBase:
   def send_events(self):
     while self._uncommitted_events:
       event_record = self._uncommitted_events.popleft()
-      event_record.event_obj.send(None, **event_record.kwargs)
+      event_data = dict({'aggregate_id': self.uid}, **event_record.kwargs)
+      event_record.event_obj.send(None, **event_data)
 
   def _apply_event(self, event, **kwargs):
     event_func_name = "_handle_{0}_event".format(event.name)

@@ -18,7 +18,7 @@ def asset_view(request, asset_id, _asset_service=None):
   try:
     asset = _asset_service.get_asset(asset_id)
 
-    asset_path = asset.asset_signed_path
+    asset_path = asset.signed_path
 
   except Exception as e:
     logger.warn("Error retrieving asset path: {0}".format(asset_id), exc_info=True)

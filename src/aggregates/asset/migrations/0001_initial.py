@@ -14,12 +14,12 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Asset',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True, serialize=False)),
-                ('asset_id', models.CharField(max_length=8, unique=True)),
-                ('asset_path', models.CharField(max_length=2400)),
-                ('asset_content_type', models.CharField(max_length=2400)),
-                ('asset_original_name', models.CharField(max_length=2400)),
-                ('asset_system_created_date', models.DateTimeField()),
+                ('id', models.AutoField(auto_created=True, verbose_name='ID', serialize=False, primary_key=True)),
+                ('uid', models.CharField(unique=True, max_length=8)),
+                ('path', models.CharField(max_length=2400)),
+                ('content_type', models.CharField(max_length=2400)),
+                ('original_name', models.CharField(max_length=2400)),
+                ('system_created_date', models.DateTimeField()),
             ],
             bases=(models.Model, src.libs.common_domain.aggregate_base.AggregateBase),
         ),

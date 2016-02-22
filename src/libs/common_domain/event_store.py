@@ -17,13 +17,14 @@ def replay_events():
     rev_events = rev_event_batch[3]
 
     for rev_event in rev_events:
-      signal = load_object(rev_event.name)
+      signal = load_object(rev_event.event_name)
 
-      data = rev_event.data
+      data = rev_event.event_data
+      data['aggregate_id'] = rev_event.aggregate_id
 
       try:
         signal.send(None, allow_non_idempotent=False, **data)
       except Exception:
-        logger.warn("Error sending signal for: %s Data: %s", rev_event.name, data, exc_info=True)
+        logger.warn("Error sending signal for: %s Data: %s", rev_event.event_name, data, exc_info=True)
       counter += 1
-      logger.debug("Sending signal: %s : %i", rev_event.name, counter)
+      logger.debug("Sending signal: %s : %i", rev_event.event_name, counter)

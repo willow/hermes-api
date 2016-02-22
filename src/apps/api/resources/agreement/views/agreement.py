@@ -1,10 +1,13 @@
 import logging
+from django.core.exceptions import ObjectDoesNotExist
 
 from rest_framework import status
 from rest_framework.decorators import api_view, parser_classes
 from rest_framework.parsers import FileUploadParser
 from rest_framework.response import Response
 from django.conf import settings
+from src.aggregates.agreement.models import Agreement
+from src.aggregates.agreement.services import agreement_service
 
 from src.apps.realtime.agreement.services import agreement_service as realtime_agreement_service
 from src.aggregates.potential_agreement.services import potential_agreement_service
@@ -42,12 +45,12 @@ def agreement_create_view(request, _potential_agreement_service=None, _agreement
 
     assets = [_asset_service.create_asset_from_file(constants.ARTIFACTS_ROOT, file) for file in contract_files]
 
-    asset_ids = [asset.asset_id for asset in assets]
+    asset_ids = [asset.uid for asset in assets]
 
     potential_agreement_data = {
-      'potential_agreement_name': agreement_data[constants.AGREEMENT_NAME],
-      'potential_agreement_artifacts': asset_ids,
-      'potential_agreement_user_id': request.user.user_id
+      'name': agreement_data[constants.AGREEMENT_NAME],
+      'artifacts': asset_ids,
+      'user_uid': request.user.uid
     }
 
     potential_agreement = _potential_agreement_service.create_potential_agreement(**potential_agreement_data)
@@ -57,7 +60,7 @@ def agreement_create_view(request, _potential_agreement_service=None, _agreement
     # a permission error because the resource doesn't exist. in the future it'd be good to have this api resource
     # stub out in firebase that the agreement is processing and have the event handler pick up the remaining work and
     # fill out the remaining details (agreement translation stuff).
-    _realtime_agreement_service.save_agreement_edit_in_firebase(potential_agreement.potential_agreement_id)
+    _realtime_agreement_service.save_agreement_edit_in_firebase(potential_agreement)
 
   except Exception as e:
     logger.warn("Error creating agreement: {0}".format(request.data), exc_info=True)
@@ -70,16 +73,24 @@ def agreement_create_view(request, _potential_agreement_service=None, _agreement
 
 
 @api_view(['PUT'])
-def agreement_update_view(request, agreement_id, _potential_agreement_service=None, _datetime_utils=None):
+def agreement_update_view(request, agreement_id, _agreement_service=None, _potential_agreement_service=None,
+                          _datetime_utils=None):
   # this method should be considered internal and no public api call should be allowed to pass in a file for an agreement
   # refer to https://app.asana.com/0/10235149247655/46476660493804
-
   if not _potential_agreement_service: _potential_agreement_service = potential_agreement_service
+  if not _agreement_service: _agreement_service = agreement_service
+
   if not _datetime_utils: _datetime_utils = datetime_utils
 
   try:
 
-    potential_agreement = _potential_agreement_service.get_potential_agreement(agreement_id)
+    try:
+      agreement = _agreement_service.get_agreement(agreement_id)
+    except ObjectDoesNotExist:
+      try:
+        agreement = _potential_agreement_service.get_potential_agreement(agreement_id)
+      except ObjectDoesNotExist as e:
+        raise Exception('Agreement with id: {0} does not exist.'.format(agreement_id)).with_traceback(e.__traceback__)
 
     agreement_type = request.data[constants.TYPE_ID]
 
@@ -100,28 +111,32 @@ def agreement_update_view(request, agreement_id, _potential_agreement_service=No
     expiration_alert_time_amount = request.data[constants.EXPIRATION_ALERT_TIME_AMOUNT]
     expiration_alert_time_type = DurationTypeEnum[request.data[constants.EXPIRATION_ALERT_TIME_TYPE]]
 
-    potential_agreement_data = {
-      'potential_agreement_name': name,
-      'potential_agreement_counterparty': counterparty,
-      'potential_agreement_description': description,
-      'potential_agreement_execution_date': execution_date,
-      'potential_agreement_type_id': agreement_type,
-      'potential_agreement_term_length_time_amount': term_length_time_amount,
-      'potential_agreement_term_length_time_type': term_length_time_type,
-      'potential_agreement_auto_renew': auto_renew,
-      'potential_agreement_outcome_notice_time_amount': outcome_notice_time_amount,
-      'potential_agreement_outcome_notice_time_type': outcome_notice_time_type,
-      'potential_agreement_duration_details': duration_details,
-      'potential_agreement_outcome_notice_alert_enabled': outcome_notice_alert_enabled,
-      'potential_agreement_outcome_notice_alert_time_amount': outcome_notice_alert_time_amount,
-      'potential_agreement_outcome_notice_alert_time_type': outcome_notice_alert_time_type,
-      'potential_agreement_expiration_alert_enabled': expiration_alert_enabled,
-      'potential_agreement_expiration_alert_time_amount': expiration_alert_time_amount,
-      'potential_agreement_expiration_alert_time_type': expiration_alert_time_type,
+    data = {
+      'name': name,
+      'counterparty': counterparty,
+      'description': description,
+      'execution_date': execution_date,
+      'agreement_type_id': agreement_type,
+      'term_length_time_amount': term_length_time_amount,
+      'term_length_time_type': term_length_time_type,
+      'auto_renew': auto_renew,
+      'outcome_notice_time_amount': outcome_notice_time_amount,
+      'outcome_notice_time_type': outcome_notice_time_type,
+      'duration_details': duration_details,
+      'outcome_notice_alert_enabled': outcome_notice_alert_enabled,
+      'outcome_notice_alert_time_amount': outcome_notice_alert_time_amount,
+      'outcome_notice_alert_time_type': outcome_notice_alert_time_type,
+      'expiration_alert_enabled': expiration_alert_enabled,
+      'expiration_alert_time_amount': expiration_alert_time_amount,
+      'expiration_alert_time_type': expiration_alert_time_type,
     }
 
-    potential_agreement.complete(**potential_agreement_data)
-    _potential_agreement_service.save_or_update(potential_agreement)
+    if isinstance(agreement, Agreement):
+      agreement.update_attrs(**data)
+      _agreement_service.save_or_update(agreement)
+    else:
+      agreement.complete(**data)
+      _potential_agreement_service.save_or_update(agreement)
 
   except Exception as e:
     logger.warn("Error saving agreement: {0}".format(request.data), exc_info=True)
