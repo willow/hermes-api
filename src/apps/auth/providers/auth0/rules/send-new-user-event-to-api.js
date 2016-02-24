@@ -39,7 +39,7 @@ function (user, context, callback) {
 
         if (err) return callback(err);
 
-        appMetadata.hermes.user_id = response.id;
+        appMetadata.hermes.user_id = response.body.id;
 
         // persist the app_metadata update - https://auth0.com/docs/rules/metadata-in-rules#4
         auth0.users.updateAppMetadata(user.user_id, appMetadata)
