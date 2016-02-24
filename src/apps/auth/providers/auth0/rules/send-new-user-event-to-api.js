@@ -15,13 +15,7 @@ function (user, context, callback) {
       var auth0UserId = user.user_id;
       console.log('Beginning: Rule: Send New User Event to API. User Id:', auth0UserId);
 
-      var randomize = require('randomatic');
-      // base57 (removes similar-looking characters such as l, 1, I, O and 0.)
-      var chars = '23456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
-      appMetadata.hermes.user_id = randomize('?', 8, {chars: chars});
-
       var identity = {
-        "user_id": appMetadata.hermes.user_id,
         "email": user.email,
         "name": user.name,
         "nickname": user.nickname,
@@ -44,6 +38,8 @@ function (user, context, callback) {
         }
 
         if (err) return callback(err);
+
+        appMetadata.hermes.user_id = response.id;
 
         // persist the app_metadata update - https://auth0.com/docs/rules/metadata-in-rules#4
         auth0.users.updateAppMetadata(user.user_id, appMetadata)

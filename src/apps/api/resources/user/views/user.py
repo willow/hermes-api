@@ -17,8 +17,6 @@ logger = logging.getLogger(__name__)
 @permission_classes((AllowAny,))
 def user_view(request):
   try:
-    # this method should be considered internal and no public api call should be allowed to pass in the user_id
-    # refer to https://app.asana.com/0/10235149247655/46476660493804
     user = user_service.create_user(**request.data)
     user_data = UserSerializer(user).data
   except Exception as e:
