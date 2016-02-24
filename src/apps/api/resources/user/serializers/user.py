@@ -5,4 +5,4 @@ from src.aggregates.user.models import User
 class UserSerializer(serializers.ModelSerializer):
   class Meta:
     model = User
-    exclude = ('id', 'system_created_date')
+    exclude = ('primary_key', 'system_created_date')
