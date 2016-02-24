@@ -44,7 +44,7 @@ def advanced_search(user, text, counterparty, agreement_type):
     results = results.filter(counterparty__iexact=counterparty)
 
   if agreement_type:
-    agreement_type_id = agreement_type.agreement_type_id
+    agreement_type_id = agreement_type.id
     results = results.filter(agreement_type_id=agreement_type_id)
 
   count = results.count()

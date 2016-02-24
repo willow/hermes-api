@@ -22,5 +22,5 @@ def agreement_type_created_callback(**kwargs):
 
   agreement_type = agreement_type_service.get_agreement_type(agreement_type_id)
   if not agreement_type.is_global:
-    agreement_type_user_id = agreement_type.agreement_type_user_id
-    agreement_type_tasks.save_agreement_types_in_firebase_task.delay(agreement_type_user_id)
+    user_id = agreement_type.user_id
+    agreement_type_tasks.save_agreement_types_in_firebase_task.delay(user_id)
