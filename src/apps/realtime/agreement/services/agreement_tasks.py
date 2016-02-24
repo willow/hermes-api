@@ -1,12 +1,26 @@
 import logging
+from django.core.exceptions import ObjectDoesNotExist
 
 from django_rq import job
 
 from src.aggregates.agreement.services import agreement_service
+from src.aggregates.potential_agreement.services import potential_agreement_service
 from src.apps.realtime.agreement.services import agreement_service as realtime_agreement_service
 from src.libs.python_utils.logging.logging_utils import log_wrapper
 
 logger = logging.getLogger(__name__)
+
+
+def _get_agreement(agreement_id):
+  try:
+    agreement = agreement_service.get_agreement(agreement_id)
+  except ObjectDoesNotExist:
+    try:
+      agreement = potential_agreement_service.get_potential_agreement(agreement_id)
+    except ObjectDoesNotExist as e:
+      raise Exception('Agreement with id: {0} does not exist.'.format(agreement_id)).with_traceback(e.__traceback__)
+
+  return agreement
 
 
 @job('high')
@@ -16,7 +30,7 @@ def save_agreement_edit_in_firebase_task(agreement_id):
   )
 
   with log_wrapper(logger.info, *log_message):
-    agreement = agreement_service.get_agreement(agreement_id)
+    agreement = _get_agreement(agreement_id)
     return realtime_agreement_service.save_agreement_edit_in_firebase(agreement)
 
 

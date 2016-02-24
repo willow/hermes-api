@@ -9,14 +9,11 @@ logger = logging.getLogger(__name__)
 
 
 @job('high')
-def save_user_info_in_firebase_task(user_id, user_name, user_nickname,
-                                    user_email, user_picture):
+def save_user_info_in_firebase_task(user_id, name, nickname,
+                                    email, picture):
   log_message = (
     "Update Firebase user info. user_id: %s ", user_id
   )
 
   with log_wrapper(logger.info, *log_message):
-    return user_service.save_user_info_in_firebase(
-      user_id, user_name, user_nickname,
-      user_email, user_picture,
-    )
+    return user_service.save_user_info_in_firebase(user_id, name, nickname, email, picture, )

@@ -45,12 +45,12 @@ def agreement_create_view(request, _potential_agreement_service=None, _agreement
 
     assets = [_asset_service.create_asset_from_file(constants.ARTIFACTS_ROOT, file) for file in contract_files]
 
-    asset_ids = [asset.uid for asset in assets]
+    asset_ids = [asset.id for asset in assets]
 
     potential_agreement_data = {
       'name': agreement_data[constants.AGREEMENT_NAME],
       'artifacts': asset_ids,
-      'user_uid': request.user.uid
+      'user_id': request.user.id
     }
 
     potential_agreement = _potential_agreement_service.create_potential_agreement(**potential_agreement_data)

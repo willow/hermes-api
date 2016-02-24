@@ -2,8 +2,8 @@
 from __future__ import unicode_literals
 
 from django.db import models, migrations
-import jsonfield.fields
 import src.libs.common_domain.aggregate_base
+import jsonfield.fields
 
 
 class Migration(migrations.Migration):
@@ -17,29 +17,29 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='PotentialAgreement',
             fields=[
-                ('id', models.AutoField(serialize=False, verbose_name='ID', primary_key=True, auto_created=True)),
-                ('uid', models.CharField(unique=True, max_length=8)),
+                ('primary_key', models.AutoField(serialize=False, primary_key=True)),
+                ('id', models.CharField(unique=True, max_length=8)),
                 ('name', models.CharField(max_length=2400)),
                 ('artifacts', jsonfield.fields.JSONField(default=list)),
-                ('counterparty', models.CharField(blank=True, null=True, max_length=2400)),
-                ('description', models.TextField(blank=True, null=True)),
-                ('execution_date', models.DateTimeField(blank=True, null=True)),
-                ('term_length_time_amount', models.PositiveSmallIntegerField(blank=True, null=True)),
-                ('term_length_time_type', models.PositiveSmallIntegerField(blank=True, null=True)),
+                ('counterparty', models.CharField(null=True, max_length=2400, blank=True)),
+                ('description', models.TextField(null=True, blank=True)),
+                ('execution_date', models.DateTimeField(null=True, blank=True)),
+                ('term_length_time_amount', models.PositiveSmallIntegerField(null=True, blank=True)),
+                ('term_length_time_type', models.PositiveSmallIntegerField(null=True, blank=True)),
                 ('auto_renew', models.NullBooleanField()),
-                ('outcome_notice_time_amount', models.PositiveSmallIntegerField(blank=True, null=True)),
-                ('outcome_notice_time_type', models.PositiveSmallIntegerField(blank=True, null=True)),
+                ('outcome_notice_time_amount', models.PositiveSmallIntegerField(null=True, blank=True)),
+                ('outcome_notice_time_type', models.PositiveSmallIntegerField(null=True, blank=True)),
                 ('outcome_notice_alert_enabled', models.NullBooleanField()),
-                ('outcome_notice_alert_time_amount', models.PositiveSmallIntegerField(blank=True, null=True)),
-                ('outcome_notice_alert_time_type', models.PositiveSmallIntegerField(blank=True, null=True)),
+                ('outcome_notice_alert_time_amount', models.PositiveSmallIntegerField(null=True, blank=True)),
+                ('outcome_notice_alert_time_type', models.PositiveSmallIntegerField(null=True, blank=True)),
                 ('expiration_alert_enabled', models.NullBooleanField()),
-                ('expiration_alert_time_amount', models.PositiveSmallIntegerField(blank=True, null=True)),
-                ('expiration_alert_time_type', models.PositiveSmallIntegerField(blank=True, null=True)),
-                ('duration_details', models.TextField(blank=True, null=True)),
+                ('expiration_alert_time_amount', models.PositiveSmallIntegerField(null=True, blank=True)),
+                ('expiration_alert_time_type', models.PositiveSmallIntegerField(null=True, blank=True)),
+                ('duration_details', models.TextField(null=True, blank=True)),
                 ('completed', models.BooleanField()),
                 ('system_created_date', models.DateTimeField()),
-                ('agreement_type', models.ForeignKey(blank=True, null=True, to_field='uid', to='agreement_type.AgreementType', related_name='potential_agreements')),
-                ('user', models.ForeignKey(related_name='potential_agreements', to='user.User', to_field='uid')),
+                ('agreement_type', models.ForeignKey(related_name='potential_agreements', null=True, to_field='id', to='agreement_type.AgreementType', blank=True)),
+                ('user', models.ForeignKey(to='user.User', to_field='id', related_name='potential_agreements')),
             ],
             bases=(models.Model, src.libs.common_domain.aggregate_base.AggregateBase),
         ),

@@ -8,19 +8,21 @@ from src.libs.common_domain.models import Event
 
 
 class SmartView(models.Model, AggregateBase):
-  uid = models.CharField(max_length=8, unique=True)
+  primary_key = models.AutoField(primary_key=True)
+
+  id = models.CharField(max_length=8, unique=True)
   name = models.CharField(max_length=2400)
   query = JSONField()
-  user = models.ForeignKey('user.User', 'uid', related_name='smart_views')
+  user = models.ForeignKey('user.User', 'id', related_name='smart_views')
   system_created_date = models.DateTimeField()
 
   @classmethod
-  def _from_attrs(cls, uid, name, query, user_id,
+  def _from_attrs(cls, id, name, query, user_id,
                   system_created_date):
     ret_val = cls()
 
-    if not uid:
-      raise TypeError("uid is required")
+    if not id:
+      raise TypeError("id is required")
 
     if not name:
       raise TypeError("name is required")
@@ -33,7 +35,7 @@ class SmartView(models.Model, AggregateBase):
 
     ret_val._raise_event(
       created,
-      uid=uid,
+      id=id,
       name=name,
       query=query,
       user_id=user_id,
@@ -51,13 +53,13 @@ class SmartView(models.Model, AggregateBase):
 
     self._raise_event(
       updated_attrs,
-      uid=self.uid,
+      id=self.id,
       name=name,
       query=query
     )
 
   def _handle_created_event(self, **kwargs):
-    self.uid = kwargs['uid']
+    self.id = kwargs['id']
     self.name = kwargs['name']
     self.query = kwargs['query']
     self.user_id = kwargs['user_id']
@@ -68,7 +70,7 @@ class SmartView(models.Model, AggregateBase):
     self.query = kwargs['query']
 
   def __str__(self):
-    return 'SmartView {id}: {name}'.format(id=self.uid, name=self.name)
+    return 'SmartView {id}: {name}'.format(id=self.id, name=self.name)
 
   def save(self, internal=False, *args, **kwargs):
     if internal:
@@ -77,7 +79,7 @@ class SmartView(models.Model, AggregateBase):
 
         for event in self._uncommitted_events:
           Event.objects.create(
-            aggregate_name=self.__class__.__name__, aggregate_uid=self.uid,
+            aggregate_name=self.__class__.__name__, aggregate_id=self.id,
             event_name=event.event_fq_name, event_version=event.version, event_data=event.kwargs
           )
 

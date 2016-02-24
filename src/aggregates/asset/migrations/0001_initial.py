@@ -14,8 +14,8 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Asset',
             fields=[
-                ('id', models.AutoField(auto_created=True, verbose_name='ID', serialize=False, primary_key=True)),
-                ('uid', models.CharField(unique=True, max_length=8)),
+                ('primary_key', models.AutoField(serialize=False, primary_key=True)),
+                ('id', models.CharField(unique=True, max_length=8)),
                 ('path', models.CharField(max_length=2400)),
                 ('content_type', models.CharField(max_length=2400)),
                 ('original_name', models.CharField(max_length=2400)),

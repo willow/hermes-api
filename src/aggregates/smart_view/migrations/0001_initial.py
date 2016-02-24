@@ -16,12 +16,12 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='SmartView',
             fields=[
-                ('id', models.AutoField(serialize=False, primary_key=True, verbose_name='ID', auto_created=True)),
-                ('uid', models.CharField(unique=True, max_length=8)),
+                ('primary_key', models.AutoField(serialize=False, primary_key=True)),
+                ('id', models.CharField(unique=True, max_length=8)),
                 ('name', models.CharField(max_length=2400)),
                 ('query', jsonfield.fields.JSONField()),
                 ('system_created_date', models.DateTimeField()),
-                ('user', models.ForeignKey(related_name='smart_views', to='user.User', to_field='uid')),
+                ('user', models.ForeignKey(to='user.User', to_field='id', related_name='smart_views')),
             ],
             bases=(models.Model, src.libs.common_domain.aggregate_base.AggregateBase),
         ),

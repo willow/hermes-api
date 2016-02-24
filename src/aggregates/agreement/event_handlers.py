@@ -8,5 +8,5 @@ from src.libs.common_domain.decorators import event_idempotent
 @event_idempotent
 @receiver(completed)
 def potential_agreement_completed_callback(**kwargs):
-  potential_agreement_uid = kwargs['aggregate_id']
-  agreement_tasks.create_agreement_task_from_potential_agreement.delay(potential_agreement_uid)
+  potential_agreement_id = kwargs['aggregate_id']
+  agreement_tasks.create_agreement_task_from_potential_agreement.delay(potential_agreement_id)

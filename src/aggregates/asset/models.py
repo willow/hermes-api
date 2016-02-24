@@ -10,18 +10,20 @@ assets_root = constants.ASSETS_ROOT
 
 
 class Asset(models.Model, AggregateBase):
-  uid = models.CharField(max_length=8, unique=True)
+  primary_key = models.AutoField(primary_key=True)
+
+  id = models.CharField(max_length=8, unique=True)
   path = models.CharField(max_length=2400)
   content_type = models.CharField(max_length=2400)
   original_name = models.CharField(max_length=2400)
   system_created_date = models.DateTimeField()
 
   @classmethod
-  def _from_attrs(cls, uid, path, content_type, original_name, system_created_date):
+  def _from_attrs(cls, id, path, content_type, original_name, system_created_date):
     ret_val = cls()
 
-    if not uid:
-      raise TypeError("uid is required")
+    if not id:
+      raise TypeError("id is required")
 
     if not path:
       raise TypeError("path is required")
@@ -37,7 +39,7 @@ class Asset(models.Model, AggregateBase):
 
     ret_val._raise_event(
       created,
-      uid=uid, path=path, content_type=content_type,
+      id=id, path=path, content_type=content_type,
       original_name=original_name, system_created_date=system_created_date
     )
 
@@ -58,14 +60,14 @@ class Asset(models.Model, AggregateBase):
     return ret_val
 
   def _handle_created_event(self, **kwargs):
-    self.uid = kwargs['uid']
+    self.id = kwargs['id']
     self.path = kwargs['path']
     self.content_type = kwargs['content_type']
     self.original_name = kwargs['original_name']
     self.system_created_date = kwargs['system_created_date']
 
   def __str__(self):
-    return 'Asset #' + str(self.uid) + ': ' + self.original_name
+    return 'Asset #' + str(self.id) + ': ' + self.original_name
 
   def save(self, internal=False, *args, **kwargs):
     if internal:
@@ -74,7 +76,7 @@ class Asset(models.Model, AggregateBase):
 
         for event in self._uncommitted_events:
           Event.objects.create(
-            aggregate_name=self.__class__.__name__, aggregate_id=self.uid,
+            aggregate_name=self.__class__.__name__, aggregate_id=self.id,
             event_name=event.event_fq_name, event_version=event.version, event_data=event.kwargs
           )
 

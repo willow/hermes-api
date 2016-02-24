@@ -10,6 +10,7 @@ class Migration(migrations.Migration):
   dependencies = [
     ('user', '0001_initial'),
     ('common_domain', '0001_initial'),
+
   ]
 
   def create_defaults(apps, schema_editor):
@@ -23,13 +24,13 @@ class Migration(migrations.Migration):
     migrations.CreateModel(
       name='AgreementType',
       fields=[
-        ('id', models.AutoField(serialize=False, primary_key=True, verbose_name='ID', auto_created=True)),
-        ('uid', models.CharField(unique=True, max_length=8)),
+        ('primary_key', models.AutoField(serialize=False, primary_key=True)),
+        ('id', models.CharField(unique=True, max_length=8)),
         ('name', models.CharField(max_length=2400)),
         ('is_global', models.BooleanField()),
         ('system_created_date', models.DateTimeField()),
         ('user',
-         models.ForeignKey(null=True, blank=True, to_field='uid', related_name='user_agreement_types', to='user.User')),
+         models.ForeignKey(related_name='user_agreement_types', null=True, to_field='id', to='user.User', blank=True)),
       ],
       bases=(models.Model, src.libs.common_domain.aggregate_base.AggregateBase),
     ),

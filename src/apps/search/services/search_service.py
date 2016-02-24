@@ -12,8 +12,8 @@ def federated_search(user, query):
     Agreement
       .objects
       .filter(name__icontains=query)
-      .filter(user_id=user.uid)
-      .values_list('uid', 'name')
+      .filter(user_id=user.id)
+      .values_list('id', 'name')
   )
 
   paged_results = Paginator(results, 3)
@@ -31,8 +31,8 @@ def advanced_search(user, text, counterparty, agreement_type):
   results = (
     Agreement
       .objects
-      .filter(user_id=user.uid)
-      .values_list('uid', 'name')
+      .filter(user_id=user.id)
+      .values_list('id', 'name')
   )
 
   if text:

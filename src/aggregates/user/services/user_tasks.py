@@ -23,4 +23,4 @@ def create_user_task(id, name, nickname, email, picture, attrs):
     )
 
     with log_wrapper(logger.debug, *log_message):
-      return user_service.create_user(id, name, nickname, email, picture, attrs).uid
+      return user_service.create_user(id, name, nickname, email, picture, attrs).id

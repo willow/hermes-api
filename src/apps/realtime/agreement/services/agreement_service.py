@@ -41,7 +41,7 @@ def save_agreement_edit_in_firebase(agreement, _firebase_provider=None):
   agreement_type_id = None
   agreement_type = agreement.agreement_type
   if agreement_type:
-    agreement_type_id = agreement_type.uid
+    agreement_type_id = agreement_type.id
 
   data = {
     'auto-renew': agreement.auto_renew,
@@ -64,7 +64,7 @@ def save_agreement_edit_in_firebase(agreement, _firebase_provider=None):
     'viewers': {agreement.user_id: True}
   }
 
-  result = client.put('/agreement-edits', agreement.uid, data)
+  result = client.put('/agreement-edits', agreement.id, data)
 
   return result
 
@@ -90,7 +90,7 @@ def save_agreement_detail_in_firebase(agreement, _asset_service=None, _firebase_
 
   assets = _asset_service.get_assets(agreement.artifacts)
 
-  artifacts = {a.uid: {'name': a.original_name} for a in assets}
+  artifacts = {a.id: {'name': a.original_name} for a in assets}
 
   data = {
     'counterparty': agreement.counterparty,
@@ -104,7 +104,7 @@ def save_agreement_detail_in_firebase(agreement, _asset_service=None, _firebase_
     'viewers': {agreement.user_id: True}
   }
 
-  result = client.put('/agreement-details', agreement.uid, data)
+  result = client.put('/agreement-details', agreement.id, data)
 
   return result
 
@@ -135,7 +135,7 @@ def save_user_agreement_in_firebase(agreement, _firebase_provider=None):
 
   result = client.put(
     'users-agreements/{user_id}'.format(user_id=agreement.user_id),
-    agreement.uid, data)
+    agreement.id, data)
 
   return result
 

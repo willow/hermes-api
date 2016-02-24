@@ -14,16 +14,18 @@ from simplejson.encoder import JSONEncoder
 
 
 class Agreement(models.Model, AggregateBase):
-  uid = models.CharField(max_length=8, unique=True)
+  primary_key = models.AutoField(primary_key=True)
+
+  id = models.CharField(max_length=8, unique=True)
   name = models.CharField(max_length=2400)
 
   artifacts = JSONField(default=list, dump_kwargs={'cls': JSONEncoder})  # simplejson encodes namedtuples
 
-  user = models.ForeignKey('user.User', 'uid', related_name='agreements')
+  user = models.ForeignKey('user.User', 'id', related_name='agreements')
 
   counterparty = models.CharField(max_length=2400)
 
-  agreement_type = models.ForeignKey('agreement_type.AgreementType', 'uid', related_name='agreements', blank=True,
+  agreement_type = models.ForeignKey('agreement_type.AgreementType', 'id', related_name='agreements', blank=True,
                                      null=True)
 
   description = models.TextField(blank=True, null=True)
@@ -61,8 +63,8 @@ class Agreement(models.Model, AggregateBase):
   def _from_attrs(cls, **kwargs):
     ret_val = cls()
 
-    if not kwargs.get('uid'):
-      raise TypeError("uid is required")
+    if not kwargs.get('id'):
+      raise TypeError("id is required")
 
     if not kwargs.get('artifacts'):
       raise TypeError("artifacts is required")
@@ -158,12 +160,12 @@ class Agreement(models.Model, AggregateBase):
   def send_outcome_notice_alert_if_due(self):
     past_due = timezone.now() >= self.outcome_notice_alert_date
     if past_due and self.outcome_notice_alert_enabled and not self.outcome_notice_alert_created:
-      self._raise_event(outcome_notice_alert_sent, uid=self.uid)
+      self._raise_event(outcome_notice_alert_sent, id=self.id)
 
   def send_expiration_alert_if_due(self):
     past_due = timezone.now() >= self.expiration_alert_date
     if past_due and self.expiration_alert_enabled and not self.expiration_alert_created:
-      self._raise_event(expiration_alert_sent, uid=self.uid)
+      self._raise_event(expiration_alert_sent, id=self.id)
 
   def _get_outcome_date(self, execution_date, term_length_time_type,
                         term_length_time_amount):
@@ -227,7 +229,7 @@ class Agreement(models.Model, AggregateBase):
     return outcome_notice_date
 
   def _handle_created_event(self, **kwargs):
-    self.uid = kwargs['uid']
+    self.id = kwargs['id']
     self.artifacts = kwargs['artifacts']
     self.user_id = kwargs['user_id']
     self.system_created_date = kwargs['system_created_date']
@@ -285,7 +287,7 @@ class Agreement(models.Model, AggregateBase):
     self.expiration_alert_created = True
 
   def __str__(self):
-    return 'Agreement #' + str(self.uid) + ': ' + self.name
+    return 'Agreement #' + str(self.id) + ': ' + self.name
 
   def save(self, internal=False, *args, **kwargs):
     if internal:
@@ -294,7 +296,7 @@ class Agreement(models.Model, AggregateBase):
 
         for event in self._uncommitted_events:
           Event.objects.create(
-            aggregate_name=self.__class__.__name__, aggregate_id=self.uid,
+            aggregate_name=self.__class__.__name__, aggregate_id=self.id,
             event_name=event.event_fq_name, event_version=event.version, event_data=event.kwargs
           )
 

@@ -7,7 +7,7 @@ created = EventSignal(
 
 from src.libs.common_domain.event_signal import EventSignal
 
-updated_providing_args = ['uid',
+updated_providing_args = ['id',
                           'name',
                           'counterparty',
                           'description',

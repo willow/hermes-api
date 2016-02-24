@@ -20,7 +20,7 @@ def agreement_type_create_view(request, _agreement_type_service=None):
   try:
 
     name = request.data[constants.NAME]
-    agreement_type_user_id = request.user.user_id
+    agreement_type_user_id = request.user.id
 
     agreement_type_data = {
       'agreement_type_name': name,

@@ -6,8 +6,8 @@ def save_or_update(user):
   user.save(internal=True)
 
 
-def get_user(uid):
-  return User.objects.get(uid=uid)
+def get_user(id):
+  return User.objects.get(id=id)
 
 
 def get_user_from_email(email):

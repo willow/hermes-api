@@ -8,17 +8,17 @@ def save_smart_view_in_firebase(smart_view_id, _smart_view_service=None, _fireba
 
   smart_view = _smart_view_service.get_smart_view(smart_view_id)
 
-  user_id = smart_view.smart_view_user_id
+  user_id = smart_view.user_id
 
   client = _firebase_provider.get_firebase_client()
 
   data = {
-    'name': smart_view.smart_view_name,
-    'query': smart_view.smart_view_query
+    'name': smart_view.name,
+    'query': smart_view.query
   }
 
   result = client.put(
     'users-smart-views/{user_id}'.format(user_id=user_id),
-    smart_view.smart_view_id, data)
+    smart_view.id, data)
 
   return result

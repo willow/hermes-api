@@ -8,7 +8,7 @@ def create_potential_agreement(**kwargs):
   id = generate_id()
   system_created_date = timezone.now()
 
-  data = dict({'uid': id, 'system_created_date': system_created_date}, **kwargs)
+  data = dict({'id': id, 'system_created_date': system_created_date}, **kwargs)
 
   agreement = PotentialAgreement._from_attrs(**data)
 

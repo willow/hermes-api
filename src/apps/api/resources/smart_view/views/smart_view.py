@@ -20,7 +20,7 @@ def smart_view_create_view(request, _smart_view_service=None):
   try:
     name = request.data[constants.NAME]
     query = request.data[constants.QUERY]
-    smart_view_user_id = request.user.user_id
+    smart_view_user_id = request.user.id
     smart_view_data = {
       'smart_view_name': name,
       'smart_view_query': query,

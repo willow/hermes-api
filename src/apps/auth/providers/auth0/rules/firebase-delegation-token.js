@@ -7,7 +7,7 @@ function (user, context, callback) {
     // This is a firebase delegation call    
     // the key `firebase_data` needs to be spelled with this casing.
     user.firebase_data = {
-      uid: user.app_metadata.hermes.uid
+      uid: user.app_metadata.hermes.user_id
     };
 
     console.log('Completed: Rule: Firebase Delegation Token: User Data:', user);

@@ -10,7 +10,7 @@ from src.libs.common_domain.decorators import event_idempotent
 @event_idempotent
 @receiver(user_created)
 def user_created_callback(**kwargs):
-  user_id = kwargs.pop('uid')
+  user_id = kwargs.pop('id')
 
   agreement_type_tasks.save_agreement_types_in_firebase_task.delay(user_id)
 
@@ -18,7 +18,7 @@ def user_created_callback(**kwargs):
 @event_idempotent
 @receiver(agreement_type_created)
 def agreement_type_created_callback(**kwargs):
-  agreement_type_id = kwargs.pop('uid')
+  agreement_type_id = kwargs.pop('id')
 
   agreement_type = agreement_type_service.get_agreement_type(agreement_type_id)
   if not agreement_type.is_global:

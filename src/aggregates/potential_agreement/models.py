@@ -9,16 +9,18 @@ from src.libs.common_domain.models import Event
 
 
 class PotentialAgreement(models.Model, AggregateBase):
-  uid = models.CharField(max_length=8, unique=True)
+  primary_key = models.AutoField(primary_key=True)
+
+  id = models.CharField(max_length=8, unique=True)
   name = models.CharField(max_length=2400)
 
   artifacts = JSONField(default=list, dump_kwargs={'cls': JSONEncoder})  # simplejson encodes namedtuples
 
-  user = models.ForeignKey('user.User', 'uid', related_name='potential_agreements')
+  user = models.ForeignKey('user.User', 'id', related_name='potential_agreements')
 
   counterparty = models.CharField(max_length=2400, blank=True, null=True)
 
-  agreement_type = models.ForeignKey('agreement_type.AgreementType', 'uid', related_name='potential_agreements',
+  agreement_type = models.ForeignKey('agreement_type.AgreementType', 'id', related_name='potential_agreements',
                                      blank=True, null=True)
 
   description = models.TextField(blank=True, null=True)
@@ -51,8 +53,8 @@ class PotentialAgreement(models.Model, AggregateBase):
 
     ret_val = cls()
 
-    if not kwargs.get('uid'):
-      raise TypeError("uid is required")
+    if not kwargs.get('id'):
+      raise TypeError("id is required")
 
     if not kwargs.get('name'):
       raise TypeError("name is required")
@@ -60,8 +62,8 @@ class PotentialAgreement(models.Model, AggregateBase):
     if not kwargs.get('artifacts'):
       raise TypeError("artifacts is required")
 
-    if not kwargs.get('user_uid'):
-      raise TypeError("user_uid is required")
+    if not kwargs.get('user_id'):
+      raise TypeError("user_id is required")
 
     if not kwargs.get('system_created_date'):
       raise TypeError("system_created_date is required")
@@ -73,10 +75,10 @@ class PotentialAgreement(models.Model, AggregateBase):
     return ret_val
 
   def _handle_created_event(self, **kwargs):
-    self.uid = kwargs['uid']
+    self.id = kwargs['id']
     self.name = kwargs['name']
     self.artifacts = kwargs['artifacts']
-    self.user_id = kwargs['user_uid']
+    self.user_id = kwargs['user_id']
     self.system_created_date = kwargs['system_created_date']
 
     self.completed = False
@@ -84,7 +86,7 @@ class PotentialAgreement(models.Model, AggregateBase):
   def complete(self, **kwargs):
 
     if self.completed:
-      raise Exception("potential agreement {0} already completed".format(self.uid))
+      raise Exception("potential agreement {0} already completed".format(self.id))
 
     if not kwargs.get('name'):
       raise ValueError("name is required")
@@ -122,7 +124,7 @@ class PotentialAgreement(models.Model, AggregateBase):
     self.completed = True
 
   def __str__(self):
-    return 'PotentialAgreement #' + str(self.uid) + ': ' + self.name
+    return 'PotentialAgreement #' + str(self.id) + ': ' + self.name
 
   def save(self, internal=False, *args, **kwargs):
     if internal:
@@ -131,7 +133,7 @@ class PotentialAgreement(models.Model, AggregateBase):
 
         for event in self._uncommitted_events:
           Event.objects.create(
-            aggregate_name=self.__class__.__name__, aggregate_id=self.uid,
+            aggregate_name=self.__class__.__name__, aggregate_id=self.id,
             event_name=event.event_fq_name, event_version=event.version, event_data=event.kwargs
           )
 

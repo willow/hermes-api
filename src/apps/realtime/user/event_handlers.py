@@ -8,13 +8,13 @@ from src.libs.common_domain.decorators import event_idempotent
 @event_idempotent
 @receiver(created)
 def user_created_callback(**kwargs):
-  uid = kwargs.pop('uid')
+  user_id = kwargs.pop('id')
   name = kwargs.pop('name')
   nickname = kwargs.pop('nickname')
   email = kwargs.pop('email')
   picture = kwargs.pop('picture')
 
   user_tasks.save_user_info_in_firebase_task.delay(
-    uid, name, nickname,
+    user_id, name, nickname,
     email, picture
   )
