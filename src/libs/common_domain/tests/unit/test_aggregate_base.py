@@ -3,16 +3,17 @@ from unittest.mock import MagicMock
 from src.libs.common_domain.aggregate_base import AggregateBase
 from src.libs.common_domain.event_record import EventRecord
 from src.libs.common_domain.event_signal import EventSignal
+from django.db import models, transaction
 
 
 class DummyAggregate(AggregateBase):
-  pass
+  id = models.CharField(max_length=8, unique=True)
 
 
 def test_aggregate_base_sends_event_in_order():
   results = []
 
-  def side_effect(signal_num, *ignore_me):
+  def side_effect(signal_num, *args, **kwargs):
     results.append(signal_num)
 
   aggregate_test = DummyAggregate()
