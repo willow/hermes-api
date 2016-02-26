@@ -1,44 +1,20 @@
-from functools import partial
-from unittest.mock import MagicMock
-from src.libs.common_domain.aggregate_base import AggregateBase
-from src.libs.common_domain.event_record import EventRecord
-from src.libs.common_domain.event_signal import EventSignal
-from django.db import models, transaction
+from src.libs.common_domain.tests.aggregate_test_obj import DummyAggregate
+from src.libs.common_domain.tests.event_test_obj import DummyChangedName1
 
 
-class DummyAggregate(AggregateBase):
-  id = models.CharField(max_length=8, unique=True)
+def test_aggregate_base_handles_event():
+  event = DummyChangedName1('hello')
+
+  aggregate_test = DummyAggregate._from_attrs('12345', 'test')
+
+  aggregate_test.apply_event(event)
+
+  assert aggregate_test.name == 'hello'
 
 
-def test_aggregate_base_sends_event_in_order():
-  results = []
+def test_aggregate_base_sends_events():
+  aggregate_test = DummyAggregate._from_attrs('12345', 'test')
 
-  def side_effect(signal_num, *args, **kwargs):
-    results.append(signal_num)
+  aggregate_test.change_name('hello')
 
-  aggregate_test = DummyAggregate()
-
-  signal1 = MagicMock(spec=EventRecord)
-  signal1.event_obj.send = MagicMock(side_effect=partial(side_effect, 1))
-  signal2 = MagicMock(spec=EventRecord)
-  signal2.event_obj.send = MagicMock(side_effect=partial(side_effect, 2))
-
-  aggregate_test._uncommitted_events.append(signal1)
-  aggregate_test._uncommitted_events.append(signal2)
-
-  aggregate_test.send_events()
-
-  assert results == [1, 2]
-
-
-def test_aggregate_uses_correct_naming_convention_when_applying():
-  aggregate_test = DummyAggregate()
-
-  event = MagicMock(spec=EventSignal)
-  event.name = 'test'
-
-  aggregate_test._handle_test_event = MagicMock()
-
-  aggregate_test._apply_event(event)
-
-  aggregate_test._handle_test_event.assert_called_with()
+  assert aggregate_test.name == 'hello'

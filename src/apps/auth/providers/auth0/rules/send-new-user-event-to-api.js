@@ -20,7 +20,7 @@ function (user, context, callback) {
         "name": user.name,
         "nickname": user.nickname,
         "picture": user.picture,
-        "attrs": {"auth0": {"user_id": auth0UserId}}
+        "meta": {"auth0": {"user_id": auth0UserId}}
       };
 
       var apiUrl = configuration.HERMES_API_DOMAIN;

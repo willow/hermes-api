@@ -1,7 +1,7 @@
 from django.utils import timezone
 
-from src.aggregates.asset.services import asset_service
-from src.apps.agreement.enums import DurationTypeEnum
+from src.aggregates.asset import services
+from src.aggregates.common.enums import DurationTypeEnum
 from src.libs.datetime_utils.datetime_utils import get_timestamp_from_datetime
 from src.libs.firebase_utils.services import firebase_provider
 
@@ -70,7 +70,7 @@ def save_agreement_edit_in_firebase(agreement, _firebase_provider=None):
 
 
 def save_agreement_detail_in_firebase(agreement, _asset_service=None, _firebase_provider=None):
-  if not _asset_service: _asset_service = asset_service
+  if not _asset_service: _asset_service = services
   if not _firebase_provider: _firebase_provider = firebase_provider
 
   client = _firebase_provider.get_firebase_client()

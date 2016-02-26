@@ -1,26 +1,23 @@
 from django.dispatch import receiver
-from src.aggregates.agreement_type.services import agreement_type_service
 
-from src.aggregates.user.signals import created as user_created
-from src.aggregates.agreement_type.signals import created as agreement_type_created
-from src.apps.realtime.agreement_type.services import agreement_type_tasks
+from src.aggregates.agreement_type.events import AgreementTypeCreated1
+from src.aggregates.user.events import UserCreated1
+from src.apps.realtime.agreement_type import tasks
 from src.libs.common_domain.decorators import event_idempotent
 
 
 @event_idempotent
-@receiver(user_created)
-def user_created_callback(**kwargs):
-  user_id = kwargs.pop('id')
-
-  agreement_type_tasks.save_agreement_types_in_firebase_task.delay(user_id)
+@receiver(UserCreated1.event_signal)
+def execute_user_created_1(**kwargs):
+  user_id = kwargs['aggregate_id']
+  tasks.save_global_agreement_types_in_firebase_task.delay(user_id)
 
 
 @event_idempotent
-@receiver(agreement_type_created)
+@receiver(AgreementTypeCreated1.event_signal)
 def agreement_type_created_callback(**kwargs):
-  agreement_type_id = kwargs.pop('id')
+  event = kwargs['event']
+  at_id = kwargs['aggregate_id']
 
-  agreement_type = agreement_type_service.get_agreement_type(agreement_type_id)
-  if not agreement_type.is_global:
-    user_id = agreement_type.user_id
-    agreement_type_tasks.save_agreement_types_in_firebase_task.delay(user_id)
+  if not event.is_global:
+    tasks.save_user_agreement_types_in_firebase_task.delay(at_id, event.name, event.user_id)

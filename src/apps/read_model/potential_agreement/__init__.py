@@ -1,0 +1,1 @@
+default_app_config = 'src.aggregates.potential_agreement.potential_agreement_config.PotentialAgreementConfig'

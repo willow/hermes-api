@@ -1,7 +1,6 @@
 from django.core.paginator import Paginator
-from src.aggregates.agreement.models import Agreement
 
-from src.aggregates.potential_agreement.models import PotentialAgreement
+from src.apps.read_model.agreement.models import Agreement
 
 
 def federated_search(user, query):

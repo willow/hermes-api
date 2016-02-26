@@ -3,22 +3,23 @@ import logging
 from django.db import IntegrityError
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
-
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
-from src.aggregates.user.services import user_service
-from src.apps.api.resources.user.serializers.user import UserSerializer
-from rest_framework.permissions import AllowAny
+from src.aggregates.user import command_handlers
+from src.aggregates.user.commands import CreateUser
 
 logger = logging.getLogger(__name__)
 
 
 @api_view(['POST'])
 @permission_classes((AllowAny,))
-def user_view(request):
+def user_view(request, _command_handler=None):
+  if not _command_handler: _command_handler = command_handlers
   try:
-    user = user_service.create_user(**request.data)
-    user_data = UserSerializer(user).data
+    command = CreateUser(**request.data)
+    user = _command_handler.create_user(**{'command': command})
+    user_data = {'id': user.id}
   except Exception as e:
     logger.warn("Error creating user: {0}".format(request.data), exc_info=True)
 

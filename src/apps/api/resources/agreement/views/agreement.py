@@ -1,18 +1,18 @@
 import logging
-from django.core.exceptions import ObjectDoesNotExist
 
+from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import status
 from rest_framework.decorators import api_view, parser_classes
 from rest_framework.parsers import FileUploadParser
 from rest_framework.response import Response
 from django.conf import settings
-from src.aggregates.agreement.models import Agreement
-from src.aggregates.agreement.services import agreement_service
 
+from src.aggregates.agreement.models import Agreement
+from src.apps.read_model.agreement import services
 from src.apps.realtime.agreement.services import agreement_service as realtime_agreement_service
 from src.aggregates.potential_agreement.services import potential_agreement_service
-from src.apps.agreement.enums import DurationTypeEnum
-from src.aggregates.asset.services import asset_service
+from src.aggregates.common.enums import DurationTypeEnum
+from src.aggregates.asset import services
 from src.apps.agreement_translation.services import agreement_translation_service
 from src.apps.api.resources.agreement.serializers.agreement import PotentialAgreementSerializer
 from src.libs.datetime_utils import datetime_utils
@@ -31,7 +31,7 @@ def agreement_create_view(request, _potential_agreement_service=None, _agreement
   # refer to https://app.asana.com/0/10235149247655/46476660493804
 
   if not _agreement_translation_service: _agreement_translation_service = agreement_translation_service
-  if not _asset_service: _asset_service = asset_service
+  if not _asset_service: _asset_service = services
   if not _realtime_agreement_service: _realtime_agreement_service = realtime_agreement_service
   if not _potential_agreement_service: _potential_agreement_service = potential_agreement_service
 
@@ -78,7 +78,7 @@ def agreement_update_view(request, agreement_id, _agreement_service=None, _poten
   # this method should be considered internal and no public api call should be allowed to pass in a file for an agreement
   # refer to https://app.asana.com/0/10235149247655/46476660493804
   if not _potential_agreement_service: _potential_agreement_service = potential_agreement_service
-  if not _agreement_service: _agreement_service = agreement_service
+  if not _agreement_service: _agreement_service = services
 
   if not _datetime_utils: _datetime_utils = datetime_utils
 

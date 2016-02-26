@@ -2,17 +2,13 @@ from django.db import models, transaction
 from django.conf import settings
 
 from src.aggregates.asset.signals import created
-from src.libs.common_domain.aggregate_base import AggregateBase
-from src.libs.common_domain.models import Event
+from src.libs.common_domain.models import Event, AggregateModelBase
 
 constants = settings.CONSTANTS
 assets_root = constants.ASSETS_ROOT
 
 
-class Asset(models.Model, AggregateBase):
-  primary_key = models.AutoField(primary_key=True)
-
-  id = models.CharField(max_length=8, unique=True)
+class Asset(AggregateModelBase):
   path = models.CharField(max_length=2400)
   content_type = models.CharField(max_length=2400)
   original_name = models.CharField(max_length=2400)
@@ -51,9 +47,9 @@ class Asset(models.Model, AggregateBase):
     # to the asset service, using the double dispatch pattern.
     # https://lostechies.com/jimmybogard/2010/03/30/strengthening-your-domain-the-double-dispatch-pattern/
     if not _asset_service:
-      from src.aggregates.asset.services import asset_service
+      from src.aggregates.asset import services
 
-      _asset_service = asset_service
+      _asset_service = services
 
     ret_val = _asset_service.get_signed_asset_path(self.path)
 
@@ -67,7 +63,7 @@ class Asset(models.Model, AggregateBase):
     self.system_created_date = kwargs['system_created_date']
 
   def __str__(self):
-    return 'Asset #' + str(self.id) + ': ' + self.original_name
+    return 'Asset {id}: {name}'.format(id=self.id, name=self.name)
 
   def save(self, internal=False, *args, **kwargs):
     if internal:

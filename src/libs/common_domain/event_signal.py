@@ -3,12 +3,6 @@ from django.dispatch.dispatcher import NO_RECEIVERS
 
 
 class EventSignal(Signal):
-  def __init__(self, name, module_name, version, providing_args=None):
-    super(EventSignal, self).__init__(providing_args)
-    self.name = name
-    self.module_name = module_name
-    self.version = version
-
   def send(self, sender, allow_non_idempotent=True, **named):
     """
     Send signal from sender to all connected receivers.
@@ -27,7 +21,12 @@ class EventSignal(Signal):
 
     Returns a list of tuple pairs [(receiver, response), ... ].
     """
+    if 'aggregate_id' not in named: raise ValueError('aggregate_id is required')
+    if 'version' not in named: raise ValueError('version is required')
+    if 'event' not in named: raise ValueError('event is required')
+
     responses = []
+
     if not self.receivers or self.sender_receivers_cache.get(sender) is NO_RECEIVERS:
       return responses
 
