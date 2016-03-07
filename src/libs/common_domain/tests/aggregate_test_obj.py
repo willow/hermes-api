@@ -4,7 +4,7 @@ from src.libs.common_domain.tests.event_test_obj import DummyChangedName1, Dummy
 
 class DummyAggregate(AggregateBase):
   @classmethod
-  def _from_attrs(cls, id, name):
+  def from_attrs(cls, id, name):
     ret_val = cls()
     ret_val._raise_event(DummyCreated1(id, name))
 

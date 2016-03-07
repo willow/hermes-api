@@ -1,7 +1,7 @@
 from django.dispatch import receiver
 
-from src.aggregates.agreement_type.events import AgreementTypeCreated1
-from src.aggregates.user.events import UserCreated1
+from src.domain.agreement_type.events import AgreementTypeCreated1
+from src.domain.user.events import UserCreated1
 from src.apps.realtime.agreement_type import tasks
 from src.libs.common_domain.decorators import event_idempotent
 

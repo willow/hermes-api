@@ -1,6 +1,12 @@
 import datetime
 import time
+
 from pytz import UTC
+from dateutil import parser
+
+
+def get_date_from_string(string_time):
+  return parser.parse(string_time)
 
 
 def get_utc_from_timestamp(timestamp):

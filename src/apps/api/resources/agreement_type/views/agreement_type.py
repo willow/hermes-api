@@ -5,8 +5,8 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.conf import settings
 
-from src.aggregates.agreement_type.services import agreement_type_service
-from src.apps.api.resources.agreement_type.serializers.agreement_type import AgreementTypeSerializer
+from src.domain.agreement_type import command_handlers
+from src.domain.agreement_type.commands import CreateAgreementType
 
 constants = settings.CONSTANTS
 
@@ -14,12 +14,13 @@ logger = logging.getLogger(__name__)
 
 
 @api_view(['POST'])
-def agreement_type_create_view(request, _agreement_type_service=None):
-  if not _agreement_type_service: _agreement_type_service = agreement_type_service
+def agreement_type_create_view(request, _command_handler=None):
+  if not _command_handler: _command_handler = command_handlers
 
   try:
 
     name = request.data[constants.NAME]
+
     agreement_type_user_id = request.user.id
 
     agreement_type_data = {
@@ -28,14 +29,17 @@ def agreement_type_create_view(request, _agreement_type_service=None):
       'user_id': agreement_type_user_id
     }
 
-    agreement_type = _agreement_type_service.create_agreement_type(**agreement_type_data)
-    agreement_type_serializer_data = AgreementTypeSerializer(agreement_type).data
+    command = CreateAgreementType(**agreement_type_data)
+
+    at = _command_handler.create_agreement_type(**{'command': command})
+
+    at_data = {'id': at.id}
 
   except Exception as e:
     logger.warn("Error creating agreement_type: {0}".format(request.data), exc_info=True)
     response = Response("Error creating agreement_type %s " % e, status.HTTP_400_BAD_REQUEST)
 
   else:
-    response = Response(agreement_type_serializer_data, status.HTTP_201_CREATED)
+    response = Response(at_data, status.HTTP_201_CREATED)
 
   return response

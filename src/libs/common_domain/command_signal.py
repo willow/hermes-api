@@ -21,6 +21,7 @@ class CommandSignal(Signal):
 
     Returns a list of tuple pairs [(receiver, response), ... ].
     """
+    if 'aggregate_id' not in named: raise ValueError('aggregate_id is required')
     if 'command' not in named: raise ValueError('command is required')
 
     responses = []

@@ -1,6 +1,6 @@
 from django.core.paginator import Paginator
 
-from src.apps.read_model.agreement.models import Agreement
+from src.domain.agreement.models import AgreementSearch
 
 
 def federated_search(user, query):
@@ -8,7 +8,7 @@ def federated_search(user, query):
   query = query.strip()
 
   results = (
-    Agreement
+    AgreementSearch
       .objects
       .filter(name__icontains=query)
       .filter(user_id=user.id)
@@ -24,13 +24,13 @@ def federated_search(user, query):
   return result_set
 
 
-def advanced_search(user, text, counterparty, agreement_type):
+def advanced_search(user_id, text, counterparty, agreement_type_id):
   # refer to https://app.asana.com/0/10235149247655/79432408201376 for upgrading the search service
 
   results = (
-    Agreement
+    AgreementSearch
       .objects
-      .filter(user_id=user.id)
+      .filter(user_id=user_id)
       .values_list('id', 'name')
   )
 
@@ -42,8 +42,7 @@ def advanced_search(user, text, counterparty, agreement_type):
     counterparty = counterparty.strip()
     results = results.filter(counterparty__iexact=counterparty)
 
-  if agreement_type:
-    agreement_type_id = agreement_type.id
+  if agreement_type_id:
     results = results.filter(agreement_type_id=agreement_type_id)
 
   count = results.count()

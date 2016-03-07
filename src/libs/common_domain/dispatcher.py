@@ -3,8 +3,9 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def send_command(command):
-  command_data = {'command': command}
+# these two methods should probably be split. their signatures may change throughout the future.
+def send_command(aggregate_id, command):
+  command_data = {'aggregate_id': aggregate_id, 'command': command}
   command.__class__.command_signal.send(None, **command_data)
 
 

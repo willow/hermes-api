@@ -1,9 +1,10 @@
-from abc import ABC
+from abc import ABC, abstractmethod
 
 
 class AggregateBase(ABC):
   def __init__(self):
     self._uncommitted_events = []
+    self.version = -1
 
   def _raise_event(self, event):
     self.apply_event(event)
@@ -30,3 +31,10 @@ class AggregateBase(ABC):
       self.__class__.__name__, event_func_name))
 
     handle_func(event)
+
+    self.version += 1
+
+  @classmethod
+  @abstractmethod
+  def from_attrs(cls, **kwargs):
+    pass

@@ -6,7 +6,7 @@ from src.libs.common_domain.tests.aggregate_test_obj import DummyAggregate
 
 
 def test_aggregate_repository_marks_events_as_committed():
-  aggregate_test = DummyAggregate._from_attrs('12345', 'hello')
+  aggregate_test = DummyAggregate.from_attrs('12345', 'hello')
   aggregate_test.change_name('hello')
   event_store_mock = MagicMock(spec=event_store)
 

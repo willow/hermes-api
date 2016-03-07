@@ -1,14 +1,19 @@
-# from django.dispatch import receiver
-#
-# from src.apps.read_model.agreement import created, updated_attrs
-# from src.apps.realtime.counterparty.services import counterparty_tasks
-# from src.libs.common_domain.decorators import event_idempotent
-#
-#
-# @event_idempotent
-# @receiver(created)
-# @receiver(updated_attrs)
-# def agreement_completed_callback(**kwargs):
-#   agreement_id = kwargs['aggregate_id']
-#
-#   counterparty_tasks.save_counterparty_in_firebase_task.delay(agreement_id)
+from django.dispatch import receiver
+
+from src.domain.agreement.events import AgreementCreated1
+from src.domain.agreement.events import AgreementAttrsUpdated1
+from src.apps.realtime.counterparty import tasks
+from src.libs.common_domain.decorators import event_idempotent
+
+
+@event_idempotent
+@receiver(AgreementCreated1.event_signal)
+@receiver(AgreementAttrsUpdated1.event_signal)
+def execute_pa_created_1(**kwargs):
+  event = kwargs['event']
+  agreement_id = kwargs['aggregate_id']
+
+  user_id = event.user_id
+  counterparty = event.counterparty
+
+  tasks.save_counterparty_in_firebase_task.delay(agreement_id, user_id, counterparty)

@@ -3,7 +3,6 @@ import logging
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from src.aggregates.agreement_type.services import agreement_type_service
 
 from src.apps.search.services import search_service
 from src.settings import constants
@@ -39,15 +38,13 @@ def advanced_search_view(request, _search_service=None):
   text = request.query_params.get(constants.TEXT)
   counterparty = request.query_params.get(constants.COUNTERPARTY)
   agreement_type_id = request.query_params.get(constants.TYPE_ID)
-  agreement_type = None
 
   try:
 
     if agreement_type_id:
       agreement_type_id = agreement_type_id.strip()
-      agreement_type = agreement_type_service.get_agreement_type(agreement_type_id)
 
-    result_set = _search_service.advanced_search(request.user, text, counterparty, agreement_type)
+    result_set = _search_service.advanced_search(request.user.id, text, counterparty, agreement_type_id)
   except Exception as e:
     logger.warn("Error searching: {0}".format(request.data), exc_info=True)
 

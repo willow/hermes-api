@@ -4,7 +4,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-from src.aggregates.asset import services
+from src.domain.asset import services
 
 logger = logging.getLogger(__name__)
 
@@ -16,9 +16,9 @@ def asset_view(request, asset_id, _asset_service=None):
   if not _asset_service: _asset_service = services
 
   try:
-    asset = _asset_service.get_asset(asset_id)
+    asset_lookup = _asset_service.get_asset_lookup(asset_id)
 
-    asset_path = asset.signed_path
+    asset_path = _asset_service.get_signed_asset_path(asset_lookup.path)
 
   except Exception as e:
     logger.warn("Error retrieving asset path: {0}".format(asset_id), exc_info=True)

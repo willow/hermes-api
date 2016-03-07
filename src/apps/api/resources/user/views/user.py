@@ -6,8 +6,8 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
-from src.aggregates.user import command_handlers
-from src.aggregates.user.commands import CreateUser
+from src.domain.user import command_handlers
+from src.domain.user.commands import CreateUser
 
 logger = logging.getLogger(__name__)
 

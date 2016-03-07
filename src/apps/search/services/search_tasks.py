@@ -1,5 +1,5 @@
-from src.aggregates.user.models import User
-from src.aggregates.user.services import user_service
+from src.domain.user.models import User
+from src.domain.user.services import user_service
 import logging
 from django_rq import job
 from src.libs.python_utils.logging.logging_utils import log_wrapper

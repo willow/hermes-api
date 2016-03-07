@@ -5,7 +5,7 @@ from src.libs.common_domain.tests.event_test_obj import DummyChangedName1
 def test_aggregate_base_handles_event():
   event = DummyChangedName1('hello')
 
-  aggregate_test = DummyAggregate._from_attrs('12345', 'test')
+  aggregate_test = DummyAggregate.from_attrs('12345', 'test')
 
   aggregate_test.apply_event(event)
 
@@ -13,7 +13,7 @@ def test_aggregate_base_handles_event():
 
 
 def test_aggregate_base_sends_events():
-  aggregate_test = DummyAggregate._from_attrs('12345', 'test')
+  aggregate_test = DummyAggregate.from_attrs('12345', 'test')
 
   aggregate_test.change_name('hello')
 

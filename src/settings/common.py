@@ -50,7 +50,7 @@ ROOT_URLCONF = '%s.urls' % SITE_NAME
 ########## END URL CONFIGURATION
 
 ########## AUTH CONFIGURATION
-AUTH_USER_MODEL = 'read_model.user.models.AuthUser'
+AUTH_USER_MODEL = 'user.AuthUser'
 ########## END AUTH CONFIGURATION
 
 ########## CORS CONFIGURATION
@@ -121,22 +121,18 @@ THIRD_PARTY_APPS = (
 )
 
 LOCAL_APPS = (
-  # AGGREGATES
-  # 'src.aggregates.agreement',
-  'src.aggregates.agreement_type',
-  # 'src.aggregates.alert',
-  # 'src.aggregates.asset',
-  # 'src.aggregates.potential_agreement',
-  # 'src.aggregates.smart_view',
-  'src.aggregates.user',
+  # DOMAIN
+  'src.domain.agreement',
+  'src.domain.agreement_type',
+  'src.domain.asset',
+  'src.domain.potential_agreement',
+  'src.domain.smart_view',
+  'src.domain.user',
 
   # APPS
   'src.apps.agreement_translation',
   'src.apps.api',
   'src.apps.auth',
-  'src.apps.read_model.agreement',
-  'src.apps.read_model.agreement_type',
-  'src.apps.read_model.user',
   'src.apps.realtime',
 
   # LIBS

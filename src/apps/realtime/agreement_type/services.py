@@ -1,4 +1,4 @@
-from src.apps.read_model.agreement_type import services as at_service
+from src.domain.agreement_type import services as at_service
 from src.libs.firebase_utils.services import firebase_provider
 
 
@@ -20,8 +20,8 @@ def save_user_agreement_types_in_firebase(agreement_type_id, name, user_id, _fir
 
   client = _firebase_provider.get_firebase_client()
 
-  data = {agreement_type_id: name}
+  data = {'name': name}
 
-  result = client.put('users-agreement-types/{0}/'.format(user_id), user_id, data)
+  result = client.put('users-agreement-types/{0}/'.format(user_id), agreement_type_id, data)
 
   return result
