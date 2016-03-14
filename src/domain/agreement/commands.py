@@ -57,3 +57,7 @@ class UpdateAgreementAttrs():
 
 class SendAgreementAlerts():
   command_signal = CommandSignal()
+
+
+class DeleteAgreement():
+  command_signal = CommandSignal()

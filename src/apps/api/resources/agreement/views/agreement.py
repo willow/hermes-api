@@ -7,7 +7,7 @@ from rest_framework.parsers import FileUploadParser
 from rest_framework.response import Response
 from django.conf import settings
 
-from src.domain.agreement.commands import UpdateAgreementAttrs
+from src.domain.agreement.commands import UpdateAgreementAttrs, DeleteAgreement
 from src.domain.agreement.entities import Agreement
 from src.domain.asset import command_handlers as asset_command_handlers
 from src.domain.asset.commands import CreateAssetFromFile
@@ -75,10 +75,18 @@ def agreement_create_view(request,
   return response
 
 
-@api_view(['PUT'])
-def agreement_update_view(request, agreement_id, _dispatcher=None, _aggregate_repo=None, _datetime_utils=None):
-  # this method should be considered internal and no public api call should be allowed to pass in a file for an agreement
-  # refer to https://app.asana.com/0/10235149247655/46476660493804
+@api_view(['PUT', 'DELETE'])
+def agreement_modify_view(request, agreement_id):
+  if request.method == 'PUT':
+    ret_val = _update_agreement_view(request, agreement_id)
+  else:
+    ret_val = _delete_agreement_view(request, agreement_id)
+
+  return ret_val
+
+
+def _update_agreement_view(request, agreement_id, _dispatcher=None, _aggregate_repo=None, _datetime_utils=None):
+  # refer to https://app.asana.com/0/10235149247655/46440394636647
   if not _dispatcher: _dispatcher = dispatcher
   if not _aggregate_repo: _aggregate_repo = aggregate_repository
   if not _datetime_utils: _datetime_utils = datetime_utils
@@ -139,6 +147,26 @@ def agreement_update_view(request, agreement_id, _dispatcher=None, _aggregate_re
   except Exception as e:
     logger.warn("Error saving agreement: {0}".format(request.data), exc_info=True)
     response = Response("Error saving agreement %s " % e, status.HTTP_400_BAD_REQUEST)
+
+  else:
+    response = Response(status=status.HTTP_200_OK)
+
+  return response
+
+
+def _delete_agreement_view(request, agreement_id, _dispatcher=None, ):
+  # this method should be considered internal and no public api call should be allowed to pass in a file for an agreement
+  # refer to https://app.asana.com/0/10235149247655/46476660493804
+  if not _dispatcher: _dispatcher = dispatcher
+
+  try:
+    command = DeleteAgreement()
+
+    _dispatcher.send_command(agreement_id, command)
+
+  except Exception as e:
+    logger.warn("Error deleting agreement: {0}".format(request.data), exc_info=True)
+    response = Response("Error deleting agreement %s " % e, status.HTTP_400_BAD_REQUEST)
 
   else:
     response = Response(status=status.HTTP_200_OK)

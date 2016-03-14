@@ -55,3 +55,8 @@ def save_agreement_alert(agreement_id,
   obj, _ = AgreementAlert.objects.update_or_create(id=agreement_id, defaults=data)
 
   return obj
+
+
+def delete_agreementsearch(agreement_id):
+  get_agreement_alert(agreement_id).delete()
+  get_agreement_search(agreement_id).delete()

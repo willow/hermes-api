@@ -46,3 +46,13 @@ def save_agreement_alerts_in_firebase_task(agreement_id, **kwargs):
 
   with log_wrapper(logger.info, *log_message):
     return realtime_agreement_service.save_agreement_alerts_in_firebase(agreement_id, **kwargs)
+
+
+@job('default')
+def delete_agreement_in_firebase_task(agreement_id, user_id, **kwargs):
+  log_message = (
+    "Delete agreement alerts in firebase. agreement_id: %s ", agreement_id
+  )
+
+  with log_wrapper(logger.info, *log_message):
+    return realtime_agreement_service.delete_agreements_in_firebase(agreement_id, user_id, **kwargs)

@@ -2,7 +2,7 @@ from django.dispatch import receiver
 from django.utils import timezone
 
 from src.domain.agreement.commands import CreateAgreementFromPotentialAgreement, UpdateAgreementAttrs, \
-  SendAgreementAlerts
+  SendAgreementAlerts, DeleteAgreement
 from src.domain.agreement.entities import Agreement
 from src.libs.common_domain import aggregate_repository
 
@@ -49,5 +49,20 @@ def send_agreement_alerts(_aggregate_repository=None, **kwargs):
 
   ag.send_outcome_notice_alert_if_due()
   ag.send_expiration_alert_if_due()
+
+  _aggregate_repository.save(ag, version)
+
+
+@receiver(DeleteAgreement.command_signal)
+def delete_agreement(_aggregate_repository=None, **kwargs):
+  if not _aggregate_repository: _aggregate_repository = aggregate_repository
+
+  id = kwargs['aggregate_id']
+
+  ag = _aggregate_repository.get(Agreement, id)
+
+  version = ag.version
+
+  ag.mark_deleted()
 
   _aggregate_repository.save(ag, version)

@@ -1,7 +1,7 @@
 from django.dispatch import receiver
 
 from src.domain.agreement.events import AgreementCreated1, AgreementAttrsUpdated1, AgreementOutcomeNoticeAlertSent1, \
-  AgreementExpirationAlertSent1
+  AgreementExpirationAlertSent1, AgreementDeleted1
 from src.domain.potential_agreement.events import PotentialAgreementCreated1
 from src.apps.realtime.agreement import tasks
 from src.libs.common_domain.decorators import event_idempotent
@@ -35,3 +35,12 @@ def agreement_alerts_callback(**kwargs):
   agreement_id = kwargs['aggregate_id']
   event = kwargs['event']
   tasks.save_agreement_alerts_in_firebase_task.delay(agreement_id, **event.data)
+
+
+@event_idempotent
+@receiver(AgreementDeleted1.event_signal)
+def agreement_delete_callback(**kwargs):
+  agreement_id = kwargs['aggregate_id']
+  event = kwargs['event']
+  user_id = event.user_id
+  tasks.delete_agreement_in_firebase_task.delay(agreement_id, user_id)

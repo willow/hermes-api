@@ -2,7 +2,7 @@ from dateutil.relativedelta import relativedelta
 from django.utils import timezone
 
 from src.domain.agreement.events import AgreementCreated1, AgreementAttrsUpdated1, AgreementExpirationAlertSent1, \
-  AgreementOutcomeNoticeAlertSent1
+  AgreementOutcomeNoticeAlertSent1, AgreementDeleted1
 from src.domain.common.enums import DurationTypeDict
 from src.libs.common_domain.aggregate_base import AggregateBase
 
@@ -137,6 +137,12 @@ class Agreement(AggregateBase):
         )
       )
 
+  def mark_deleted(self):
+    if self.is_deleted:
+      raise Exception("agreement {0} is already deleted".format(self.id))
+
+    self._raise_event(AgreementDeleted1(self.user_id))
+
   def _validate_args(self, **kwargs):
     if not kwargs.get('name'):
       raise ValueError("name is required")
@@ -237,6 +243,8 @@ class Agreement(AggregateBase):
     return outcome_notice_date
 
   def _handle_created_1_event(self, event):
+    self.is_deleted = False
+
     self.outcome_notice_alert_created = event.outcome_notice_alert_created
     self.outcome_notice_alert_expired = event.outcome_notice_alert_expired
     self.expiration_alert_created = event.expiration_alert_created
@@ -257,6 +265,9 @@ class Agreement(AggregateBase):
 
   def _handle_expiration_alert_sent_1_event(self, event):
     self.expiration_alert_created = event.expiration_alert_created
+
+  def _handle_deleted_1_event(self, event):
+    self.is_deleted = True
 
   def __str__(self):
     return 'Agreement {id}: {name}'.format(id=self.id, name=self.name)

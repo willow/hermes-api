@@ -1,7 +1,6 @@
 import logging
 
 from django.core.exceptions import ObjectDoesNotExist
-
 from django_rq import job
 
 from src.domain.agreement.commands import CreateAgreementFromPotentialAgreement, SendAgreementAlerts
@@ -104,3 +103,11 @@ def save_agreement_search_task(agreement_id, user_id, name, counterparty, agreem
 
   with log_wrapper(logger.info, *log_message):
     return services.save_agreement_search(agreement_id, user_id, name, counterparty, agreement_type_id).id
+
+
+@job('high')
+def delete_agreement_task(agreement_id):
+  log_message = ("Delete agreement_search task for agreement_id: %s", agreement_id)
+
+  with log_wrapper(logger.info, *log_message):
+    return services.delete_agreementsearch(agreement_id)

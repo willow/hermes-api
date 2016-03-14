@@ -3,7 +3,7 @@ from django.dispatch import receiver
 # from src.apps.read_model.agreement import created, updated_attrs, expiration_alert_sent, \
 #   outcome_notice_alert_sent
 # from src.apps.realtime.agreement.services import agreement_tasks
-from src.domain.agreement.events import AgreementCreated1, AgreementAttrsUpdated1
+from src.domain.agreement.events import AgreementCreated1, AgreementAttrsUpdated1, AgreementDeleted1
 from src.domain.potential_agreement.events import PotentialAgreementCompleted1
 from src.domain.agreement import tasks
 from src.libs.common_domain.decorators import event_idempotent
@@ -41,3 +41,10 @@ def execute_create_agreement_alerts(**kwargs):
     event.outcome_notice_alert_date, event.outcome_notice_alert_enabled, event.outcome_notice_alert_created,
     event.expiration_alert_date, event.expiration_alert_enabled, event.expiration_alert_created,
   )
+
+
+@event_idempotent
+@receiver(AgreementDeleted1.event_signal)
+def agreement_delete_callback(**kwargs):
+  agreement_id = kwargs['aggregate_id']
+  tasks.delete_agreement_task.delay(agreement_id)

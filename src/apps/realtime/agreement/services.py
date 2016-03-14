@@ -208,3 +208,16 @@ def save_agreement_alerts_in_firebase(agreement_id, name,
   result = client.patch('users-alerts/{user_id}'.format(user_id=user_id), data)
 
   return result
+
+
+def delete_agreements_in_firebase(agreement_id, user_id, _firebase_provider=None):
+  if not _firebase_provider: _firebase_provider = firebase_provider
+
+  client = _firebase_provider.get_firebase_client()
+
+  result = []
+  result.append(client.delete('users-agreements/{user_id}'.format(user_id=user_id), agreement_id))
+  result.append(client.delete('/agreement-edits', agreement_id))
+  result.append(client.delete('/agreement-details', agreement_id))
+
+  return result

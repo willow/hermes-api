@@ -1,6 +1,5 @@
 from src.libs.common_domain.domain_event import DomainEvent
 from src.libs.common_domain.event_signal import EventSignal
-from src.libs.datetime_utils.datetime_utils import get_date_from_string
 from src.libs.python_utils.objects.object_utils import initializer
 
 
@@ -46,7 +45,7 @@ class AgreementAttrsUpdated1(DomainEvent):
   event_func_name = 'attrs_updated_1'
   event_signal = EventSignal()
 
-    # https://app.asana.com/0/10235149247655/100075573324021
+  # https://app.asana.com/0/10235149247655/100075573324021
   @initializer
   def __init__(self,
                name,
@@ -97,4 +96,13 @@ class AgreementOutcomeNoticeAlertSent1(DomainEvent):
   @initializer
   def __init__(self, name, user_id, outcome_date, outcome_notice_alert_created,
                outcome_notice_date, expiration_alert_created, ):
+    super().__init__()
+
+
+class AgreementDeleted1(DomainEvent):
+  event_func_name = 'deleted_1'
+  event_signal = EventSignal()
+
+  @initializer
+  def __init__(self, user_id, ):
     super().__init__()
