@@ -7,7 +7,7 @@ from rest_framework.parsers import FileUploadParser
 from rest_framework.response import Response
 from django.conf import settings
 
-from src.domain.agreement.commands import UpdateAgreementAttrs, DeleteAgreement
+from src.domain.agreement.commands import UpdateAgreementAttrs, DeleteAgreement, DeleteArtifact
 from src.domain.agreement.entities import Agreement
 from src.domain.asset import command_handlers as asset_command_handlers
 from src.domain.asset.commands import CreateAssetFromFile
@@ -167,6 +167,25 @@ def _delete_agreement_view(request, agreement_id, _dispatcher=None, ):
   except Exception as e:
     logger.warn("Error deleting agreement: {0}".format(request.data), exc_info=True)
     response = Response("Error deleting agreement %s " % e, status.HTTP_400_BAD_REQUEST)
+
+  else:
+    response = Response(status=status.HTTP_200_OK)
+
+  return response
+
+
+@api_view(['DELETE'])
+def artifact_delete_view(request, agreement_id, artifact_id, _dispatcher=None):
+  if not _dispatcher: _dispatcher = dispatcher
+
+  try:
+    command = DeleteArtifact(artifact_id)
+
+    _dispatcher.send_command(agreement_id, command)
+
+  except Exception as e:
+    logger.warn("Error deleting artifact: {0}".format(request.data), exc_info=True)
+    response = Response("Error deleting artifact %s " % e, status.HTTP_400_BAD_REQUEST)
 
   else:
     response = Response(status=status.HTTP_200_OK)

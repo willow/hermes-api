@@ -61,3 +61,11 @@ class SendAgreementAlerts():
 
 class DeleteAgreement():
   command_signal = CommandSignal()
+
+
+class DeleteArtifact():
+  command_signal = CommandSignal()
+
+  @initializer
+  def __init__(self, artifact_id):
+    pass

@@ -2,7 +2,7 @@ from django.dispatch import receiver
 from django.utils import timezone
 
 from src.domain.agreement.commands import CreateAgreementFromPotentialAgreement, UpdateAgreementAttrs, \
-  SendAgreementAlerts, DeleteAgreement
+  SendAgreementAlerts, DeleteAgreement, DeleteArtifact
 from src.domain.agreement.entities import Agreement
 from src.libs.common_domain import aggregate_repository
 
@@ -64,5 +64,22 @@ def delete_agreement(_aggregate_repository=None, **kwargs):
   version = ag.version
 
   ag.mark_deleted()
+
+  _aggregate_repository.save(ag, version)
+
+
+@receiver(DeleteArtifact.command_signal)
+def delete_artifact(_aggregate_repository=None, **kwargs):
+  if not _aggregate_repository: _aggregate_repository = aggregate_repository
+
+  id = kwargs['aggregate_id']
+
+  command = kwargs['command']
+
+  ag = _aggregate_repository.get(Agreement, id)
+
+  version = ag.version
+
+  ag.delete_artifact(command.artifact_id)
 
   _aggregate_repository.save(ag, version)

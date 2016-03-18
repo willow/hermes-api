@@ -2,7 +2,7 @@ from dateutil.relativedelta import relativedelta
 from django.utils import timezone
 
 from src.domain.agreement.events import AgreementCreated1, AgreementAttrsUpdated1, AgreementExpirationAlertSent1, \
-  AgreementOutcomeNoticeAlertSent1, AgreementDeleted1
+  AgreementOutcomeNoticeAlertSent1, AgreementDeleted1, ArtifactDeleted1
 from src.domain.common.enums import DurationTypeDict
 from src.libs.common_domain.aggregate_base import AggregateBase
 
@@ -143,6 +143,12 @@ class Agreement(AggregateBase):
 
     self._raise_event(AgreementDeleted1(self.user_id))
 
+  def delete_artifact(self, artifact_id):
+    if artifact_id not in self.artifact_ids:
+      raise Exception("artifact {0} doesn't exist".format(artifact_id))
+    else:
+      self._raise_event(ArtifactDeleted1(artifact_id))
+
   def _validate_args(self, **kwargs):
     if not kwargs.get('name'):
       raise ValueError("name is required")
@@ -268,6 +274,10 @@ class Agreement(AggregateBase):
 
   def _handle_deleted_1_event(self, event):
     self.is_deleted = True
+
+  def _handle_artifact_deleted_1_event(self, event):
+    artifact_id = event.artifact_id
+    self.artifact_ids = [aid for aid in self.artifact_ids if aid != artifact_id]
 
   def __str__(self):
     return 'Agreement {id}: {name}'.format(id=self.id, name=self.name)

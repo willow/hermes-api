@@ -106,3 +106,12 @@ class AgreementDeleted1(DomainEvent):
   @initializer
   def __init__(self, user_id, ):
     super().__init__()
+
+
+class ArtifactDeleted1(DomainEvent):
+  event_func_name = 'artifact_deleted_1'
+  event_signal = EventSignal()
+
+  @initializer
+  def __init__(self, artifact_id):
+    super().__init__()
