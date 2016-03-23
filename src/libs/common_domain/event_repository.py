@@ -4,7 +4,7 @@ from src.libs.common_domain.models import Event
 
 
 def get_events():
-  return Event.objects.order_by("event_sequence")
+  return Event.objects.order_by('event_sequence', 'id')
 
 
 def get_events_for_stream(event_type, stream_id):

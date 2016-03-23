@@ -69,3 +69,11 @@ class DeleteArtifact():
   @initializer
   def __init__(self, artifact_id):
     pass
+
+
+class CreateArtifact():
+  command_signal = CommandSignal()
+
+  @initializer
+  def __init__(self, artifact_id):
+    pass

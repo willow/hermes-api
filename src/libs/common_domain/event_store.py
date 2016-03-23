@@ -62,4 +62,4 @@ def replay_events(_event_repository=None, _event_service=None, _event_dispatcher
         logger.warn("Error sending signal for: %s Data: %s", event_name, event_data, exc_info=True)
 
       counter += 1
-      logger.debug("Sending signal: %s : %i", event_name, counter)
+      logger.debug("Sending signal #%i: %s : %s", counter, event_name, event.stream_id)

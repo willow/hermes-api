@@ -7,7 +7,7 @@ from rest_framework.parsers import FileUploadParser
 from rest_framework.response import Response
 from django.conf import settings
 
-from src.domain.agreement.commands import UpdateAgreementAttrs, DeleteAgreement, DeleteArtifact
+from src.domain.agreement.commands import UpdateAgreementAttrs, DeleteAgreement, DeleteArtifact, CreateArtifact
 from src.domain.agreement.entities import Agreement
 from src.domain.asset import command_handlers as asset_command_handlers
 from src.domain.asset.commands import CreateAssetFromFile
@@ -45,14 +45,14 @@ def agreement_create_view(request,
   try:
     # get file and process it, validate it. capture info, like filename and other metadata.
     # if all goes well, submit to s3.
-    contract_files = [file for file_name, file in request.FILES.items() if file_name.startswith('contracts')]
+    artifact_files = [file for file_name, file in request.FILES.items() if file_name.startswith('artifacts')]
 
     # do this task first because persisting the asset will alter the file (name, etc.)
-    agreement_data = _agreement_translation_service.get_agreement_info_from_files(contract_files)
+    agreement_data = _agreement_translation_service.get_agreement_info_from_files(artifact_files)
 
     assets = [
       _asset_command_handler.create_asset_from_file(**{'command': CreateAssetFromFile(constants.ARTIFACTS_ROOT, file)})
-      for file in contract_files
+      for file in artifact_files
       ]
 
     asset_ids = [asset.id for asset in assets]
@@ -174,7 +174,13 @@ def _delete_agreement_view(request, agreement_id, _dispatcher=None, ):
 
 
 @api_view(['DELETE'])
-def artifact_delete_view(request, agreement_id, artifact_id, _dispatcher=None):
+def artifact_modify_view(request, agreement_id, artifact_id):
+  ret_val = _delete_artifact_view(request, agreement_id, artifact_id)
+
+  return ret_val
+
+
+def _delete_artifact_view(request, agreement_id, artifact_id, _dispatcher=None):
   if not _dispatcher: _dispatcher = dispatcher
 
   try:
@@ -185,6 +191,36 @@ def artifact_delete_view(request, agreement_id, artifact_id, _dispatcher=None):
   except Exception as e:
     logger.warn("Error deleting artifact: {0}".format(request.data), exc_info=True)
     response = Response("Error deleting artifact %s " % e, status.HTTP_400_BAD_REQUEST)
+
+  else:
+    response = Response(status=status.HTTP_200_OK)
+
+  return response
+
+
+@api_view(['POST'])
+@parser_classes((FileUploadParser,))
+def artifact_create_view(request, agreement_id, _asset_command_handler=None, _dispatcher=None):
+  if not _asset_command_handler: _asset_command_handler = asset_command_handlers
+  if not _dispatcher: _dispatcher = dispatcher
+
+  try:
+    artifact_files = [file for file_name, file in request.FILES.items() if file_name.startswith('artifacts')]
+
+    assets = [
+      _asset_command_handler.create_asset_from_file(**{'command': CreateAssetFromFile(constants.ARTIFACTS_ROOT, file)})
+      for file in artifact_files
+      ]
+
+    asset_ids = [asset.id for asset in assets]
+
+    for aid in asset_ids:
+      command = CreateArtifact(aid)
+      _dispatcher.send_command(agreement_id, command)
+
+  except Exception as e:
+    logger.warn("Error creating artifact: {0}".format(request.data), exc_info=True)
+    response = Response("Error creating artifact %s " % e, status.HTTP_400_BAD_REQUEST)
 
   else:
     response = Response(status=status.HTTP_200_OK)

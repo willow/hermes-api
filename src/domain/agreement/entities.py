@@ -2,7 +2,7 @@ from dateutil.relativedelta import relativedelta
 from django.utils import timezone
 
 from src.domain.agreement.events import AgreementCreated1, AgreementAttrsUpdated1, AgreementExpirationAlertSent1, \
-  AgreementOutcomeNoticeAlertSent1, AgreementDeleted1, ArtifactDeleted1
+  AgreementOutcomeNoticeAlertSent1, AgreementDeleted1, ArtifactDeleted1, ArtifactCreated1
 from src.domain.common.value_objects.time_type import TimeType
 from src.libs.common_domain.aggregate_base import AggregateBase
 
@@ -140,10 +140,17 @@ class Agreement(AggregateBase):
 
   def delete_artifact(self, artifact_id):
     if artifact_id not in self.artifact_ids:
-      raise Exception("artifact {0} doesn't exist".format(artifact_id))
+      raise Exception("artifact {0} doesn't exists".format(artifact_id))
     else:
       remaining_artifact_ids = [aid for aid in self.artifact_ids if aid != artifact_id]
       self._raise_event(ArtifactDeleted1(artifact_id, remaining_artifact_ids, self.user_id))
+
+  def create_artifact(self, artifact_id):
+    if artifact_id in self.artifact_ids:
+      raise Exception("artifact {0} already exists".format(artifact_id))
+    else:
+      artifact_ids = self.artifact_ids + [artifact_id]
+      self._raise_event(ArtifactCreated1(artifact_id, artifact_ids, self.user_id))
 
   def _validate_args(self, **kwargs):
     if not kwargs.get('name'):
@@ -267,6 +274,9 @@ class Agreement(AggregateBase):
 
   def _handle_deleted_1_event(self, event):
     self.is_deleted = True
+
+  def _handle_artifact_created_1_event(self, event):
+    self.artifact_ids = event.artifact_ids
 
   def _handle_artifact_deleted_1_event(self, event):
     self.artifact_ids = event.remaining_artifact_ids

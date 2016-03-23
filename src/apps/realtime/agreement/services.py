@@ -11,10 +11,12 @@ def _identity(val):
 
 
 def _provide_params(kwarg_key, firebase_key, data, value_func=_identity, **kwargs):
-  value = kwargs.get(kwarg_key)
-
-  if value:
-    data[firebase_key] = value_func(value)
+  if kwarg_key in kwargs:
+    value = kwargs[kwarg_key]
+    if value is None:
+      data[firebase_key] = None
+    else:
+      data[firebase_key] = value_func(value)
 
 
 def save_agreement_edit_in_firebase(agreement_id, _firebase_provider=None, **kwargs):
