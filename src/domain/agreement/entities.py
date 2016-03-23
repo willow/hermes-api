@@ -3,7 +3,7 @@ from django.utils import timezone
 
 from src.domain.agreement.events import AgreementCreated1, AgreementAttrsUpdated1, AgreementExpirationAlertSent1, \
   AgreementOutcomeNoticeAlertSent1, AgreementDeleted1, ArtifactDeleted1
-from src.domain.common.enums import DurationTypeDict
+from src.domain.common.value_objects.time_type import TimeType
 from src.libs.common_domain.aggregate_base import AggregateBase
 
 
@@ -100,12 +100,7 @@ class Agreement(AggregateBase):
     )
 
     new_attrs = dict({
-      'outcome_notice_alert_created': self.outcome_notice_alert_created,
-      'outcome_notice_alert_expired': self.outcome_notice_alert_expired,
-      'expiration_alert_created': self.expiration_alert_created,
-      'expiration_alert_expired': self.expiration_alert_expired,
       'user_id': self.user_id,
-      'artifact_ids': self.artifact_ids,
       'outcome_date': outcome_date,
       'outcome_notice_date': outcome_notice_date,
       'outcome_notice_alert_date': outcome_notice_alert_date,
@@ -147,7 +142,8 @@ class Agreement(AggregateBase):
     if artifact_id not in self.artifact_ids:
       raise Exception("artifact {0} doesn't exist".format(artifact_id))
     else:
-      self._raise_event(ArtifactDeleted1(artifact_id))
+      remaining_artifact_ids = [aid for aid in self.artifact_ids if aid != artifact_id]
+      self._raise_event(ArtifactDeleted1(artifact_id, remaining_artifact_ids, self.user_id))
 
   def _validate_args(self, **kwargs):
     if not kwargs.get('name'):
@@ -162,6 +158,8 @@ class Agreement(AggregateBase):
   def _update_attrs(self, event):
     data = event.data
 
+    # these fields correspond to AgreementAttrsUpdated event.
+    # so it doesn't container user_id, artifacts, alert created, etc.
     self.name = data['name']
     self.counterparty = data['counterparty']
     self.description = data['description']
@@ -170,21 +168,19 @@ class Agreement(AggregateBase):
     self.agreement_type_id = data['agreement_type_id']
     self.counterparty = data['counterparty']
     self.term_length_time_amount = data['term_length_time_amount']
-    self.term_length_time_type = data['term_length_time_type']
+    self.term_length_time_type = TimeType(data['term_length_time_type'])
     self.auto_renew = data['auto_renew']
     self.outcome_notice_time_amount = data['outcome_notice_time_amount']
-    self.outcome_notice_time_type = data['outcome_notice_time_type']
+    self.outcome_notice_time_type = TimeType(data['outcome_notice_time_type'])
     self.outcome_notice_date = data['outcome_notice_date']
     self.duration_details = data['duration_details']
     self.outcome_notice_alert_enabled = data['outcome_notice_alert_enabled']
-    self.outcome_notice_alert_time_amount = data[
-      'outcome_notice_alert_time_amount']
-    self.outcome_notice_alert_time_type = data[
-      'outcome_notice_alert_time_type']
+    self.outcome_notice_alert_time_amount = data['outcome_notice_alert_time_amount']
+    self.outcome_notice_alert_time_type = TimeType(data['outcome_notice_alert_time_type'])
     self.outcome_notice_alert_date = data['outcome_notice_alert_date']
     self.expiration_alert_enabled = data['expiration_alert_enabled']
     self.expiration_alert_time_amount = data['expiration_alert_time_amount']
-    self.expiration_alert_time_type = data['expiration_alert_time_type']
+    self.expiration_alert_time_type = TimeType(data['expiration_alert_time_type'])
     self.expiration_alert_date = data['expiration_alert_date']
 
   def _get_outcome_date(self, execution_date, term_length_time_type,
@@ -193,7 +189,7 @@ class Agreement(AggregateBase):
     # execution date + term length.
     # it's probably safe to assume time_type is always specified.
     if term_length_time_amount:
-      outcome_relative_time_modifier = DurationTypeDict[term_length_time_type].lower()
+      outcome_relative_time_modifier = TimeType(term_length_time_type).time_type_date_format
       kwargs = {outcome_relative_time_modifier: term_length_time_amount}
       outcome_date = execution_date + relativedelta(**kwargs)
     else:
@@ -209,9 +205,7 @@ class Agreement(AggregateBase):
     # if we have an outcome_notice date specified
     # it's probably safe to assume time_type is always specified
     if outcome_notice_alert_enabled and outcome_notice_date:
-      outcome_notice_relative_time_modifier = DurationTypeDict[
-        outcome_notice_alert_time_type].lower()
-
+      outcome_notice_relative_time_modifier = TimeType(outcome_notice_alert_time_type).time_type_date_format
       kwargs = {outcome_notice_relative_time_modifier: outcome_notice_alert_time_amount}
       outcome_notice_alert_date = outcome_notice_date - relativedelta(**kwargs)
     else:
@@ -226,7 +220,7 @@ class Agreement(AggregateBase):
     # if we have an expiration date specified
     # it's probably safe to assume time_type is always specified
     if expiration_alert_enabled and outcome_date:
-      expiration_relative_time_modifier = DurationTypeDict[expiration_alert_time_type].lower()
+      expiration_relative_time_modifier = TimeType(expiration_alert_time_type).time_type_date_format
       kwargs = {expiration_relative_time_modifier: expiration_alert_time_amount}
       expiration_alert_date = outcome_date - relativedelta(**kwargs)
     else:
@@ -239,8 +233,7 @@ class Agreement(AggregateBase):
                                outcome_notice_time_amount):
     # it's probably safe to assume time_type is always specified.
     if outcome_notice_time_amount and outcome_date:
-      outcome_notice_relative_time_modifier = DurationTypeDict[
-        outcome_notice_alert_time_type].lower()
+      outcome_notice_relative_time_modifier = TimeType(outcome_notice_alert_time_type).time_type_date_format
       kwargs = {outcome_notice_relative_time_modifier: outcome_notice_time_amount}
       outcome_notice_date = outcome_date - relativedelta(**kwargs)
     else:
@@ -276,8 +269,10 @@ class Agreement(AggregateBase):
     self.is_deleted = True
 
   def _handle_artifact_deleted_1_event(self, event):
-    artifact_id = event.artifact_id
-    self.artifact_ids = [aid for aid in self.artifact_ids if aid != artifact_id]
+    self.artifact_ids = event.remaining_artifact_ids
+
+  def method_name(self, artifact_id):
+    return [aid for aid in self.artifact_ids if aid != artifact_id]
 
   def __str__(self):
     return 'Agreement {id}: {name}'.format(id=self.id, name=self.name)

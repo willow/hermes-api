@@ -36,10 +36,11 @@ def execute_create_agreement_alerts(**kwargs):
   agreement_id = kwargs['aggregate_id']
   event = kwargs['event']
 
+  # why is False hardcoded? see https://app.asana.com/0/10235149247655/100226819013310.
   tasks.save_agreement_alert_task.delay(
     agreement_id,
-    event.outcome_notice_alert_date, event.outcome_notice_alert_enabled, event.outcome_notice_alert_created,
-    event.expiration_alert_date, event.expiration_alert_enabled, event.expiration_alert_created,
+    event.outcome_notice_alert_date, event.outcome_notice_alert_enabled, False,
+    event.expiration_alert_date, event.expiration_alert_enabled, False,
   )
 
 

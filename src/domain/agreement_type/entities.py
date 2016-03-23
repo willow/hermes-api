@@ -1,8 +1,5 @@
-from dateutil.relativedelta import relativedelta
-from django.utils import timezone
 from src.domain.agreement_type.events import AgreementTypeCreated1
 
-from src.domain.common.enums import DurationTypeDict
 from src.libs.common_domain.aggregate_base import AggregateBase
 
 

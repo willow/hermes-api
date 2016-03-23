@@ -13,7 +13,6 @@ from src.domain.asset import command_handlers as asset_command_handlers
 from src.domain.asset.commands import CreateAssetFromFile
 from src.domain.potential_agreement import command_handlers as potential_agreement_command_handlers
 from src.domain.potential_agreement.commands import CreatePotentialAgreement, CompletePotentialAgreement
-from src.domain.common.enums import DurationTypeEnum
 from src.apps.agreement_translation.services import agreement_translation_service
 from src.apps.realtime.agreement import services as realtime_agreement_service
 from src.libs.common_domain import dispatcher, aggregate_repository
@@ -106,17 +105,17 @@ def _update_agreement_view(request, agreement_id, _dispatcher=None, _aggregate_r
     description = request.data[constants.DESCRIPTION]
     execution_date = _datetime_utils.get_utc_from_timestamp(request.data[constants.EXECUTION_DATE])
     term_length_time_amount = request.data[constants.TERM_LENGTH_TIME_AMOUNT]
-    term_length_time_type = DurationTypeEnum[request.data[constants.TERM_LENGTH_TIME_TYPE]]
+    term_length_time_type = request.data[constants.TERM_LENGTH_TIME_TYPE]
     auto_renew = bool(request.data[constants.AUTO_RENEW])
     outcome_notice_time_amount = request.data[constants.OUTCOME_NOTICE_TIME_AMOUNT]
-    outcome_notice_time_type = DurationTypeEnum[request.data[constants.OUTCOME_NOTICE_TIME_TYPE]]
+    outcome_notice_time_type = request.data[constants.OUTCOME_NOTICE_TIME_TYPE]
     duration_details = request.data[constants.DURATION_DETAILS]
     outcome_notice_alert_enabled = bool(request.data[constants.OUTCOME_NOTICE_ALERT_ENABLED])
     outcome_notice_alert_time_amount = request.data[constants.OUTCOME_NOTICE_ALERT_TIME_AMOUNT]
-    outcome_notice_alert_time_type = DurationTypeEnum[request.data[constants.OUTCOME_NOTICE_ALERT_TIME_TYPE]]
+    outcome_notice_alert_time_type = request.data[constants.OUTCOME_NOTICE_ALERT_TIME_TYPE]
     expiration_alert_enabled = bool(request.data[constants.EXPIRATION_ALERT_ENABLED])
     expiration_alert_time_amount = request.data[constants.EXPIRATION_ALERT_TIME_AMOUNT]
-    expiration_alert_time_type = DurationTypeEnum[request.data[constants.EXPIRATION_ALERT_TIME_TYPE]]
+    expiration_alert_time_type = request.data[constants.EXPIRATION_ALERT_TIME_TYPE]
 
     data = {
       'name': name,

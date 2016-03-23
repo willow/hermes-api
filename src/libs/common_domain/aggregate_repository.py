@@ -6,14 +6,20 @@ from src.libs.common_domain import event_store
 def save(aggregate, expected_version, _event_store=None):
   if not _event_store: _event_store = event_store
 
-  if expected_version >= aggregate.version:
-    raise Exception('Invalid version number. Make sure to capture the version of the aggregate before acting upon it.')
+  uncommitted_events = aggregate.uncommitted_events
 
-  event_type = _get_event_type_from_instance(aggregate)
+  if uncommitted_events:
+    # could happen if someone calls `.save` on an aggregate that performed no commands
 
-  _event_store.save_events(aggregate.id, expected_version, event_type, aggregate.uncommitted_events)
+    if expected_version >= aggregate.version:
+      raise Exception(
+        'Invalid version number. Make sure to capture the version of the aggregate before acting upon it.')
 
-  aggregate.mark_events_as_committed()
+    event_type = _get_event_type_from_instance(aggregate)
+
+    _event_store.save_events(aggregate.id, expected_version, event_type, uncommitted_events)
+
+    aggregate.mark_events_as_committed()
 
 
 def get(aggregate_class, aggregate_id, _event_store=None):

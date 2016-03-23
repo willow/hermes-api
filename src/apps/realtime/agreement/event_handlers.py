@@ -1,7 +1,7 @@
 from django.dispatch import receiver
 
 from src.domain.agreement.events import AgreementCreated1, AgreementAttrsUpdated1, AgreementOutcomeNoticeAlertSent1, \
-  AgreementExpirationAlertSent1, AgreementDeleted1
+  AgreementExpirationAlertSent1, AgreementDeleted1, ArtifactDeleted1
 from src.domain.potential_agreement.events import PotentialAgreementCreated1
 from src.apps.realtime.agreement import tasks
 from src.libs.common_domain.decorators import event_idempotent
@@ -22,10 +22,18 @@ def save_firebase_agreement(**kwargs):
   event = kwargs['event']
   agreement_id = kwargs['aggregate_id']
 
-  # https://app.asana.com/0/10235149247655/100075573324021
   tasks.save_agreement_edit_in_firebase_task.delay(agreement_id, **event.data)
   tasks.save_agreement_detail_in_firebase_task.delay(agreement_id, **event.data)
   tasks.save_user_agreement_in_firebase_task.delay(agreement_id, **event.data)
+
+
+@event_idempotent
+@receiver(ArtifactDeleted1.event_signal)
+def save_firebase_agreement(**kwargs):
+  event = kwargs['event']
+  agreement_id = kwargs['aggregate_id']
+
+  tasks.save_agreement_detail_in_firebase_task.delay(agreement_id, **event.data)
 
 
 @event_idempotent
@@ -44,3 +52,16 @@ def agreement_delete_callback(**kwargs):
   event = kwargs['event']
   user_id = event.user_id
   tasks.delete_agreement_in_firebase_task.delay(agreement_id, user_id)
+
+
+@event_idempotent
+@receiver(ArtifactDeleted1.event_signal)
+def artifact_delete_callback(**kwargs):
+  agreement_id = kwargs['aggregate_id']
+  event = kwargs['event']
+
+  remaining_artifact_ids = event.remaining_artifact_ids
+  data = dict({'artifact_ids': remaining_artifact_ids}, **event.data)
+
+  tasks.save_agreement_detail_in_firebase_task.delay(agreement_id, **data)
+  tasks.save_user_agreement_in_firebase_task.delay(agreement_id, **data)

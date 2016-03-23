@@ -8,6 +8,8 @@ class AggregateBase(ABC):
 
   def _raise_event(self, event):
     self.apply_event(event)
+    # important to apply the event before appending the event as it's possible the event handler will throw an ex.
+    # we wouldn't want that event to be added to the uncommitted list.
     self._uncommitted_events.append(event)
 
   def mark_events_as_committed(self):

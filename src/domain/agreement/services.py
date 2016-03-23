@@ -57,6 +57,6 @@ def save_agreement_alert(agreement_id,
   return obj
 
 
-def delete_agreementsearch(agreement_id):
+def delete_agreement(agreement_id):
   get_agreement_alert(agreement_id).delete()
   get_agreement_search(agreement_id).delete()

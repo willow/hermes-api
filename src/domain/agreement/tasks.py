@@ -110,4 +110,4 @@ def delete_agreement_task(agreement_id):
   log_message = ("Delete agreement_search task for agreement_id: %s", agreement_id)
 
   with log_wrapper(logger.info, *log_message):
-    return services.delete_agreementsearch(agreement_id)
+    return services.delete_agreement(agreement_id)

@@ -1,174 +1,120 @@
 from django.utils import timezone
 
-from src.domain.common.enums import DurationTypeEnum
 from src.domain.agreement_type import services as agreement_type_service
 from src.domain.asset import services as asset_service
 from src.libs.datetime_utils.datetime_utils import get_timestamp_from_datetime
 from src.libs.firebase_utils.services import firebase_provider
 
 
-def save_agreement_edit_in_firebase(agreement_id,
-                                    name=None,
-                                    user_id=None,
-                                    counterparty=None,
-                                    description=None,
-                                    execution_date=None,
-                                    agreement_type_id=None,
-                                    term_length_time_amount=None,
-                                    term_length_time_type=None,
-                                    auto_renew=None,
-                                    outcome_notice_time_amount=None,
-                                    outcome_notice_time_type=None,
-                                    duration_details=None,
-                                    outcome_notice_alert_enabled=None,
-                                    outcome_notice_alert_time_amount=None,
-                                    outcome_notice_alert_time_type=None,
-                                    expiration_alert_enabled=None,
-                                    expiration_alert_time_amount=None,
-                                    expiration_alert_time_type=None,
-                                    _firebase_provider=None,
-                                    **kwargs
-                                    ):
+def _identity(val):
+  return val
+
+
+def _provide_params(kwarg_key, firebase_key, data, value_func=_identity, **kwargs):
+  value = kwargs.get(kwarg_key)
+
+  if value:
+    data[firebase_key] = value_func(value)
+
+
+def save_agreement_edit_in_firebase(agreement_id, _firebase_provider=None, **kwargs):
   if not _firebase_provider: _firebase_provider = firebase_provider
 
   client = _firebase_provider.get_firebase_client()
 
-  if execution_date:
-    execution_date = get_timestamp_from_datetime(execution_date)
-  else:
-    execution_date = None
+  data = {}
 
-  if outcome_notice_time_type:
-    outcome_notice_type = DurationTypeEnum(outcome_notice_time_type).name
-  else:
-    outcome_notice_type = None
+  _provide_params('user_id', 'viewers', data, lambda user_id: {user_id: True}, **kwargs)
 
-  if term_length_time_type:
-    term_length_type = DurationTypeEnum(term_length_time_type).name
-  else:
-    term_length_type = None
+  _provide_params('execution_date', 'execution-date', data, lambda v: get_timestamp_from_datetime(v), **kwargs)
+  _provide_params('auto_renew', 'auto-renew', data, **kwargs)
+  _provide_params('counterparty', 'counterparty', data, **kwargs)
+  _provide_params('duration_details', 'duration-details', data, **kwargs)
+  _provide_params('name', 'name', data, **kwargs)
+  _provide_params('description', 'description', data, **kwargs)
 
-  if outcome_notice_alert_time_type:
-    outcome_notice_alert_time_type = DurationTypeEnum(outcome_notice_alert_time_type).name
-  else:
-    outcome_notice_alert_time_type = None
+  _provide_params('outcome_notice_time_amount', 'outcome-notice-time-amount', data, **kwargs)
+  _provide_params('outcome_notice_time_type', 'outcome_notice_time_type', data, **kwargs)
 
-  if expiration_alert_time_type:
-    expiration_alert_time_type = DurationTypeEnum(expiration_alert_time_type).name
-  else:
-    expiration_alert_time_type = None
+  _provide_params('outcome_notice_alert_time_type', 'outcome-notice-alert-time-type', data, **kwargs)
+  _provide_params('outcome_notice_alert_enabled', 'outcome-notice-alert-enabled', data, **kwargs)
+  _provide_params('outcome_notice_alert_time_amount', 'outcome-notice-alert-time-amount', data, **kwargs)
 
-  data = {
-    'auto-renew': auto_renew,
-    'counterparty': counterparty,
-    'description': description,
-    'duration-details': duration_details,
-    'execution-date': execution_date,
-    'name': name,
-    'outcome-notice-time-amount': outcome_notice_time_amount,
-    'outcome-notice-time-type': outcome_notice_type,
-    'outcome-notice-alert-enabled': outcome_notice_alert_enabled,
-    'outcome-notice-alert-time-amount': outcome_notice_alert_time_amount,
-    'outcome-notice-alert-time-type': outcome_notice_alert_time_type,
-    'expiration-alert-enabled': expiration_alert_enabled,
-    'expiration-alert-time-amount': expiration_alert_time_amount,
-    'expiration-alert-time-type': expiration_alert_time_type,
-    'term-length-time-amount': term_length_time_amount,
-    'term-length-time-type': term_length_type,
-    'type-id': agreement_type_id,
-    'viewers': {user_id: True},
-  }
+  _provide_params('expiration_alert_enabled', 'expiration-alert-enabled', data, **kwargs)
+  _provide_params('expiration_alert_time_amount', 'expiration-alert-time-amount', data, **kwargs)
+  _provide_params('expiration_alert_time_type', 'expiration-alert-time-type', data, **kwargs)
 
-  result = client.put('/agreement-edits', agreement_id, data)
+  _provide_params('term_length_time_amount', 'term-length-time-amount', data, **kwargs)
+  _provide_params('term_length_time_type', 'term-length-time-type', data, **kwargs)
+
+  _provide_params('agreement_type_id', 'type-id', data, **kwargs)
+
+  result = client.patch('/agreement-edits/{0}'.format(agreement_id), data)
 
   return result
 
 
-def save_agreement_detail_in_firebase(agreement_id,
-                                      name,
-                                      user_id,
-                                      counterparty,
-                                      description,
-                                      execution_date,
-                                      agreement_type_id,
-                                      artifact_ids,
-                                      term_length_time_amount,
-                                      term_length_time_type,
-                                      _agreement_type_service=None,
-                                      _asset_service=None,
-                                      _firebase_provider=None,
-                                      **kwargs):
+def save_agreement_detail_in_firebase(agreement_id, _agreement_type_service=None, _asset_service=None,
+                                      _firebase_provider=None, **kwargs):
   if not _agreement_type_service: _agreement_type_service = agreement_type_service
   if not _asset_service: _asset_service = asset_service
   if not _firebase_provider: _firebase_provider = firebase_provider
 
   client = _firebase_provider.get_firebase_client()
 
-  # this task is only fired after a potential agreement is complete, so it's safe to assume an execution date is present
-  execution_date = get_timestamp_from_datetime(execution_date)
+  data = {}
 
-  if term_length_time_amount:
-    term_length_type = DurationTypeEnum(term_length_time_type).name
-  else:
-    term_length_type = None
+  _provide_params('execution_date', 'execution-date', data, lambda v: get_timestamp_from_datetime(v), **kwargs)
+  _provide_params('term_length_time_amount', 'term-length-time-amount', data, **kwargs)
+  _provide_params('agreement_type_id', 'type-name', data,
+                  lambda v: _agreement_type_service.get_agreement_type_lookup(v).name, **kwargs)
 
-  agreement_type_name = None
-  if agreement_type_id:
-    agreement_type_name = _agreement_type_service.get_agreement_type_lookup(agreement_type_id).name
+  artifact_ids = kwargs.get('artifact_ids')
 
-  assets = (_asset_service.get_asset_lookup(artifact_id) for artifact_id in artifact_ids)
-  artifacts = {a.id: {'name': a.name} for a in assets}
-  data = {
-    'counterparty': counterparty,
-    'description': description,
-    'execution-date': execution_date,
-    'name': name,
-    'term-length-time-amount': term_length_time_amount,
-    'term-length-time-type': term_length_type,
-    'type-name': agreement_type_name,
-    'artifacts': artifacts,
-    'viewers': {user_id: True}
-  }
+  if artifact_ids is not None:
+    assets = (_asset_service.get_asset_lookup(artifact_id) for artifact_id in artifact_ids)
+    artifacts = {a.id: {'name': a.name} for a in assets}
+    data['artifacts'] = artifacts
 
-  result = client.put('/agreement-details', agreement_id, data)
+  _provide_params('user_id', 'viewers', data, lambda user_id: {user_id: True}, **kwargs)
+
+  _provide_params('term_length_time_amount', 'term-length-time-amount', data, **kwargs)
+  _provide_params('term_length_time_type', 'term-length-time-type', data, **kwargs)
+  _provide_params('name', 'name', data, **kwargs)
+  _provide_params('counterparty', 'counterparty', data, **kwargs)
+  _provide_params('description', 'description', data, **kwargs)
+
+  result = client.patch('/agreement-details/{0}'.format(agreement_id), data)
 
   return result
 
 
-def save_user_agreement_in_firebase(agreement_id,
-                                    name,
-                                    user_id,
-                                    counterparty,
-                                    execution_date,
-                                    agreement_type_id,
-                                    artifact_ids,
-                                    _agreement_type_service=None,
-                                    _firebase_provider=None,
-                                    **kwargs):
+def save_user_agreement_in_firebase(agreement_id, _agreement_type_service=None, _firebase_provider=None, **kwargs):
   if not _agreement_type_service: _agreement_type_service = agreement_type_service
   if not _firebase_provider: _firebase_provider = firebase_provider
 
   client = _firebase_provider.get_firebase_client()
+  data = {}
 
-  # this task is only fired after a potential agreement is complete, so it's safe to assume an execution date is present
-  execution_date = get_timestamp_from_datetime(execution_date)
+  user_id = kwargs['user_id']
+
+  _provide_params('execution_date', 'execution-date', data, lambda v: get_timestamp_from_datetime(v), **kwargs)
 
   modification_date = get_timestamp_from_datetime(timezone.now())
+  data['modification-date'] = modification_date
 
-  agreement_type_name = None
-  if agreement_type_id:
-    agreement_type_name = _agreement_type_service.get_agreement_type_lookup(agreement_type_id).name
+  _provide_params('agreement_type_id', 'type-name', data,
+                  lambda v: _agreement_type_service.get_agreement_type_lookup(v).name, **kwargs)
 
-  data = {
-    'counterparty': counterparty,
-    'artifact-count': len(artifact_ids),
-    'execution-date': execution_date,
-    'modification-date': modification_date,
-    'name': name,
-    'type-name': agreement_type_name,
-  }
+  _provide_params('counterparty', 'counterparty', data, **kwargs)
+  _provide_params('name', 'name', data, **kwargs)
 
-  result = client.put('users-agreements/{user_id}'.format(user_id=user_id), agreement_id, data)
+  artifact_ids = kwargs.get('artifact_ids')
+  if artifact_ids is not None:
+    data['artifact-count'] = len(artifact_ids)
+
+  result = client.patch('users-agreements/{user_id}/{agreement_id}'.format(user_id=user_id, agreement_id=agreement_id),
+                        data)
 
   return result
 

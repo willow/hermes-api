@@ -1,9 +1,4 @@
-from dateutil.relativedelta import relativedelta
-from django.utils import timezone
-
-from src.domain.agreement.events import AgreementCreated1, AgreementAttrsUpdated1, AgreementExpirationAlertSent1, \
-  AgreementOutcomeNoticeAlertSent1
-from src.domain.common.enums import DurationTypeDict
+from src.domain.common.value_objects.time_type import TimeType
 from src.domain.potential_agreement.events import PotentialAgreementCreated1, PotentialAgreementCompleted1
 from src.libs.common_domain.aggregate_base import AggregateBase
 
@@ -68,19 +63,17 @@ class PotentialAgreement(AggregateBase):
     self.agreement_type_id = data['agreement_type_id']
     self.counterparty = data['counterparty']
     self.term_length_time_amount = data['term_length_time_amount']
-    self.term_length_time_type = data['term_length_time_type']
+    self.term_length_time_type = TimeType(data['term_length_time_type'])
     self.auto_renew = data['auto_renew']
     self.outcome_notice_time_amount = data['outcome_notice_time_amount']
-    self.outcome_notice_time_type = data['outcome_notice_time_type']
+    self.outcome_notice_time_type = TimeType(data['outcome_notice_time_type'])
     self.duration_details = data['duration_details']
     self.outcome_notice_alert_enabled = data['outcome_notice_alert_enabled']
-    self.outcome_notice_alert_time_amount = data[
-      'outcome_notice_alert_time_amount']
-    self.outcome_notice_alert_time_type = data[
-      'outcome_notice_alert_time_type']
+    self.outcome_notice_alert_time_amount = data['outcome_notice_alert_time_amount']
+    self.outcome_notice_alert_time_type = TimeType(data['outcome_notice_alert_time_type'])
     self.expiration_alert_enabled = data['expiration_alert_enabled']
     self.expiration_alert_time_amount = data['expiration_alert_time_amount']
-    self.expiration_alert_time_type = data['expiration_alert_time_type']
+    self.expiration_alert_time_type = TimeType(data['expiration_alert_time_type'])
 
     self.completed = True
 
