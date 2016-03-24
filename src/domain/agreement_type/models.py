@@ -5,7 +5,7 @@ from src.domain.common.models import ReadModel
 
 class UserAgreementType(ReadModel):
   name = models.CharField(max_length=2400)
-  user_id = models.CharField(max_length=8, unique=True)
+  user_id = models.CharField(max_length=8)
   system_created_date = models.DateTimeField()
 
   def __str__(self):
@@ -13,7 +13,7 @@ class UserAgreementType(ReadModel):
 
 
 class GlobalAgreementType(ReadModel):
-  name = models.CharField(max_length=2400, unique=True)
+  name = models.CharField(max_length=2400)
   system_created_date = models.DateTimeField()
 
   def __str__(self):
@@ -21,7 +21,7 @@ class GlobalAgreementType(ReadModel):
 
 
 class AgreementTypeLookup(ReadModel):
-  name = models.CharField(max_length=2400, unique=True)
+  name = models.CharField(max_length=2400)
 
   def __str__(self):
     return 'AgreementTypeLookup {id}: {name}'.format(id=self.id, name=self.name)

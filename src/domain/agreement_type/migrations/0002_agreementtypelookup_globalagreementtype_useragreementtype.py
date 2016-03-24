@@ -16,7 +16,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('primary_key', models.AutoField(primary_key=True, serialize=False)),
                 ('id', models.CharField(unique=True, max_length=8)),
-                ('name', models.CharField(unique=True, max_length=2400)),
+                ('name', models.CharField(max_length=2400)),
             ],
             options={
                 'abstract': False,
@@ -27,7 +27,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('primary_key', models.AutoField(primary_key=True, serialize=False)),
                 ('id', models.CharField(unique=True, max_length=8)),
-                ('name', models.CharField(unique=True, max_length=2400)),
+                ('name', models.CharField(max_length=2400)),
                 ('system_created_date', models.DateTimeField()),
             ],
             options={
@@ -40,7 +40,7 @@ class Migration(migrations.Migration):
                 ('primary_key', models.AutoField(primary_key=True, serialize=False)),
                 ('id', models.CharField(unique=True, max_length=8)),
                 ('name', models.CharField(max_length=2400)),
-                ('user_id', models.CharField(unique=True, max_length=8)),
+                ('user_id', models.CharField(max_length=8)),
                 ('system_created_date', models.DateTimeField()),
             ],
             options={
