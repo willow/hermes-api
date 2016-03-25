@@ -3,11 +3,11 @@ from django.utils import timezone
 from src.domain.agreement.models import AgreementSearch, AgreementAlert
 
 
-def get_agreements_with_due_expiration_alert():
+def get_agreements_with_due_outcome_alert():
   ret_val = AgreementAlert.objects.filter(
-    expiration_alert_date__lte=timezone.now(),
-    expiration_alert_enabled=True,
-    expiration_alert_created=False
+    outcome_alert_date__lte=timezone.now(),
+    outcome_alert_enabled=True,
+    outcome_alert_created=False
   )
   return ret_val
 
@@ -41,15 +41,16 @@ def get_agreement_alert(agreement_id):
 
 
 def save_agreement_alert(agreement_id,
+                         outcome_alert_date, outcome_alert_enabled, outcome_alert_created,
                          outcome_notice_alert_date, outcome_notice_alert_enabled, outcome_notice_alert_created,
-                         expiration_alert_date, expiration_alert_enabled, expiration_alert_created, ):
+                         ):
   data = {
+    'outcome_alert_date': outcome_alert_date,
+    'outcome_alert_enabled': outcome_alert_enabled,
+    'outcome_alert_created': outcome_alert_created,
     'outcome_notice_alert_date': outcome_notice_alert_date,
     'outcome_notice_alert_enabled': outcome_notice_alert_enabled,
     'outcome_notice_alert_created': outcome_notice_alert_created,
-    'expiration_alert_date': expiration_alert_date,
-    'expiration_alert_enabled': expiration_alert_enabled,
-    'expiration_alert_created': expiration_alert_created,
   }
 
   obj, _ = AgreementAlert.objects.update_or_create(id=agreement_id, defaults=data)

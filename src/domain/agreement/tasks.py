@@ -44,9 +44,9 @@ def create_agreement_task(_aggregate_repo=None, _dispatcher=None, **kwargs):
 @job('default')
 def send_alerts_for_agreements_task():
   # get list of agreements where the flag is enabled, not created, and date has passed
-  agreement_ids_with_due_expiration_alerts = (
+  agreement_ids_with_due_outcome_alerts = (
     services
-      .get_agreements_with_due_expiration_alert()
+      .get_agreements_with_due_outcome_alert()
       .values_list('id', flat=True)
     # putting values_list here and not in service becuase my thinking is if the service returns a django object list
     # then we can just return them. if you look at search_service, the service layer actually calls values_list but
@@ -59,9 +59,9 @@ def send_alerts_for_agreements_task():
       .values_list('id', flat=True)
   )
 
-  exp_set = set(agreement_ids_with_due_expiration_alerts)
-  outcome_set = set(agreement_ids_with_due_outcome_notice_alerts)
-  ids = exp_set.union(outcome_set)
+  outcome_set = set(agreement_ids_with_due_outcome_alerts)
+  outcome_notice_set = set(agreement_ids_with_due_outcome_notice_alerts)
+  ids = outcome_set.union(outcome_notice_set)
 
   # the reason i'm doing this in one task is that i'm worried about concurrency conflicts.
   # if we have a bunch of simultaneous tasks modifying the same instances, we could potentially overwrite bool flags
@@ -83,15 +83,16 @@ def send_alert_for_agreement_task(agreement_id, _dispatcher=None):
 
 @job('high')
 def save_agreement_alert_task(agreement_id,
+                              outcome_alert_date, outcome_alert_enabled, outcome_alert_created,
                               outcome_notice_alert_date, outcome_notice_alert_enabled, outcome_notice_alert_created,
-                              expiration_alert_date, expiration_alert_enabled, expiration_alert_created, ):
+                              ):
   log_message = ("Create agreement_alert task for agreement_id: %s", agreement_id)
 
   with log_wrapper(logger.info, *log_message):
     return services.save_agreement_alert(agreement_id,
-                                         expiration_alert_date,
-                                         expiration_alert_enabled,
-                                         expiration_alert_created,
+                                         outcome_alert_date,
+                                         outcome_alert_enabled,
+                                         outcome_alert_created,
                                          outcome_notice_alert_date,
                                          outcome_notice_alert_enabled,
                                          outcome_notice_alert_created).id

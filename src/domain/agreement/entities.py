@@ -1,7 +1,7 @@
 from dateutil.relativedelta import relativedelta
 from django.utils import timezone
 
-from src.domain.agreement.events import AgreementCreated1, AgreementAttrsUpdated1, AgreementExpirationAlertSent1, \
+from src.domain.agreement.events import AgreementCreated1, AgreementAttrsUpdated1, AgreementOutcomeAlertSent1, \
   AgreementOutcomeNoticeAlertSent1, AgreementDeleted1, ArtifactDeleted1, ArtifactCreated1
 from src.domain.common.value_objects.time_type import TimeType
 from src.libs.common_domain.aggregate_base import AggregateBase
@@ -33,6 +33,13 @@ class Agreement(AggregateBase):
       kwargs.get('term_length_time_amount')
     )
 
+    outcome_alert_date = ret_val._get_outcome_alert_date(
+      outcome_date,
+      kwargs.get('outcome_alert_enabled'),
+      kwargs.get('outcome_alert_time_amount'),
+      kwargs.get('outcome_alert_time_type')
+    )
+
     outcome_notice_date = ret_val._get_outcome_notice_date(
       outcome_date,
       kwargs.get('outcome_notice_alert_time_type'),
@@ -46,22 +53,15 @@ class Agreement(AggregateBase):
       kwargs.get('outcome_notice_alert_time_type')
     )
 
-    expiration_alert_date = ret_val._get_expiration_alert_date(
-      outcome_date,
-      kwargs.get('expiration_alert_enabled'),
-      kwargs.get('expiration_alert_time_amount'),
-      kwargs.get('expiration_alert_time_type')
-    )
-
     created_data = dict({
+      'outcome_date': outcome_date,
+      'outcome_alert_created': False,
+      'outcome_alert_expired': False,
+      'outcome_alert_date': outcome_alert_date,
       'outcome_notice_alert_created': False,
       'outcome_notice_alert_expired': False,
-      'expiration_alert_created': False,
-      'expiration_alert_expired': False,
-      'outcome_date': outcome_date,
       'outcome_notice_date': outcome_notice_date,
       'outcome_notice_alert_date': outcome_notice_alert_date,
-      'expiration_alert_date': expiration_alert_date,
     }, **kwargs)
 
     ret_val._raise_event(AgreementCreated1(**created_data))
@@ -73,10 +73,18 @@ class Agreement(AggregateBase):
     self._validate_args(**kwargs)
 
     execution_date = kwargs.get('execution_date')
+
     outcome_date = self._get_outcome_date(
       execution_date,
       kwargs.get('term_length_time_type'),
       kwargs.get('term_length_time_amount')
+    )
+
+    outcome_alert_date = self._get_outcome_alert_date(
+      outcome_date,
+      kwargs.get('outcome_alert_enabled'),
+      kwargs.get('outcome_alert_time_amount'),
+      kwargs.get('outcome_alert_time_type')
     )
 
     outcome_notice_date = self._get_outcome_notice_date(
@@ -92,32 +100,25 @@ class Agreement(AggregateBase):
       kwargs.get('outcome_notice_alert_time_type')
     )
 
-    expiration_alert_date = self._get_expiration_alert_date(
-      outcome_date,
-      kwargs.get('expiration_alert_enabled'),
-      kwargs.get('expiration_alert_time_amount'),
-      kwargs.get('expiration_alert_time_type')
-    )
-
     new_attrs = dict({
       'user_id': self.user_id,
       'outcome_date': outcome_date,
+      'outcome_alert_date': outcome_alert_date,
       'outcome_notice_date': outcome_notice_date,
       'outcome_notice_alert_date': outcome_notice_alert_date,
-      'expiration_alert_date': expiration_alert_date,
     }, **kwargs)
 
     self._raise_event(AgreementAttrsUpdated1(**new_attrs))
 
-  def send_expiration_alert_if_due(self):
-    past_due = timezone.now() >= self.expiration_alert_date
+  def send_outcome_alert_if_due(self):
+    past_due = timezone.now() >= self.outcome_alert_date
 
-    if past_due and self.expiration_alert_enabled and not self.expiration_alert_created:
+    if past_due and self.outcome_alert_enabled and not self.outcome_alert_created:
       self._raise_event(
-        AgreementExpirationAlertSent1(
+        AgreementOutcomeAlertSent1(
           self.name, self.user_id,
-          self.outcome_date, self.outcome_notice_alert_created,
-          self.outcome_notice_date, True,
+          self.outcome_date, True, self.outcome_notice_date,
+          self.outcome_notice_alert_created,
         )
       )
 
@@ -127,8 +128,8 @@ class Agreement(AggregateBase):
     if past_due and self.outcome_notice_alert_enabled and not self.outcome_notice_alert_created:
       self._raise_event(
         AgreementOutcomeNoticeAlertSent1(
-          self.name, self.user_id, self.outcome_date, True,
-          self.outcome_notice_date, self.expiration_alert_created,
+          self.name, self.user_id, self.outcome_date, self.outcome_alert_created,
+          self.outcome_notice_date, True,
         )
       )
 
@@ -181,14 +182,14 @@ class Agreement(AggregateBase):
     self.outcome_notice_time_type = TimeType(data['outcome_notice_time_type'])
     self.outcome_notice_date = data['outcome_notice_date']
     self.duration_details = data['duration_details']
+    self.outcome_alert_enabled = data['outcome_alert_enabled']
+    self.outcome_alert_time_amount = data['outcome_alert_time_amount']
+    self.outcome_alert_time_type = TimeType(data['outcome_alert_time_type'])
+    self.outcome_alert_date = data['outcome_alert_date']
     self.outcome_notice_alert_enabled = data['outcome_notice_alert_enabled']
     self.outcome_notice_alert_time_amount = data['outcome_notice_alert_time_amount']
     self.outcome_notice_alert_time_type = TimeType(data['outcome_notice_alert_time_type'])
     self.outcome_notice_alert_date = data['outcome_notice_alert_date']
-    self.expiration_alert_enabled = data['expiration_alert_enabled']
-    self.expiration_alert_time_amount = data['expiration_alert_time_amount']
-    self.expiration_alert_time_type = TimeType(data['expiration_alert_time_type'])
-    self.expiration_alert_date = data['expiration_alert_date']
 
   def _get_outcome_date(self, execution_date, term_length_time_type,
                         term_length_time_amount):
@@ -203,6 +204,21 @@ class Agreement(AggregateBase):
       outcome_date = None
 
     return outcome_date
+
+  def _get_outcome_alert_date(self, outcome_date, outcome_alert_enabled,
+                              outcome_alert_time_amount,
+                              outcome_alert_time_type):
+    # if outcome alert enabled
+    # if we have an outcome date specified
+    # it's probably safe to assume time_type is always specified
+    if outcome_alert_enabled and outcome_date:
+      outcome_relative_time_modifier = TimeType(outcome_alert_time_type).time_type_date_format
+      kwargs = {outcome_relative_time_modifier: outcome_alert_time_amount}
+      outcome_alert_date = outcome_date - relativedelta(**kwargs)
+    else:
+      outcome_alert_date = None
+
+    return outcome_alert_date
 
   def _get_outcome_notice_alert_date(self, outcome_notice_date,
                                      outcome_notice_alert_enabled,
@@ -220,21 +236,6 @@ class Agreement(AggregateBase):
 
     return outcome_notice_alert_date
 
-  def _get_expiration_alert_date(self, outcome_date, expiration_alert_enabled,
-                                 expiration_alert_time_amount,
-                                 expiration_alert_time_type):
-    # if expiration alert enabled
-    # if we have an expiration date specified
-    # it's probably safe to assume time_type is always specified
-    if expiration_alert_enabled and outcome_date:
-      expiration_relative_time_modifier = TimeType(expiration_alert_time_type).time_type_date_format
-      kwargs = {expiration_relative_time_modifier: expiration_alert_time_amount}
-      expiration_alert_date = outcome_date - relativedelta(**kwargs)
-    else:
-      expiration_alert_date = None
-
-    return expiration_alert_date
-
   def _get_outcome_notice_date(self, outcome_date,
                                outcome_notice_alert_time_type,
                                outcome_notice_time_amount):
@@ -251,10 +252,10 @@ class Agreement(AggregateBase):
   def _handle_created_1_event(self, event):
     self.is_deleted = False
 
+    self.outcome_alert_created = event.outcome_alert_created
+    self.outcome_alert_expired = event.outcome_alert_expired
     self.outcome_notice_alert_created = event.outcome_notice_alert_created
     self.outcome_notice_alert_expired = event.outcome_notice_alert_expired
-    self.expiration_alert_created = event.expiration_alert_created
-    self.expiration_alert_expired = event.expiration_alert_expired
 
     self.id = event.id
     self.system_created_date = event.system_created_date
@@ -266,11 +267,11 @@ class Agreement(AggregateBase):
   def _handle_attrs_updated_1_event(self, event):
     self._update_attrs(event)
 
+  def _handle_outcome_alert_sent_1_event(self, event):
+    self.outcome_alert_created = event.outcome_alert_created
+
   def _handle_outcome_notice_alert_sent_1_event(self, event):
     self.outcome_notice_alert_created = event.outcome_notice_alert_created
-
-  def _handle_expiration_alert_sent_1_event(self, event):
-    self.expiration_alert_created = event.expiration_alert_created
 
   def _handle_deleted_1_event(self, event):
     self.is_deleted = True

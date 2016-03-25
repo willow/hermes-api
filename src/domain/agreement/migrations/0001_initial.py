@@ -15,9 +15,9 @@ class Migration(migrations.Migration):
             fields=[
                 ('primary_key', models.AutoField(serialize=False, primary_key=True)),
                 ('id', models.CharField(unique=True, max_length=8)),
-                ('expiration_alert_date', models.DateTimeField(blank=True, null=True)),
-                ('expiration_alert_enabled', models.BooleanField()),
-                ('expiration_alert_created', models.BooleanField()),
+                ('outcome_alert_date', models.DateTimeField(blank=True, null=True)),
+                ('outcome_alert_enabled', models.BooleanField()),
+                ('outcome_alert_created', models.BooleanField()),
                 ('outcome_notice_alert_date', models.DateTimeField(blank=True, null=True)),
                 ('outcome_notice_alert_enabled', models.BooleanField()),
                 ('outcome_notice_alert_created', models.BooleanField()),

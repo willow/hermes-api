@@ -26,10 +26,11 @@ class CompletePotentialAgreement():
                outcome_notice_time_amount,
                outcome_notice_time_type,
                duration_details,
+               outcome_alert_enabled,
+               outcome_alert_time_amount,
+               outcome_alert_time_type,
                outcome_notice_alert_enabled,
                outcome_notice_alert_time_amount,
                outcome_notice_alert_time_type,
-               expiration_alert_enabled,
-               expiration_alert_time_amount,
-               expiration_alert_time_type):
+               ):
     pass

@@ -1,6 +1,6 @@
 from django.dispatch import receiver
 
-# from src.apps.read_model.agreement import created, updated_attrs, expiration_alert_sent, \
+# from src.apps.read_model.agreement import created, updated_attrs, outcome_alert_sent, \
 #   outcome_notice_alert_sent
 # from src.apps.realtime.agreement.services import agreement_tasks
 from src.domain.agreement.events import AgreementCreated1, AgreementAttrsUpdated1, AgreementDeleted1
@@ -39,8 +39,8 @@ def execute_create_agreement_alerts(**kwargs):
   # why is False hardcoded? see https://app.asana.com/0/10235149247655/100226819013310.
   tasks.save_agreement_alert_task.delay(
     agreement_id,
+    event.outcome_alert_date, event.outcome_alert_enabled, False,
     event.outcome_notice_alert_date, event.outcome_notice_alert_enabled, False,
-    event.expiration_alert_date, event.expiration_alert_enabled, False,
   )
 
 

@@ -110,12 +110,12 @@ def _update_agreement_view(request, agreement_id, _dispatcher=None, _aggregate_r
     outcome_notice_time_amount = request.data[constants.OUTCOME_NOTICE_TIME_AMOUNT]
     outcome_notice_time_type = request.data[constants.OUTCOME_NOTICE_TIME_TYPE]
     duration_details = request.data[constants.DURATION_DETAILS]
+    outcome_alert_enabled = bool(request.data[constants.OUTCOME_ALERT_ENABLED])
+    outcome_alert_time_amount = request.data[constants.OUTCOME_ALERT_TIME_AMOUNT]
+    outcome_alert_time_type = request.data[constants.OUTCOME_ALERT_TIME_TYPE]
     outcome_notice_alert_enabled = bool(request.data[constants.OUTCOME_NOTICE_ALERT_ENABLED])
     outcome_notice_alert_time_amount = request.data[constants.OUTCOME_NOTICE_ALERT_TIME_AMOUNT]
     outcome_notice_alert_time_type = request.data[constants.OUTCOME_NOTICE_ALERT_TIME_TYPE]
-    expiration_alert_enabled = bool(request.data[constants.EXPIRATION_ALERT_ENABLED])
-    expiration_alert_time_amount = request.data[constants.EXPIRATION_ALERT_TIME_AMOUNT]
-    expiration_alert_time_type = request.data[constants.EXPIRATION_ALERT_TIME_TYPE]
 
     data = {
       'name': name,
@@ -129,12 +129,12 @@ def _update_agreement_view(request, agreement_id, _dispatcher=None, _aggregate_r
       'outcome_notice_time_amount': outcome_notice_time_amount,
       'outcome_notice_time_type': outcome_notice_time_type,
       'duration_details': duration_details,
+      'outcome_alert_enabled': outcome_alert_enabled,
+      'outcome_alert_time_amount': outcome_alert_time_amount,
+      'outcome_alert_time_type': outcome_alert_time_type,
       'outcome_notice_alert_enabled': outcome_notice_alert_enabled,
       'outcome_notice_alert_time_amount': outcome_notice_alert_time_amount,
       'outcome_notice_alert_time_type': outcome_notice_alert_time_type,
-      'expiration_alert_enabled': expiration_alert_enabled,
-      'expiration_alert_time_amount': expiration_alert_time_amount,
-      'expiration_alert_time_type': expiration_alert_time_type,
     }
     if is_potential_agreement:
       command = CompletePotentialAgreement(**data)

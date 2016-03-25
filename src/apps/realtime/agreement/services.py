@@ -35,16 +35,16 @@ def save_agreement_edit_in_firebase(agreement_id, _firebase_provider=None, **kwa
   _provide_params('name', 'name', data, **kwargs)
   _provide_params('description', 'description', data, **kwargs)
 
+  _provide_params('outcome_alert_enabled', 'outcome-alert-enabled', data, **kwargs)
+  _provide_params('outcome_alert_time_amount', 'outcome-alert-time-amount', data, **kwargs)
+  _provide_params('outcome_alert_time_type', 'outcome-alert-time-type', data, **kwargs)
+
   _provide_params('outcome_notice_time_amount', 'outcome-notice-time-amount', data, **kwargs)
   _provide_params('outcome_notice_time_type', 'outcome_notice_time_type', data, **kwargs)
 
   _provide_params('outcome_notice_alert_time_type', 'outcome-notice-alert-time-type', data, **kwargs)
   _provide_params('outcome_notice_alert_enabled', 'outcome-notice-alert-enabled', data, **kwargs)
   _provide_params('outcome_notice_alert_time_amount', 'outcome-notice-alert-time-amount', data, **kwargs)
-
-  _provide_params('expiration_alert_enabled', 'expiration-alert-enabled', data, **kwargs)
-  _provide_params('expiration_alert_time_amount', 'expiration-alert-time-amount', data, **kwargs)
-  _provide_params('expiration_alert_time_type', 'expiration-alert-time-type', data, **kwargs)
 
   _provide_params('term_length_time_amount', 'term-length-time-amount', data, **kwargs)
   _provide_params('term_length_time_type', 'term-length-time-type', data, **kwargs)
@@ -123,7 +123,7 @@ def save_user_agreement_in_firebase(agreement_id, _agreement_type_service=None, 
 
 def save_agreement_alerts_in_firebase(agreement_id, name,
                                       user_id,
-                                      expiration_alert_created=None,
+                                      outcome_alert_created=None,
                                       outcome_date=None,
                                       outcome_notice_alert_created=None,
                                       outcome_notice_date=None,
@@ -143,14 +143,14 @@ def save_agreement_alerts_in_firebase(agreement_id, name,
       'alert-type': 'outcomeNotice'
     }
 
-  if expiration_alert_created:
-    exp_alert_key = '{0}-{1}'.format(agreement_id, 'expiration-alert')
-    exp_date = get_timestamp_from_datetime(outcome_date)
-    data[exp_alert_key] = {
-      'due-date': exp_date,
+  if outcome_alert_created:
+    outcome_alert_key = '{0}-{1}'.format(agreement_id, 'outcome-alert')
+    outcome_date = get_timestamp_from_datetime(outcome_date)
+    data[outcome_alert_key] = {
+      'due-date': outcome_date,
       'agreement-id': agreement_id,
       'agreement-name': name,
-      'alert-type': 'expiration'
+      'alert-type': 'outcome'
     }
 
   result = client.patch('users-alerts/{user_id}'.format(user_id=user_id), data)

@@ -47,7 +47,7 @@ def send_agreement_alerts(_aggregate_repository=None, **kwargs):
 
   version = ag.version
 
-  ag.send_expiration_alert_if_due()
+  ag.send_outcome_alert_if_due()
   ag.send_outcome_notice_alert_if_due()
 
   _aggregate_repository.save(ag, version)

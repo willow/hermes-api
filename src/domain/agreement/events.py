@@ -25,18 +25,18 @@ class AgreementCreated1(DomainEvent):
                outcome_notice_time_type,
                outcome_notice_date,
                duration_details,
+               outcome_alert_enabled,
+               outcome_alert_time_amount,
+               outcome_alert_time_type,
+               outcome_alert_date,
+               outcome_alert_created,
+               outcome_alert_expired,
                outcome_notice_alert_enabled,
                outcome_notice_alert_time_amount,
                outcome_notice_alert_time_type,
                outcome_notice_alert_date,
                outcome_notice_alert_created,
                outcome_notice_alert_expired,
-               expiration_alert_enabled,
-               expiration_alert_time_amount,
-               expiration_alert_time_type,
-               expiration_alert_date,
-               expiration_alert_created,
-               expiration_alert_expired,
                system_created_date):
     super().__init__()
 
@@ -61,25 +61,25 @@ class AgreementAttrsUpdated1(DomainEvent):
                outcome_notice_time_type,
                outcome_notice_date,
                duration_details,
+               outcome_alert_enabled,
+               outcome_alert_time_amount,
+               outcome_alert_time_type,
+               outcome_alert_date,
                outcome_notice_alert_enabled,
                outcome_notice_alert_time_amount,
                outcome_notice_alert_time_type,
                outcome_notice_alert_date,
-               expiration_alert_enabled,
-               expiration_alert_time_amount,
-               expiration_alert_time_type,
-               expiration_alert_date,
                ):
     super().__init__()
 
 
-class AgreementExpirationAlertSent1(DomainEvent):
-  event_func_name = 'expiration_alert_sent_1'
+class AgreementOutcomeAlertSent1(DomainEvent):
+  event_func_name = 'outcome_alert_sent_1'
   event_signal = EventSignal()
 
   @initializer
-  def __init__(self, name, user_id, outcome_date, outcome_notice_alert_created, outcome_notice_date,
-               expiration_alert_created, ):
+  def __init__(self, name, user_id, outcome_date, outcome_alert_created, outcome_notice_date,
+               outcome_notice_alert_created, ):
     super().__init__()
 
 
@@ -88,8 +88,8 @@ class AgreementOutcomeNoticeAlertSent1(DomainEvent):
   event_signal = EventSignal()
 
   @initializer
-  def __init__(self, name, user_id, outcome_date, outcome_notice_alert_created,
-               outcome_notice_date, expiration_alert_created, ):
+  def __init__(self, name, user_id, outcome_date, outcome_alert_created, outcome_notice_date,
+               outcome_notice_alert_created, ):
     super().__init__()
 
 

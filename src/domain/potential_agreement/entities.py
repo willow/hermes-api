@@ -68,12 +68,12 @@ class PotentialAgreement(AggregateBase):
     self.outcome_notice_time_amount = data['outcome_notice_time_amount']
     self.outcome_notice_time_type = TimeType(data['outcome_notice_time_type'])
     self.duration_details = data['duration_details']
+    self.outcome_alert_enabled = data['outcome_alert_enabled']
+    self.outcome_alert_time_amount = data['outcome_alert_time_amount']
+    self.outcome_alert_time_type = TimeType(data['outcome_alert_time_type'])
     self.outcome_notice_alert_enabled = data['outcome_notice_alert_enabled']
     self.outcome_notice_alert_time_amount = data['outcome_notice_alert_time_amount']
     self.outcome_notice_alert_time_type = TimeType(data['outcome_notice_alert_time_type'])
-    self.expiration_alert_enabled = data['expiration_alert_enabled']
-    self.expiration_alert_time_amount = data['expiration_alert_time_amount']
-    self.expiration_alert_time_type = TimeType(data['expiration_alert_time_type'])
 
     self.completed = True
 
