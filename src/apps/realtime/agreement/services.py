@@ -14,7 +14,9 @@ def _provide_params(kwarg_key, firebase_key, data, value_func=_identity, **kwarg
   if kwarg_key in kwargs:
     value = kwargs[kwarg_key]
     if value is None:
-      data[firebase_key] = None
+      # Setting the value to null will remove it from firebase. This results in the UI layer using defaults
+      # in forms (if provided)
+      data[firebase_key] = ""
     else:
       data[firebase_key] = value_func(value)
 
@@ -40,7 +42,7 @@ def save_agreement_edit_in_firebase(agreement_id, _firebase_provider=None, **kwa
   _provide_params('outcome_alert_time_type', 'outcome-alert-time-type', data, **kwargs)
 
   _provide_params('outcome_notice_time_amount', 'outcome-notice-time-amount', data, **kwargs)
-  _provide_params('outcome_notice_time_type', 'outcome_notice_time_type', data, **kwargs)
+  _provide_params('outcome_notice_time_type', 'outcome-notice-time-type', data, **kwargs)
 
   _provide_params('outcome_notice_alert_time_type', 'outcome-notice-alert-time-type', data, **kwargs)
   _provide_params('outcome_notice_alert_enabled', 'outcome-notice-alert-enabled', data, **kwargs)
