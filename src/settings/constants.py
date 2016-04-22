@@ -26,3 +26,5 @@ NAME = 'name'
 QUERY = 'query'
 
 CONTRACTS = 'contracts'
+
+TOKEN = 'token'

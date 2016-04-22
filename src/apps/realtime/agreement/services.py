@@ -4,21 +4,7 @@ from src.domain.agreement_type import services as agreement_type_service
 from src.domain.asset import services as asset_service
 from src.libs.datetime_utils.datetime_utils import get_timestamp_from_datetime
 from src.libs.firebase_utils.services import firebase_provider
-
-
-def _identity(val):
-  return val
-
-
-def _provide_params(kwarg_key, firebase_key, data, value_func=_identity, **kwargs):
-  if kwarg_key in kwargs:
-    value = kwargs[kwarg_key]
-    if value is None:
-      # Setting the value to null will remove it from firebase. This results in the UI layer using defaults
-      # in forms (if provided)
-      data[firebase_key] = ""
-    else:
-      data[firebase_key] = value_func(value)
+from src.libs.firebase_utils.value.value_utils import _provide_params
 
 
 def save_agreement_edit_in_firebase(agreement_id, _firebase_provider=None, **kwargs):

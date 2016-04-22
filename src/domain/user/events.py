@@ -10,3 +10,12 @@ class UserCreated1(DomainEvent):
   @initializer
   def __init__(self, id, name, nickname, email, picture, meta, system_created_date):
     super().__init__()
+
+
+class UserSubscribed1(DomainEvent):
+  event_func_name = 'subscribed_1'
+  event_signal = EventSignal()
+
+  @initializer
+  def __init__(self, plan_name, charged_amount):
+    super().__init__()

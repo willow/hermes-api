@@ -16,3 +16,4 @@ djangorestframework-jwt==1.7.2
 boto==2.38.0
 shortuuid==0.4.2
 simplejson==3.8.0
+stripe==1.32.2

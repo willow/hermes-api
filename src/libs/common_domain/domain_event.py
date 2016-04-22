@@ -1,4 +1,5 @@
-from abc import ABC, abstractmethod
+from abc import ABC
+
 from src.libs.datetime_utils.datetime_utils import get_date_from_string
 
 

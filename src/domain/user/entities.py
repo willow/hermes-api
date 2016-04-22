@@ -1,5 +1,7 @@
-from src.domain.user.events import UserCreated1
+from src.domain.user.events import UserCreated1, UserSubscribed1
 from src.libs.common_domain.aggregate_base import AggregateBase
+from src.libs.payment_utils.services import payment_service
+from django.conf import settings
 
 
 class User(AggregateBase):
@@ -33,6 +35,23 @@ class User(AggregateBase):
 
     return ret_val
 
+  def subscribe(self, payment_token, _payment_service=None):
+    if not _payment_service: _payment_service = payment_service
+
+    if self.subscribed:
+      raise Exception("{0} already subscribed".format(self))
+
+    plan_name = settings.SUBSCRIPTION_PLAN_NAME
+    customer = _payment_service.create_customer(
+        self.email,
+        plan_name,
+        payment_token
+    )
+
+    charged_amount = customer['subscriptions']['data'][0]['plan']['amount']
+
+    self._raise_event(UserSubscribed1(plan_name, charged_amount))
+
   def _handle_created_1_event(self, event):
     self.id = event.id
     self.name = event.name
@@ -41,6 +60,11 @@ class User(AggregateBase):
     self.picture = event.picture
     self.meta = event.meta
     self.system_created_date = event.system_created_date
+
+    self.subscribed = False
+
+  def _handle_subscribed_1_event(self, event):
+    self.subscribed = True
 
   def __str__(self):
     return 'User {id}: {name}'.format(id=self.id, name=self.name)

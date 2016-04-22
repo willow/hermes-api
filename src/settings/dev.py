@@ -4,7 +4,6 @@ from os.path import join, normpath
 
 from .common import *
 
-
 ########## DEBUG CONFIGURATION
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#debug
 from src.libs.text_utils.encoding.encoding_utils import base64decode
@@ -118,3 +117,7 @@ AWS_ACCESS_KEY_ID = 'AWS_ACCESS_KEY_ID'
 AWS_SECRET_ACCESS_KEY = 'AWS_SECRET_ACCESS_KEY'
 AWS_STORAGE_BUCKET_NAME = 'AWS_STORAGE_BUCKET_NAME'
 ########## END AWS CONFIGURATION
+
+########## PAYMENT CONFIGURATION
+STRIPE_SECRET_KEY = 'STRIPE_SECRET_KEY'
+########## END PAYMENT CONFIGURATION

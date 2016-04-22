@@ -1,7 +1,7 @@
 from django.dispatch import receiver
 from django.utils import timezone
 
-from src.domain.user.commands import CreateUser
+from src.domain.user.commands import CreateUser, SubscribeUser
 from src.domain.user.entities import User
 from src.libs.common_domain import aggregate_repository
 from src.libs.python_utils.id.id_utils import generate_id
@@ -22,3 +22,20 @@ def create_user(_aggregate_repository=None, **kwargs):
   # commands typically shouldn't return an object but we're explicitly calling this function from the API
   # and need the return aggregate
   return user
+
+
+@receiver(SubscribeUser.command_signal)
+def subscribe_user(_aggregate_repository=None, **kwargs):
+  if not _aggregate_repository: _aggregate_repository = aggregate_repository
+
+  id = kwargs['aggregate_id']
+
+  command = kwargs['command']
+
+  user = _aggregate_repository.get(User, id)
+
+  version = user.version
+
+  user.subscribe(command.payment_token)
+
+  _aggregate_repository.save(user, version)

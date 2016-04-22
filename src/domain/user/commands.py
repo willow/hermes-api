@@ -8,3 +8,11 @@ class CreateUser():
   @initializer
   def __init__(self, name, nickname, email, picture, meta):
     pass
+
+
+class SubscribeUser():
+  command_signal = CommandSignal()
+
+  @initializer
+  def __init__(self, payment_token):
+    pass
