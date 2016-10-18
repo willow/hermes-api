@@ -10,6 +10,9 @@ class AuthUser(ReadModel):
   email = models.EmailField(unique=True)
   system_created_date = models.DateTimeField()
 
+  REQUIRED_FIELDS = ()
+  USERNAME_FIELD = 'id'
+
   @property
   def is_active(self):
     # https://docs.djangoproject.com/en/1.8/topics/auth/customizing/#django.contrib.auth.models.CustomUser.is_active

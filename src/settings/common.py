@@ -3,7 +3,6 @@ from src.apps.auth.providers.auth0.utils import get_user_id_from_jwt
 import src.settings.constants as constants
 
 from os.path import abspath, dirname, basename
-# http://stackoverflow.com/questions/21631878/celery-is-there-a-way-to-write-custom-json-encoder-decoder
 
 ########## PATH CONFIGURATION
 # Absolute filesystem path to the Django project directory:
@@ -33,6 +32,42 @@ USE_TZ = True
 
 CONSTANTS = constants
 ########## END GENERAL CONFIGURATION
+
+########## MIDDLEWARE CONFIGURATION
+# See: https://docs.djangoproject.com/en/dev/ref/settings/#middleware-classes
+MIDDLEWARE_CLASSES = (
+  'django.middleware.gzip.GZipMiddleware',
+  'django.middleware.security.SecurityMiddleware',
+  'django.middleware.common.CommonMiddleware',
+  'django.contrib.sessions.middleware.SessionMiddleware',
+  'django.contrib.messages.middleware.MessageMiddleware',
+  'django.contrib.auth.middleware.AuthenticationMiddleware',
+)
+########## END MIDDLEWARE CONFIGURATION
+
+########## TEMPLATE CONFIGURATION
+TEMPLATES = [
+  {
+    'BACKEND': 'django.template.backends.django.DjangoTemplates',
+    'DIRS': [],
+    'APP_DIRS': True,
+    'OPTIONS': {
+      'context_processors': [
+        'django.template.context_processors.debug',
+        'django.template.context_processors.request',
+        'django.contrib.auth.context_processors.auth',
+        'django.contrib.messages.context_processors.messages',
+      ],
+    },
+  },
+]
+########## END TEMPLATE CONFIGURATION
+
+########## STATIC FILE CONFIGURATION
+# See: https://docs.djangoproject.com/en/dev/ref/settings/#static-url
+
+STATIC_URL = '/static/'
+########## END STATIC FILE CONFIGURATION
 
 ########## STORAGE CONFIGURATION
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
@@ -82,18 +117,14 @@ JWT_AUTH = {
 }
 ########## END DRF CONFIGURATION
 
-########## MIDDLEWARE CONFIGURATION
-# See: https://docs.djangoproject.com/en/dev/ref/settings/#middleware-classes
-MIDDLEWARE_CLASSES = (
-  # Use GZip compression to reduce bandwidth.
-  'django.middleware.gzip.GZipMiddleware',
-  'corsheaders.middleware.CorsMiddleware',
-)
-########## END MIDDLEWARE CONFIGURATION
-
 ########## APP CONFIGURATION
 DJANGO_APPS = (
   # Default Django apps:
+  'django.contrib.admin',
+  'django.contrib.auth',
+  'django.contrib.contenttypes',
+  'django.contrib.sessions',
+  'django.contrib.staticfiles',
 
   # Useful template tags:
 
@@ -132,7 +163,6 @@ LOCAL_APPS = (
   # APPS
   'src.apps.agreement_translation',
   'src.apps.api',
-  'src.apps.auth',
   'src.apps.realtime',
 
   # LIBS
@@ -181,6 +211,13 @@ RQ_QUEUES = {
     'USE_REDIS_CACHE': 'default',
   }
 }
+
+RQ_SHOW_ADMIN_LINK = True
+
+RQ_EXCEPTION_HANDLERS = [
+  'src.libs.rq_utils.retry_handler.move_to_failed_queue',
+  'src.libs.rq_utils.retry_handler.retry_handler',
+]
 ########## END REDIS QUEUE CONFIGURATION
 
 ########## EMAIL CONFIGURATION

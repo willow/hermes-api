@@ -11,6 +11,12 @@ from src.libs.text_utils.encoding.encoding_utils import base64decode
 DEBUG = True
 ########## END DEBUG CONFIGURATION
 
+########## TEMPLATE CONFIGURATION
+# See: https://docs.djangoproject.com/en/dev/ref/settings/#template-debug
+
+TEMPLATES[0]['OPTIONS']['debug'] = DEBUG
+########## END TEMPLATE CONFIGURATION
+
 ########## AUTH CONFIGURATION
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#secret-key
 SECRET_KEY = r"yfs9ltn_k(^z3%o2rh=bnn5z-midcr4q52bz&jg!b^&jtxf$gk"
