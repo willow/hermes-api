@@ -163,7 +163,8 @@ LOCAL_APPS = (
   # APPS
   'src.apps.agreement_translation',
   'src.apps.api',
-  'src.apps.realtime',
+  'src.apps.read_model.realtime',
+  'src.apps.read_model',
 
   # LIBS
   'src.libs.common_domain',

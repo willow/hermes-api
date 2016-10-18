@@ -1,6 +1,6 @@
 from django.db import models
 
-from src.domain.common.models import ReadModel
+from src.domain.common.constants import ReadModel
 from src.domain.user.managers import AuthUserManager
 
 

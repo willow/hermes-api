@@ -1,6 +1,6 @@
 from django.utils import timezone
 
-from src.domain.agreement.models import AgreementSearch, AgreementAlert
+from src.apps.read_model.relational.agreement.models import AgreementSearch, AgreementAlert
 
 
 def get_agreements_with_due_outcome_alert():

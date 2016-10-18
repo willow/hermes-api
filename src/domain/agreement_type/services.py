@@ -1,5 +1,5 @@
-from src.domain.agreement_type.models import GlobalAgreementType, AgreementTypeLookup
-from src.domain.agreement_type.models import UserAgreementType
+from src.apps.read_model.relational.agreement_type.models import GlobalAgreementType, AgreementTypeLookup
+from src.apps.read_model.relational.agreement_type.models import UserAgreementType
 
 
 def create_global_agreement_type(id, name, system_created_date):

@@ -1,20 +1,20 @@
 import logging
 
+from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import status
 from rest_framework.decorators import api_view, parser_classes
 from rest_framework.parsers import FileUploadParser
 from rest_framework.response import Response
-from django.conf import settings
 
+from src.apps.agreement_translation.services import agreement_translation_service
+from src.apps.read_model.realtime.agreement import services as realtime_agreement_service
 from src.domain.agreement.commands import UpdateAgreementAttrs, DeleteAgreement, DeleteArtifact, CreateArtifact
 from src.domain.agreement.entities import Agreement
 from src.domain.asset import command_handlers as asset_command_handlers
 from src.domain.asset.commands import CreateAssetFromFile
 from src.domain.potential_agreement import command_handlers as potential_agreement_command_handlers
 from src.domain.potential_agreement.commands import CreatePotentialAgreement, CompletePotentialAgreement
-from src.apps.agreement_translation.services import agreement_translation_service
-from src.apps.realtime.agreement import services as realtime_agreement_service
 from src.libs.common_domain import dispatcher, aggregate_repository
 from src.libs.datetime_utils import datetime_utils
 
