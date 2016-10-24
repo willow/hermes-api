@@ -4,8 +4,8 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
+from src.apps.common import constants
 from src.apps.search.services import search_service
-from src.settings import constants
 
 logger = logging.getLogger(__name__)
 

@@ -1,7 +1,9 @@
-from src.domain.user.models import User
-from src.domain.user.services import user_service
 import logging
+
 from django_rq import job
+
+from src.apps.read_model.relational.user.models import User
+from src.domain.user.services import user_service
 from src.libs.python_utils.logging.logging_utils import log_wrapper
 
 logger = logging.getLogger(__name__)

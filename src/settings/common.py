@@ -1,8 +1,7 @@
 """Common settings and globals."""
-from src.apps.auth.providers.auth0.utils import get_user_id_from_jwt
-import src.settings.constants as constants
-
 from os.path import abspath, dirname, basename
+
+from src.apps.auth.providers.auth0.utils import get_user_id_from_jwt
 
 ########## PATH CONFIGURATION
 # Absolute filesystem path to the Django project directory:
