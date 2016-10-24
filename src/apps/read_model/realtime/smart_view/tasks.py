@@ -2,7 +2,7 @@ import logging
 
 from django_rq import job
 
-from src.apps.read_model.realtime import services
+from src.apps.read_model.realtime.smart_view import services
 from src.libs.python_utils.logging.logging_utils import log_wrapper
 
 logger = logging.getLogger(__name__)

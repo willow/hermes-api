@@ -1,7 +1,5 @@
-from django.conf import settings
+from src.apps.common import constants
 from src.libs.python_utils.files import file_utils
-
-constants = settings.CONSTANTS
 
 
 def get_agreement_info_from_files(files, _file_utils=None):

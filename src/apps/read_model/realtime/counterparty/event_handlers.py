@@ -1,6 +1,6 @@
 from django.dispatch import receiver
 
-from src.apps.read_model.realtime import tasks
+from src.apps.read_model.realtime.counterparty import tasks
 from src.domain.agreement.events import AgreementAttrsUpdated1
 from src.domain.agreement.events import AgreementCreated1
 from src.libs.common_domain.decorators import event_idempotent

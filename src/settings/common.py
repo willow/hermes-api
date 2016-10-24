@@ -28,8 +28,6 @@ USE_L10N = True
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#use-tz
 USE_TZ = True
-
-CONSTANTS = constants
 ########## END GENERAL CONFIGURATION
 
 ########## MIDDLEWARE CONFIGURATION
@@ -84,7 +82,7 @@ ROOT_URLCONF = '%s.urls' % SITE_NAME
 ########## END URL CONFIGURATION
 
 ########## AUTH CONFIGURATION
-AUTH_USER_MODEL = 'user.AuthUser'
+AUTH_USER_MODEL = 'read_model.AuthUser'
 ########## END AUTH CONFIGURATION
 
 ########## CORS CONFIGURATION

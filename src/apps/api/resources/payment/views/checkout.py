@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from src.domain.user.commands import SubscribeUser
 from src.libs.common_domain import dispatcher
 
-constants = settings.CONSTANTS
+from src.apps.common import constants
 
 logger = logging.getLogger(__name__)
 

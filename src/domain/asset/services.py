@@ -3,7 +3,8 @@ from django.conf import settings
 from src.apps.read_model.relational.asset.models import AssetLookup
 from src.libs.django_utils.storage import storage_utils
 
-constants = settings.CONSTANTS
+from src.apps.common import constants
+
 assets_root = constants.ASSETS_ROOT
 
 

@@ -9,7 +9,7 @@ from src.domain.smart_view import command_handlers
 from src.domain.smart_view.commands import CreateSmartView, UpdateSmartViewAttrs
 from src.libs.common_domain import dispatcher
 
-constants = settings.CONSTANTS
+from src.apps.common import constants
 
 logger = logging.getLogger(__name__)
 

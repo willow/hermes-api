@@ -1,7 +1,7 @@
 from django.db import models
 
+from src.apps.read_model.relational.models import ReadModel
 from src.apps.read_model.relational.user.managers import AuthUserManager
-from src.domain.common.constants import ReadModel
 
 
 class AuthUser(ReadModel):

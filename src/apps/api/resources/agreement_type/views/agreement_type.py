@@ -3,12 +3,10 @@ import logging
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from django.conf import settings
 
+from src.apps.common import constants
 from src.domain.agreement_type import command_handlers
 from src.domain.agreement_type.commands import CreateAgreementType
-
-constants = settings.CONSTANTS
 
 logger = logging.getLogger(__name__)
 

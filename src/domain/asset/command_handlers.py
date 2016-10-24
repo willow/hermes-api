@@ -10,7 +10,7 @@ from src.libs.django_utils.storage import storage_utils
 from src.libs.python_utils.files import file_utils
 from src.libs.python_utils.id.id_utils import generate_id
 
-constants = settings.CONSTANTS
+from src.apps.common import constants
 assets_root = constants.ASSETS_ROOT
 
 
