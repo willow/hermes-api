@@ -174,7 +174,8 @@ INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 ########## LOGGING CONFIGURATION
 LOGGING = {
   'version': 1,
-  'disable_existing_loggers': True,
+  # todo this should be True but it wasn't logging errors in Django web server - only redis queue - logs were disabled = True
+  'disable_existing_loggers': False,
   'formatters': {
     'local_standard': {
       '()': RqFormatter,

@@ -2,7 +2,6 @@ from django.db import models
 
 from src.apps.read_model.relational.models import ReadModel
 
-print('asset got here')
 class AssetLookup(ReadModel):
   name = models.CharField(max_length=2400)
   path = models.CharField(max_length=2400)
