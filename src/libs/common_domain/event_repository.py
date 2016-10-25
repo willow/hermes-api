@@ -3,8 +3,13 @@ from django.db import transaction
 from src.libs.common_domain.models import Event
 
 
-def get_events():
-  return Event.objects.order_by('event_sequence', 'id')
+def get_events(event_names=None):
+  ret_val = Event.objects.order_by('event_sequence', 'id')
+
+  if event_names:
+    ret_val = ret_val.filter(event_name__in=event_names)
+
+  return ret_val
 
 
 def get_events_for_stream(event_type, stream_id):
@@ -24,7 +29,18 @@ def create_events(stream_id, starting_sequence, event_type, events):
       for i, e in enumerate(events, 1)
       ]
 
-  events = Event.objects.bulk_create(event_data)
+    events = Event.objects.bulk_create(event_data)
+
+  return events
+
+
+def delete_events(event_names=None):
+  events = Event.objects.order_by('event_sequence', 'id')
+
+  if event_names:
+    events = events.filter(event_name__in=event_names)
+
+  events.delete()
 
   return events
 

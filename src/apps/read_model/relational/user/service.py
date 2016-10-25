@@ -1,11 +1,8 @@
 from src.apps.read_model.relational.user.models import AuthUser
 
 
-def create_auth_user(id, email, system_created_date):
-  user = AuthUser(id=id, email=email, system_created_date=system_created_date)
-  user.save()
+def save_auth_user(id, email, system_created_date):
+  user, _ = AuthUser.objects.update_or_create(
+      id=id, email=email, system_created_date=system_created_date
+  )
   return user
-
-
-def get_auth_user_from_email(email):
-  return AuthUser.objects.get(email=email)

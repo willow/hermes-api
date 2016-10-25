@@ -1,7 +1,7 @@
 from django.dispatch import receiver
 
+from src.apps.read_model.relational.user import tasks
 from src.domain.user.events import UserCreated1
-from src.domain.user import tasks
 from src.libs.common_domain.decorators import event_idempotent
 
 

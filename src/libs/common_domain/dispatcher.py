@@ -9,6 +9,6 @@ def send_command(aggregate_id, command):
   command.__class__.command_signal.send(None, **command_data)
 
 
-def publish_event(aggregate_id, event, version):
+def publish_event(aggregate_id, event, version, allow_non_idempotent, send_to_app_names):
   event_data = {'aggregate_id': aggregate_id, 'event': event, 'version': version}
-  event.__class__.event_signal.send(None, **event_data)
+  event.__class__.event_signal.send(None, allow_non_idempotent, send_to_app_names, **event_data)

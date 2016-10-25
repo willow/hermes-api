@@ -15,7 +15,7 @@ def save_events(stream_id, starting_sequence, event_type, events, _event_reposit
   event_objs = zip(events, event_records)
 
   for e in event_objs:
-    _event_dispatcher.publish_event(stream_id, e[0], e[1].event_sequence)
+    _event_dispatcher.publish_event(stream_id, e[0], e[1].event_sequence, True, None)
 
 
 def load_events(event_type, stream_id, _event_repository=None):
@@ -32,16 +32,18 @@ def load_domain_event_from_event_record(event_record, _event_service=None):
   return domain_event
 
 
-def replay_events(_event_repository=None, _event_service=None, _event_dispatcher=None):
+def replay_events(event_names, event_handler_app_names, _event_repository=None, _event_service=None,
+                  _event_dispatcher=None):
   counter = 0
   if not _event_repository:    _event_repository = event_repository
   if not _event_service:    _event_service = event_service
 
   if not _event_dispatcher:    _event_dispatcher = dispatcher
 
-  events = _event_repository.get_events()
+  events = _event_repository.get_events(event_names)
 
-  logger.debug("Replay %i events", events.count())
+  total = events.count()
+  logger.debug("Replay %i events", total)
 
   for event_batch in batch_qs(events):
     logger.debug("starting batch : %s", event_batch[0])
@@ -57,9 +59,17 @@ def replay_events(_event_repository=None, _event_service=None, _event_dispatcher
       domain_event = _event_service.load_domain_event_from_event_record(event)
 
       try:
-        _event_dispatcher.publish_event(event.stream_id, domain_event, event_version)
+        _event_dispatcher.publish_event(event.stream_id, domain_event, event_version, False, event_handler_app_names)
       except Exception:
         logger.warn("Error sending signal for: %s Data: %s", event_name, event_data, exc_info=True)
 
       counter += 1
-      logger.debug("Sending signal #%i: %s : %s", counter, event_name, event.stream_id)
+      logger.debug("Sending signal #%i of %i: %s : %s", counter, total, event_name, event.stream_id)
+
+
+def clear_events(event_names, _event_repository=None):
+  if not _event_repository:    _event_repository = event_repository
+
+  events = _event_repository.delete_events(event_names)
+
+  return events

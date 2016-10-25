@@ -26,12 +26,12 @@ class CommandSignal(Signal):
 
     responses = []
 
-    if not self.receivers or self.sender_receivers_cache.get(sender) is NO_RECEIVERS:
-      return responses
-
     receivers = self._live_receivers(sender)
 
     if len(receivers) != 1: raise Exception('command signal requires exactly 1 command handler')
+
+    if not self.receivers or self.sender_receivers_cache.get(sender) is NO_RECEIVERS:
+      return responses
 
     for receiver in receivers:
       response = receiver(signal=self, sender=sender, **named)
