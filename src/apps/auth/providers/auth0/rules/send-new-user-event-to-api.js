@@ -38,7 +38,7 @@ function (user, context, callback) {
         }
 
         if (err) {
-          var errorObj = new Error('error creating user', err);
+          var errorObj = new Error('error creating user ' + err.toString());
           return callback(errorObj);
         }
 
@@ -46,17 +46,22 @@ function (user, context, callback) {
         appMetadata.hermes.user_id = response.body.id;
         auth0.users.updateAppMetadata(user.user_id, appMetadata)
             .then(function (newUser) { // get the most up-to-date data. newUser is the param: https://auth0.com/docs/rules/metadata-in-rules#4
-              console.log('Completed: Rule: Send New User Event to API. User Id:', auth0UserId);
-              // it's important to return newUser here in the callback. not exactly sure why, but when we don't do this
-              // then other rules that run within auth0 won't have access to the app_metadata.
-              return callback(null, newUser, context);
-            }, callback);
+                  console.log('Completed: Rule: Send New User Event to API. User Id:', auth0UserId);
+                  // it's important to return newUser here in the callback. not exactly sure why, but when we don't do this
+                  // then other rules that run within auth0 won't have access to the app_metadata.
+                  return callback(null, newUser, context);
+                }, function (err) { // error updating appMetadata
+                  console.log('Error: Rule: Cannot update appMetaData. User Id:', auth0UserId, '.Error: ', err.toString());
+                  return callback(err);
+                }
+            );
       };
 
       request.post(params, f);
 
     }
     else {
+
       // not a new user
       done();
     }
