@@ -6,7 +6,7 @@ from django.conf import settings
 
 class User(AggregateBase):
   @classmethod
-  def from_attrs(cls, id, name, nickname, email, picture, meta, system_created_date):
+  def from_attrs(cls, id, name, nickname, email, picture, meta):
     ret_val = cls()
     if not id:
       raise TypeError("id is required")
@@ -28,10 +28,7 @@ class User(AggregateBase):
     if not auth0_user_id:
       raise TypeError("auth0_user_id is required")
 
-    if not system_created_date:
-      raise TypeError("system_created_date is required")
-
-    ret_val._raise_event(UserCreated1(id, name, nickname, email, picture, meta, system_created_date))
+    ret_val._raise_event(UserCreated1(id, name, nickname, email, picture, meta))
 
     return ret_val
 
@@ -59,7 +56,6 @@ class User(AggregateBase):
     self.email = event.email
     self.picture = event.picture
     self.meta = event.meta
-    self.system_created_date = event.system_created_date
 
     self.subscribed = False
 

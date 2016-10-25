@@ -6,20 +6,25 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
-from src.domain.user import command_handlers
+from src.apps.common import constants
 from src.domain.user.commands import CreateUser
+from src.libs.common_domain import dispatcher
+from src.libs.python_utils.id.id_utils import generate_id
 
 logger = logging.getLogger(__name__)
 
 
 @api_view(['POST'])
 @permission_classes((AllowAny,))
-def user_view(request, _command_handler=None):
-  if not _command_handler: _command_handler = command_handlers
+def user_view(request, _dispatcher=None):
+  if not _dispatcher: _dispatcher = dispatcher
   try:
-    command = CreateUser(**request.data)
-    user = _command_handler.create_user(**{'command': command})
-    user_data = {'id': user.id}
+    user_id = generate_id()
+
+    command = CreateUser(user_id, **request.data)
+    _dispatcher.send_command(-1, command)
+
+    user_data = {constants.ID: user_id}
   except Exception as e:
     logger.warn("Error creating user: {0}".format(request.data), exc_info=True)
 

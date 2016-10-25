@@ -11,4 +11,4 @@ def execute_user_created_1(**kwargs):
   event = kwargs['event']
 
   # event has the id
-  tasks.create_auth_user_task.delay(event.id, event.email, event.system_created_date)
+  tasks.create_auth_user_task.delay(event.id, event.email)

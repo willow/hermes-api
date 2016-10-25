@@ -9,8 +9,8 @@ logger = logging.getLogger(__name__)
 
 
 @job('high')
-def create_auth_user_task(id, email, system_created_date):
+def create_auth_user_task(id, email):
   log_message = ("Save user task for email: %s", email)
 
   with log_wrapper(logger.info, *log_message):
-    return service.save_auth_user(id, email, system_created_date).id
+    return service.save_auth_user(id, email).id

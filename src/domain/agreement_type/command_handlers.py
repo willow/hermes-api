@@ -1,13 +1,13 @@
 from django.dispatch import receiver
 from django.utils import timezone
 
+from src.domain.agreement_type.commands import CreateAgreementType
 from src.domain.agreement_type.entities import AgreementType
-from src.domain.user.commands import CreateUser
 from src.libs.common_domain import aggregate_repository
 from src.libs.python_utils.id.id_utils import generate_id
 
 
-@receiver(CreateUser.command_signal)
+@receiver(CreateAgreementType.command_signal)
 def create_agreement_type(_aggregate_repository=None, **kwargs):
   if not _aggregate_repository: _aggregate_repository = aggregate_repository
   command = kwargs['command']

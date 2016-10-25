@@ -8,7 +8,7 @@ class UserCreated1(DomainEvent):
   event_signal = EventSignal()
 
   @initializer
-  def __init__(self, id, name, nickname, email, picture, meta, system_created_date):
+  def __init__(self, id, name, nickname, email, picture, meta):
     super().__init__()
 
 

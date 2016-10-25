@@ -8,7 +8,6 @@ class AuthUser(ReadModel):
   objects = AuthUserManager()
 
   email = models.EmailField(unique=True)
-  system_created_date = models.DateTimeField()
 
   REQUIRED_FIELDS = ()
   USERNAME_FIELD = 'id'
