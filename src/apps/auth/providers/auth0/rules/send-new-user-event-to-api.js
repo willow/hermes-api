@@ -13,7 +13,6 @@ function (user, context, callback) {
     if (!appMetadata.hermes.user_id) {
       // this is a new user
       var auth0UserId = user.user_id;
-      console.log('Beginning: Rule: Send New User Event to API. User Id:', auth0UserId);
 
       var identity = {
         "email": user.email,
@@ -23,25 +22,28 @@ function (user, context, callback) {
         "meta": {"auth0": {"user_id": auth0UserId}}
       };
 
-      var apiUrl = configuration.HERMES_API_DOMAIN;
-      var postURL = "https://" + apiUrl + "/api/users/";
+      var apiUrl = configuration.HERMES_API_URL;
+      var postURL = apiUrl + "/api/users/";
       var params = {
         "url": postURL,
         "json": identity
       };
 
       var f = function (err, response, body) {
+
         if (!err) {
           if (response.statusCode !== 201) {
             err = body;
           }
         }
 
-        if (err) return callback(err);
-
-        appMetadata.hermes.user_id = response.body.id;
+        if (err) {
+          var errorObj = new Error('error creating user', err);
+          return callback(errorObj);
+        }
 
         // persist the app_metadata update - https://auth0.com/docs/rules/metadata-in-rules#4
+        appMetadata.hermes.user_id = response.body.id;
         auth0.users.updateAppMetadata(user.user_id, appMetadata)
             .then(function (newUser) { // get the most up-to-date data. newUser is the param: https://auth0.com/docs/rules/metadata-in-rules#4
               console.log('Completed: Rule: Send New User Event to API. User Id:', auth0UserId);
@@ -52,11 +54,11 @@ function (user, context, callback) {
       };
 
       request.post(params, f);
-    } else {
+
+    }
+    else {
       // not a new user
-
       done();
-
     }
   }
   else {
