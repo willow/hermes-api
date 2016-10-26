@@ -1,3 +1,7 @@
+// todo what happens if this rule fails? - how does auth0 handle that
+// right now the logs just say
+// 12:04:16 PM: [Error: error creating user no active client for 'hermes']
+
 function (user, context, callback) {
 
   function done() {
@@ -39,6 +43,7 @@ function (user, context, callback) {
 
         if (err) {
           var errorObj = new Error('error creating user ' + err.toString());
+          console.error(errorObj);
           return callback(errorObj);
         }
 
@@ -51,7 +56,7 @@ function (user, context, callback) {
                   // then other rules that run within auth0 won't have access to the app_metadata.
                   return callback(null, newUser, context);
                 }, function (err) { // error updating appMetadata
-                  console.log('Error: Rule: Cannot update appMetaData. User Id:', auth0UserId, '.Error: ', err.toString());
+                  console.error('Error: Rule: Cannot update appMetaData. User Id:', auth0UserId, '.Error: ', err.toString());
                   return callback(err);
                 }
             );
