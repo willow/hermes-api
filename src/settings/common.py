@@ -36,9 +36,11 @@ MIDDLEWARE_CLASSES = (
   'django.middleware.gzip.GZipMiddleware',
   'django.middleware.security.SecurityMiddleware',
   'django.middleware.common.CommonMiddleware',
+  'django.middleware.csrf.CsrfViewMiddleware',
   'django.contrib.sessions.middleware.SessionMiddleware',
   'django.contrib.messages.middleware.MessageMiddleware',
   'django.contrib.auth.middleware.AuthenticationMiddleware',
+  'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 ########## END MIDDLEWARE CONFIGURATION
 
@@ -95,7 +97,7 @@ CORS_ALLOW_HEADERS = (
   'x-csrftoken',
   'user-agent',
   'accept-encoding',
-  'Cache-Control'  # dropzone requires this header
+  'Cache-Control'  # dropzone requires this header #todo still needed?
 )
 ########## END CORS CONFIGURATION
 
@@ -195,6 +197,14 @@ LOGGING = {
 }
 ########## END LOGGING CONFIGURATION
 
+########## AUTH CONFIGURATION
+# Password validation
+# https://docs.djangoproject.com/en/1.10/ref/settings/#auth-password-validators
+
+# Auth0 Handles auth for this application
+AUTH_PASSWORD_VALIDATORS = []
+########## END AUTH CONFIGURATION
+
 ########### EXTERNAL API CONFIGURATION
 HTTP_TIMEOUT = 10  # seconds
 ########## END EXTERNAL API CONFIGURATION
@@ -225,4 +235,51 @@ DEV_EMAIL_ADDRESS = 'dev@startwillow.com'
 
 ########## PAYMENT CONFIGURATION
 SUBSCRIPTION_PLAN_NAME = 'hermes-default-1'
+
+
 ########## END PAYMENT CONFIGURATION
+
+class Auth0Backend(object):
+  def authenticate(self, **kwargs):
+    from src.apps.read_model.relational.user.models import AuthUser
+
+    """
+    Auth0 return a dict which contains the following fields
+    :param email: user email
+    :param username: username
+    :return: user
+    """
+    ret_val = AuthUser.objects.get()
+    ret_val.is_staff = True
+    return ret_val
+
+    email = kwargs.pop('email')
+    username = kwargs.pop('nickname')
+
+    if username and email:
+      try:
+        return UserModel.objects.get(email__iexact=email,
+                                     username__iexact=username)
+      except UserModel.DoesNotExist:
+        return UserModel.objects.create(email=email,
+                                        username=username)
+
+    raise ValueError(_('Username or email can\'t be blank'))
+
+  # noinspection PyProtectedMember
+  def get_user(self, user_id):
+    """
+    Primary key identifier
+    It is better to raise UserModel.DoesNotExist
+    :param user_id:
+    :return: UserModel instance
+    """
+    return UserModel._default_manager.get(pk=user_id)
+
+
+print(Auth0Backend.__name__)
+
+AUTHENTICATION_BACKENDS = [
+  'src.settings.common.Auth0Backend',
+  'django.contrib.auth.backends.ModelBackend'
+]
