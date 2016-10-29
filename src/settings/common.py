@@ -268,12 +268,15 @@ class Auth0Backend(object):
 
   # noinspection PyProtectedMember
   def get_user(self, user_id):
+    from src.apps.read_model.relational.user.models import AuthUser
+
     """
     Primary key identifier
     It is better to raise UserModel.DoesNotExist
     :param user_id:
     :return: UserModel instance
     """
+    return AuthUser.objects.get()
     return UserModel._default_manager.get(pk=user_id)
 
 
