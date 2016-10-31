@@ -88,20 +88,6 @@ ROOT_URLCONF = '%s.urls' % SITE_NAME
 AUTH_USER_MODEL = 'read_model.AuthUser'
 ########## END AUTH CONFIGURATION
 
-########## CORS CONFIGURATION
-CORS_ALLOW_HEADERS = (
-  'x-requested-with',
-  'content-type',
-  'accept',
-  'origin',
-  'authorization',
-  'x-csrftoken',
-  'user-agent',
-  'accept-encoding',
-  'Cache-Control'  # dropzone requires this header #todo still needed?
-)
-########## END CORS CONFIGURATION
-
 ########## DRF CONFIGURATION
 REST_FRAMEWORK = {
   'DEFAULT_PERMISSION_CLASSES': (
