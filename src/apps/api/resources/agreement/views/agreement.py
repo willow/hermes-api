@@ -23,7 +23,6 @@ logger = logging.getLogger(__name__)
 
 
 @api_view(['POST'])
-@parser_classes((FileUploadParser,))
 def agreement_create_view(request,
                           _agreement_translation_service=None,
                           _asset_command_handler=None,

@@ -16,7 +16,6 @@ class AuthUser(ReadModel, PermissionsMixin):
 
   def __init__(self, *args, **kwargs):
     super().__init__(*args, **kwargs)
-    self.is_authenticated = True
     self.is_anonymous = False
     self.is_staff = True
 
@@ -27,6 +26,7 @@ class AuthUser(ReadModel, PermissionsMixin):
     # but considering we're using 3rd party for auth, we probably don't need to store those attrs in this app right now.
     return True
 
+  @property
   def is_authenticated(self):
     # https://docs.djangoproject.com/en/1.8/topics/auth/customizing/#django.contrib.auth.models.AbstractBaseUser.is_authenticated
     return True
