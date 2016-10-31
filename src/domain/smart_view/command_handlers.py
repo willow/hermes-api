@@ -13,15 +13,11 @@ def create_smart_view(_aggregate_repository=None, **kwargs):
   command = kwargs['command']
 
   system_created_date = timezone.now()
-  id = generate_id()
+  id = command.id
   data = dict({'system_created_date': system_created_date, 'id': id}, **command.__dict__)
 
   sv = SmartView.from_attrs(**data)
   _aggregate_repository.save(sv, -1)
-
-  # commands typically shouldn't return an object but we're explicitly calling this function from the API
-  # and need the return aggregate
-  return sv
 
 
 @receiver(UpdateSmartViewAttrs.command_signal)

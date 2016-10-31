@@ -1,16 +1,14 @@
-from django.conf import settings
 from django.db import transaction
 from django.dispatch import receiver
 from django.utils import timezone
 
+from src.apps.common import constants
 from src.domain.asset.commands import CreateAssetFromFile
 from src.domain.asset.entities import Asset
 from src.libs.common_domain import aggregate_repository
 from src.libs.django_utils.storage import storage_utils
 from src.libs.python_utils.files import file_utils
-from src.libs.python_utils.id.id_utils import generate_id
 
-from src.apps.common import constants
 assets_root = constants.ASSETS_ROOT
 
 
@@ -23,7 +21,7 @@ def create_asset_from_file(_aggregate_repository=None, **kwargs):
   file = command.file
   file_name = file.name
 
-  asset_id = generate_id()
+  asset_id = command.id
   system_created_date = timezone.now()
 
   asset_id_with_ext = _generate_asset_id_from_filename(asset_id, file_name)
@@ -39,11 +37,7 @@ def create_asset_from_file(_aggregate_repository=None, **kwargs):
   with transaction.atomic():
     _aggregate_repository.save(asset, -1)
     _save_file_to_storage(path, file)
-
-  # commands typically shouldn't return an object but we're explicitly calling this function from the API
-  # and need the return aggregate
-  return asset
-
+    
 
 def _generate_asset_id_from_filename(asset_id, filename, _file_utils=None):
   if not _file_utils: _file_utils = file_utils

@@ -1,6 +1,5 @@
 import logging
 
-from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import status
 from rest_framework.decorators import api_view, parser_classes
@@ -14,10 +13,10 @@ from src.domain.agreement.commands import UpdateAgreementAttrs, DeleteAgreement,
 from src.domain.agreement.entities import Agreement
 from src.domain.asset import command_handlers as asset_command_handlers
 from src.domain.asset.commands import CreateAssetFromFile
-from src.domain.potential_agreement import command_handlers as potential_agreement_command_handlers
 from src.domain.potential_agreement.commands import CreatePotentialAgreement, CompletePotentialAgreement
 from src.libs.common_domain import dispatcher, aggregate_repository
 from src.libs.datetime_utils import datetime_utils
+from src.libs.python_utils.id.id_utils import generate_id
 
 logger = logging.getLogger(__name__)
 
@@ -25,8 +24,7 @@ logger = logging.getLogger(__name__)
 @api_view(['POST'])
 def agreement_create_view(request,
                           _agreement_translation_service=None,
-                          _asset_command_handler=None,
-                          _potential_agreement_command_handler=None,
+                          _dispatcher=None,
                           _realtime_agreement_service=None):
   # this method should be considered internal and no public api call should be allowed to pass in a file for an agreement
   # refer to https://app.asana.com/0/10235149247655/46476660493804
@@ -36,8 +34,7 @@ def agreement_create_view(request,
   # https://app.asana.com/0/10235149247655/97940309429278
 
   if not _agreement_translation_service: _agreement_translation_service = agreement_translation_service
-  if not _asset_command_handler: _asset_command_handler = asset_command_handlers
-  if not _potential_agreement_command_handler: _potential_agreement_command_handler = potential_agreement_command_handlers
+  if not _dispatcher: _dispatcher = dispatcher
   if not _realtime_agreement_service: _realtime_agreement_service = realtime_agreement_service
 
   try:
@@ -48,19 +45,19 @@ def agreement_create_view(request,
     # do this task first because persisting the asset will alter the file (name, etc.)
     agreement_data = _agreement_translation_service.get_agreement_info_from_files(artifact_files)
 
-    assets = [
-      _asset_command_handler.create_asset_from_file(**{'command': CreateAssetFromFile(constants.ARTIFACTS_ROOT, file)})
-      for file in artifact_files
-      ]
+    assets = [(generate_id(), file) for file in artifact_files]
+    for asset in assets:
+      command = CreateAssetFromFile(asset[0], constants.ARTIFACTS_ROOT, asset[1])
+      _dispatcher.send_command(-1, command)
 
-    asset_ids = [asset.id for asset in assets]
-
-    command = CreatePotentialAgreement(agreement_data[constants.AGREEMENT_NAME], asset_ids, request.user.id)
-    pa = _potential_agreement_command_handler.create_potential_agreement(**{'command': command})
-    pa_data = {'id': pa.id}
+    asset_ids = [asset[0] for asset in assets]
+    pa_id = generate_id()
+    command = CreatePotentialAgreement(pa_id, agreement_data[constants.AGREEMENT_NAME], asset_ids, request.user.id)
+    _dispatcher.send_command(-1, command)
+    pa_data = {'id': pa_id}
 
     # https://app.asana.com/0/10235149247655/97984861912448
-    _realtime_agreement_service.save_agreement_edit_in_firebase(pa.id, name=command.name, user_id=command.user_id)
+    _realtime_agreement_service.save_agreement_edit_in_firebase(pa_id, name=command.name, user_id=command.user_id)
 
   except Exception as e:
     logger.warn("Error creating agreement: {0}".format(request.data), exc_info=True)

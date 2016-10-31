@@ -13,12 +13,8 @@ def create_agreement_type(_aggregate_repository=None, **kwargs):
   command = kwargs['command']
 
   system_created_date = timezone.now()
-  id = generate_id()
+  id = command.id
   data = dict({'system_created_date': system_created_date, 'id': id}, **command.__dict__)
 
   at = AgreementType.from_attrs(**data)
   _aggregate_repository.save(at, -1)
-
-  # commands typically shouldn't return an object but we're explicitly calling this function from the API
-  # and need the return aggregate
-  return at

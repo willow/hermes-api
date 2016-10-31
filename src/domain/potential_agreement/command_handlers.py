@@ -19,10 +19,6 @@ def create_potential_agreement(_aggregate_repository=None, **kwargs):
   pa = PotentialAgreement.from_attrs(**data)
   _aggregate_repository.save(pa, -1)
 
-  # commands typically shouldn't return an object but we're explicitly calling this function from the API
-  # and need the return aggregate
-  return pa
-
 
 @receiver(CompletePotentialAgreement.command_signal)
 def complete_potential_agreement(_aggregate_repository=None, **kwargs):
